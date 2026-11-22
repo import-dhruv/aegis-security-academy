@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Next.js
+.next/
+out/
+build/
+*.tsbuildinfo
+
+# Production / local env
+.env
+.env.*.local
+!.env.example
+
+# Python backend
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# Tooling / OS
+.vercel/
+.turbo/
+*.log
+.DS_Store
+Thumbs.db

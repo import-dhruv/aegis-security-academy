@@ -1,0 +1,180 @@
+[
+  {
+    "id": "lab-portswigger",
+    "title": "PortSwigger Web Security Academy",
+    "provider": "PortSwigger",
+    "difficulty": "Beginner → Advanced",
+    "type": "External guided labs",
+    "url": "https://portswigger.net/web-security",
+    "skills": [
+      "SQLi",
+      "XSS",
+      "CSRF",
+      "SSRF",
+      "CORS",
+      "JWT",
+      "request smuggling"
+    ],
+    "note": "Free, browser-based, intentionally vulnerable. Each topic has explanatory material plus hands-on labs. Use your own account."
+  },
+  {
+    "id": "lab-juice-shop",
+    "title": "OWASP Juice Shop",
+    "provider": "OWASP",
+    "difficulty": "Beginner → Intermediate",
+    "type": "Local container",
+    "url": "https://owasp.org/www-project-juice-shop/",
+    "skills": [
+      "OWASP Top 10",
+      "API",
+      "frontend",
+      "tracking"
+    ],
+    "note": "Run in Docker locally: docker run --rm -p 3000:3000 bkimminich/juice-shop. Isolate it from networks you do not own."
+  },
+  {
+    "id": "lab-dvwa",
+    "title": "DVWA — Damn Vulnerable Web Application",
+    "provider": "DVWA Project",
+    "difficulty": "Beginner",
+    "type": "Local VM / container",
+    "url": "https://dvwa.co.uk/",
+    "skills": [
+      "SQLi",
+      "XSS",
+      "CSRF",
+      "file inclusion",
+      "command injection"
+    ],
+    "note": "Set difficulty levels progressively. Keep it on a host-only network."
+  },
+  {
+    "id": "lab-webgoat",
+    "title": "OWASP WebGoat",
+    "provider": "OWASP",
+    "difficulty": "Beginner → Intermediate",
+    "type": "Local container",
+    "url": "https://owasp.org/www-project-webgoat/",
+    "skills": [
+      "OWASP Top 10",
+      "lesson format"
+    ],
+    "note": "Structured lessons with built-in assessment. Run locally only."
+  },
+  {
+    "id": "lab-crapi",
+    "title": "crAPI — Completely Ridiculous API",
+    "provider": "OWASP",
+    "difficulty": "Intermediate",
+    "type": "Local container",
+    "url": "https://github.com/OWASP/crAPI",
+    "skills": [
+      "BOLA",
+      "BFLA",
+      "JWT",
+      "rate limiting",
+      "mass assignment"
+    ],
+    "note": "Purpose-built API security lab. Follow the official docker-compose setup."
+  },
+  {
+    "id": "lab-dvga",
+    "title": "Damn Vulnerable GraphQL Application",
+    "provider": "Community",
+    "difficulty": "Intermediate",
+    "type": "Local container",
+    "url": "https://github.com/dolevf/Damn-Vulnerable-GraphQL-Application",
+    "skills": [
+      "GraphQL introspection",
+      "authorization",
+      "DoS"
+    ],
+    "note": "Use for GraphQL-specific authorization and query-abuse practice."
+  },
+  {
+    "id": "lab-overthewire",
+    "title": "OverTheWire",
+    "provider": "OverTheWire",
+    "difficulty": "Beginner → Advanced",
+    "type": "Remote wargame",
+    "url": "https://overthewire.org/wargames/",
+    "skills": [
+      "Linux",
+      "shell",
+      "binary",
+      "networking"
+    ],
+    "note": "Bandit for Linux basics, Narnia/Behemoth for binary fundamentals. Authorized by the platform."
+  },
+  {
+    "id": "lab-picoctf",
+    "title": "picoCTF",
+    "provider": "CMU",
+    "difficulty": "Beginner → Intermediate",
+    "type": "CTF platform",
+    "url": "https://picoctf.org/",
+    "skills": [
+      "broad CTF",
+      "web",
+      "crypto",
+      "forensics"
+    ],
+    "note": "Free yearly competition and practice archive with a beginner-friendly ramp."
+  },
+  {
+    "id": "lab-htb",
+    "title": "Hack The Box Academy",
+    "provider": "Hack The Box",
+    "difficulty": "Beginner → Advanced",
+    "type": "Platform",
+    "url": "https://academy.hackthebox.com/",
+    "skills": [
+      "structured paths",
+      "labs"
+    ],
+    "note": "Free introductory modules; paid tiers for deeper paths. Follow platform rules."
+  },
+  {
+    "id": "lab-thm",
+    "title": "TryHackMe",
+    "provider": "TryHackMe",
+    "difficulty": "Beginner → Advanced",
+    "type": "Platform",
+    "url": "https://tryhackme.com/",
+    "skills": [
+      "guided paths",
+      "prebuilt rooms"
+    ],
+    "note": "Browser-based guided rooms with a free tier."
+  },
+  {
+    "id": "lab-god",
+    "title": "Google Gruyere",
+    "provider": "Google",
+    "difficulty": "Beginner",
+    "type": "Hosted training app",
+    "url": "https://google-gruyere.appspot.com/",
+    "skills": [
+      "XSS",
+      "CSRF",
+      "SQLi",
+      "AJAX"
+    ],
+    "note": "Classic deliberately buggy application with an accompanying tutorial."
+  },
+  {
+    "id": "lab-local",
+    "title": "Build Your Own Lab (Chapter 28)",
+    "provider": "Aegis Academy",
+    "difficulty": "All levels",
+    "type": "Original local lab",
+    "url": "/learn/chapter-28",
+    "skills": [
+      "VMs",
+      "Docker",
+      "snapshots",
+      "isolation"
+    ],
+    "note": "Follow Chapter 28 to build an isolated virtual lab before running any vulnerable application."
+  }
+]

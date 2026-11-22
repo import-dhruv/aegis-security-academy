@@ -1,0 +1,3978 @@
+[
+  {
+    "id": 1,
+    "slug": "chapter-01",
+    "title": "Introduction to Cybersecurity",
+    "number": 1,
+    "part": "I — Complete Cybersecurity Foundations",
+    "description": "What cybersecurity is, the threat landscape, the CIA triad, and the ethical/legal boundary that governs every later chapter.",
+    "difficulty": "Beginner",
+    "level": 1,
+    "minutes": 35,
+    "words": 2389,
+    "sections": [
+      {
+        "id": "1-1-what-cybersecurity-actually-means",
+        "title": "1.1 What Cybersecurity Actually Means",
+        "level": 2
+      },
+      {
+        "id": "1-2-the-cia-triad-and-beyond",
+        "title": "1.2 The CIA Triad and Beyond",
+        "level": 2
+      },
+      {
+        "id": "1-3-history-and-evolution",
+        "title": "1.3 History and Evolution",
+        "level": 2
+      },
+      {
+        "id": "1-4-information-security-vs-cybersecurity",
+        "title": "1.4 Information Security vs. Cybersecurity",
+        "level": 2
+      },
+      {
+        "id": "1-5-the-disciplines-of-the-ecosystem",
+        "title": "1.5 The Disciplines of the Ecosystem",
+        "level": 2
+      },
+      {
+        "id": "offensive-security",
+        "title": "Offensive Security",
+        "level": 3
+      },
+      {
+        "id": "defensive-security",
+        "title": "Defensive Security",
+        "level": 3
+      },
+      {
+        "id": "engineering-and-governance",
+        "title": "Engineering and Governance",
+        "level": 3
+      },
+      {
+        "id": "research-and-disclosure",
+        "title": "Research and Disclosure",
+        "level": 3
+      },
+      {
+        "id": "1-6-modern-threat-landscape",
+        "title": "1.6 Modern Threat Landscape",
+        "level": 2
+      },
+      {
+        "id": "1-7-how-ai-is-changing-cybersecurity",
+        "title": "1.7 How AI Is Changing Cybersecurity",
+        "level": 2
+      },
+      {
+        "id": "1-8-career-paths",
+        "title": "1.8 Career Paths",
+        "level": 2
+      },
+      {
+        "id": "1-9-legal-and-ethical-boundaries",
+        "title": "1.9 Legal and Ethical Boundaries",
+        "level": 2
+      },
+      {
+        "id": "1-10-key-takeaways",
+        "title": "1.10 Key Takeaways",
+        "level": 2
+      },
+      {
+        "id": "1-11-references",
+        "title": "1.11 References",
+        "level": 2
+      }
+    ],
+    "schoolIds": [
+      "cybersecurity-fundamentals"
+    ],
+    "tags": [
+      "CIA triad",
+      "risk",
+      "ethics",
+      "careers"
+    ],
+    "prerequisites": [],
+    "path": "/content/chapters/ch01.md"
+  },
+  {
+    "id": 2,
+    "slug": "chapter-02",
+    "title": "Computer Science Fundamentals",
+    "number": 2,
+    "part": "I — Complete Cybersecurity Foundations",
+    "description": "Bits, number systems, CPU and memory hierarchy, processes, virtual memory, file systems, algorithms and the mathematics behind security.",
+    "difficulty": "Beginner",
+    "level": 1,
+    "minutes": 70,
+    "words": 2397,
+    "sections": [
+      {
+        "id": "2-1-why-first-principles-matter",
+        "title": "2.1 Why First Principles Matter",
+        "level": 2
+      },
+      {
+        "id": "2-2-number-systems",
+        "title": "2.2 Number Systems",
+        "level": 2
+      },
+      {
+        "id": "2-3-bits-bytes-and-memory-units",
+        "title": "2.3 Bits, Bytes, and Memory Units",
+        "level": 2
+      },
+      {
+        "id": "2-4-cpu-architecture",
+        "title": "2.4 CPU Architecture",
+        "level": 2
+      },
+      {
+        "id": "registers",
+        "title": "Registers",
+        "level": 3
+      },
+      {
+        "id": "memory-hierarchy",
+        "title": "Memory Hierarchy",
+        "level": 3
+      },
+      {
+        "id": "2-5-ram-and-virtual-memory",
+        "title": "2.5 RAM and Virtual Memory",
+        "level": 2
+      },
+      {
+        "id": "2-6-processes-and-threads",
+        "title": "2.6 Processes and Threads",
+        "level": 2
+      },
+      {
+        "id": "2-7-system-calls-and-mode-switching",
+        "title": "2.7 System Calls and Mode Switching",
+        "level": 2
+      },
+      {
+        "id": "2-8-file-systems-and-permissions",
+        "title": "2.8 File Systems and Permissions",
+        "level": 2
+      },
+      {
+        "id": "2-9-memory-allocation-stack-and-heap",
+        "title": "2.9 Memory Allocation: Stack and Heap",
+        "level": 2
+      },
+      {
+        "id": "2-10-compilers-interpreters-and-assembly",
+        "title": "2.10 Compilers, Interpreters, and Assembly",
+        "level": 2
+      },
+      {
+        "id": "2-11-data-structures-algorithms-and-complexity",
+        "title": "2.11 Data Structures, Algorithms, and Complexity",
+        "level": 2
+      },
+      {
+        "id": "2-12-operating-system-architecture",
+        "title": "2.12 Operating System Architecture",
+        "level": 2
+      },
+      {
+        "id": "2-13-how-these-concepts-influence-security",
+        "title": "2.13 How These Concepts Influence Security",
+        "level": 2
+      },
+      {
+        "id": "2-14-exercises",
+        "title": "2.14 Exercises",
+        "level": 2
+      },
+      {
+        "id": "2-15-key-takeaways",
+        "title": "2.15 Key Takeaways",
+        "level": 2
+      },
+      {
+        "id": "2-16-references",
+        "title": "2.16 References",
+        "level": 2
+      }
+    ],
+    "schoolIds": [
+      "computer-science-foundations",
+      "cryptography-applied-security"
+    ],
+    "tags": [
+      "bits",
+      "CPU",
+      "memory",
+      "OS",
+      "math"
+    ],
+    "prerequisites": [
+      1
+    ],
+    "path": "/content/chapters/ch02.md"
+  },
+  {
+    "id": 3,
+    "slug": "chapter-03",
+    "title": "Linux Mastery for Security Researchers",
+    "number": 3,
+    "part": "I — Complete Cybersecurity Foundations",
+    "description": "Linux filesystem, users, permissions, SUID, capabilities, processes, services, logging and the security model you will use in every lab.",
+    "difficulty": "Beginner",
+    "level": 2,
+    "minutes": 75,
+    "words": 1788,
+    "sections": [
+      {
+        "id": "3-1-why-linux-matters",
+        "title": "3.1 Why Linux Matters",
+        "level": 2
+      },
+      {
+        "id": "3-2-linux-architecture",
+        "title": "3.2 Linux Architecture",
+        "level": 2
+      },
+      {
+        "id": "3-3-terminal-mastery",
+        "title": "3.3 Terminal Mastery",
+        "level": 2
+      },
+      {
+        "id": "3-4-bash-scripting-fundamentals",
+        "title": "3.4 Bash Scripting Fundamentals",
+        "level": 2
+      },
+      {
+        "id": "3-5-users-groups-and-permissions",
+        "title": "3.5 Users, Groups, and Permissions",
+        "level": 2
+      },
+      {
+        "id": "3-6-processes-and-services",
+        "title": "3.6 Processes and Services",
+        "level": 2
+      },
+      {
+        "id": "3-7-networking-commands",
+        "title": "3.7 Networking Commands",
+        "level": 2
+      },
+      {
+        "id": "3-8-package-management",
+        "title": "3.8 Package Management",
+        "level": 2
+      },
+      {
+        "id": "3-9-ssh",
+        "title": "3.9 SSH",
+        "level": 2
+      },
+      {
+        "id": "3-10-cron-and-environment-variables",
+        "title": "3.10 Cron and Environment Variables",
+        "level": 2
+      },
+      {
+        "id": "3-11-logs-and-monitoring",
+        "title": "3.11 Logs and Monitoring",
+        "level": 2
+      },
+      {
+        "id": "3-12-linux-security-mechanisms",
+        "title": "3.12 Linux Security Mechanisms",
+        "level": 2
+      },
+      {
+        "id": "3-13-kernel-fundamentals",
+        "title": "3.13 Kernel Fundamentals",
+        "level": 2
+      },
+      {
+        "id": "3-14-practical-exercises-do-these-in-a-lab",
+        "title": "3.14 Practical Exercises (Do These in a Lab)",
+        "level": 2
+      },
+      {
+        "id": "3-15-key-takeaways",
+        "title": "3.15 Key Takeaways",
+        "level": 2
+      },
+      {
+        "id": "3-16-references",
+        "title": "3.16 References",
+        "level": 2
+      }
+    ],
+    "schoolIds": [
+      "computer-science-foundations",
+      "linux-windows-security"
+    ],
+    "tags": [
+      "Linux",
+      "shell",
+      "permissions",
+      "privilege"
+    ],
+    "prerequisites": [
+      1,
+      2
+    ],
+    "path": "/content/chapters/ch03.md"
+  },
+  {
+    "id": 4,
+    "slug": "chapter-04",
+    "title": "Networking Fundamentals",
+    "number": 4,
+    "part": "I — Complete Cybersecurity Foundations",
+    "description": "OSI and TCP/IP from first principles: Ethernet, IP, ARP, TCP, UDP, DNS, NAT, HTTP, TLS, and how to inspect real traffic.",
+    "difficulty": "Beginner",
+    "level": 2,
+    "minutes": 85,
+    "words": 2111,
+    "sections": [
+      {
+        "id": "4-1-networking-from-absolute-zero",
+        "title": "4.1 Networking from Absolute Zero",
+        "level": 2
+      },
+      {
+        "id": "4-2-the-osi-and-tcp-ip-models",
+        "title": "4.2 The OSI and TCP/IP Models",
+        "level": 2
+      },
+      {
+        "id": "4-3-ethernet-and-mac-addresses",
+        "title": "4.3 Ethernet and MAC Addresses",
+        "level": 2
+      },
+      {
+        "id": "4-4-ip-addressing-ipv4-ipv6",
+        "title": "4.4 IP Addressing, IPv4, IPv6",
+        "level": 2
+      },
+      {
+        "id": "4-5-dns-dhcp-and-icmp",
+        "title": "4.5 DNS, DHCP, and ICMP",
+        "level": 2
+      },
+      {
+        "id": "4-6-tcp-and-udp",
+        "title": "4.6 TCP and UDP",
+        "level": 2
+      },
+      {
+        "id": "4-7-http-and-https",
+        "title": "4.7 HTTP and HTTPS",
+        "level": 2
+      },
+      {
+        "id": "4-8-routing-nat-firewalls-proxies-vpns",
+        "title": "4.8 Routing, NAT, Firewalls, Proxies, VPNs",
+        "level": 2
+      },
+      {
+        "id": "4-9-ports-sockets-and-packet-inspection",
+        "title": "4.9 Ports, Sockets, and Packet Inspection",
+        "level": 2
+      },
+      {
+        "id": "4-10-how-vulnerabilities-emerge-from-networking-concepts",
+        "title": "4.10 How Vulnerabilities Emerge from Networking Concepts",
+        "level": 2
+      },
+      {
+        "id": "4-11-essential-tools-overview-detailed-in-chapter-16",
+        "title": "4.11 Essential Tools (Overview — detailed in Chapter 16)",
+        "level": 2
+      },
+      {
+        "id": "4-12-exercises",
+        "title": "4.12 Exercises",
+        "level": 2
+      },
+      {
+        "id": "4-13-key-takeaways",
+        "title": "4.13 Key Takeaways",
+        "level": 2
+      },
+      {
+        "id": "4-14-references",
+        "title": "4.14 References",
+        "level": 2
+      }
+    ],
+    "schoolIds": [
+      "networking-internet-architecture"
+    ],
+    "tags": [
+      "TCP/IP",
+      "DNS",
+      "HTTP",
+      "TLS",
+      "Wireshark"
+    ],
+    "prerequisites": [
+      2
+    ],
+    "path": "/content/chapters/ch04.md"
+  },
+  {
+    "id": 5,
+    "slug": "chapter-05",
+    "title": "Python for Cybersecurity",
+    "number": 5,
+    "part": "II — Programming for Security Researchers",
+    "description": "Python for security research: data structures, file and JSON handling, regex, HTTP clients, sockets and defensive tooling patterns.",
+    "difficulty": "Beginner",
+    "level": 2,
+    "minutes": 80,
+    "words": 1273,
+    "sections": [
+      {
+        "id": "5-1-why-python",
+        "title": "5.1 Why Python",
+        "level": 2
+      },
+      {
+        "id": "5-2-fundamentals",
+        "title": "5.2 Fundamentals",
+        "level": 2
+      },
+      {
+        "id": "5-3-regular-expressions",
+        "title": "5.3 Regular Expressions",
+        "level": 2
+      },
+      {
+        "id": "5-4-files-json-and-xml",
+        "title": "5.4 Files, JSON, and XML",
+        "level": 2
+      },
+      {
+        "id": "5-5-http-requests",
+        "title": "5.5 HTTP Requests",
+        "level": 2
+      },
+      {
+        "id": "5-6-socket-programming",
+        "title": "5.6 Socket Programming",
+        "level": 2
+      },
+      {
+        "id": "5-7-concurrency",
+        "title": "5.7 Concurrency",
+        "level": 2
+      },
+      {
+        "id": "5-8-apis-and-web-scraping",
+        "title": "5.8 APIs and Web Scraping",
+        "level": 2
+      },
+      {
+        "id": "5-9-security-specific-libraries",
+        "title": "5.9 Security-Specific Libraries",
+        "level": 2
+      },
+      {
+        "id": "5-10-practical-projects-build-each-in-a-lab",
+        "title": "5.10 Practical Projects (Build Each in a Lab)",
+        "level": 2
+      },
+      {
+        "id": "project-1-http-security-header-analyzer",
+        "title": "Project 1: HTTP Security Header Analyzer",
+        "level": 3
+      },
+      {
+        "id": "project-2-url-parser",
+        "title": "Project 2: URL Parser",
+        "level": 3
+      },
+      {
+        "id": "project-3-dns-lookup-utility",
+        "title": "Project 3: DNS Lookup Utility",
+        "level": 3
+      },
+      {
+        "id": "project-4-log-analyzer",
+        "title": "Project 4: Log Analyzer",
+        "level": 3
+      },
+      {
+        "id": "project-5-local-port-scanner",
+        "title": "Project 5: Local Port Scanner",
+        "level": 3
+      },
+      {
+        "id": "project-6-subdomain-enumeration-authorized-datasets",
+        "title": "Project 6: Subdomain Enumeration (Authorized Datasets)",
+        "level": 3
+      },
+      {
+        "id": "project-7-security-header-checker-ci-version",
+        "title": "Project 7: Security Header Checker (CI Version)",
+        "level": 3
+      },
+      {
+        "id": "project-8-basic-vulnerability-verification-utility",
+        "title": "Project 8: Basic Vulnerability Verification Utility",
+        "level": 3
+      },
+      {
+        "id": "5-11-common-mistakes",
+        "title": "5.11 Common Mistakes",
+        "level": 2
+      },
+      {
+        "id": "5-12-key-takeaways",
+        "title": "5.12 Key Takeaways",
+        "level": 2
+      },
+      {
+        "id": "5-13-references",
+        "title": "5.13 References",
+        "level": 2
+      }
+    ],
+    "schoolIds": [
+      "computer-science-foundations"
+    ],
+    "tags": [
+      "Python",
+      "scripting",
+      "automation"
+    ],
+    "prerequisites": [
+      2
+    ],
+    "path": "/content/chapters/ch05.md"
+  },
+  {
+    "id": 6,
+    "slug": "chapter-06",
+    "title": "JavaScript and Web Programming",
+    "number": 6,
+    "part": "II — Programming for Security Researchers",
+    "description": "HTML, CSS, JavaScript, the DOM and the browser security model: SOP, CORS, CSP, cookies and storage.",
+    "difficulty": "Beginner",
+    "level": 3,
+    "minutes": 70,
+    "words": 1151,
+    "sections": [
+      {
+        "id": "6-1-the-web-platform",
+        "title": "6.1 The Web Platform",
+        "level": 2
+      },
+      {
+        "id": "6-2-javascript-fundamentals",
+        "title": "6.2 JavaScript Fundamentals",
+        "level": 2
+      },
+      {
+        "id": "6-3-the-dom-and-browser-execution",
+        "title": "6.3 The DOM and Browser Execution",
+        "level": 2
+      },
+      {
+        "id": "6-4-browser-security-model",
+        "title": "6.4 Browser Security Model",
+        "level": 2
+      },
+      {
+        "id": "same-origin-policy-sop",
+        "title": "Same-Origin Policy (SOP)",
+        "level": 3
+      },
+      {
+        "id": "cors-cross-origin-resource-sharing",
+        "title": "CORS (Cross-Origin Resource Sharing)",
+        "level": 3
+      },
+      {
+        "id": "cookies-and-sessions",
+        "title": "Cookies and Sessions",
+        "level": 3
+      },
+      {
+        "id": "web-storage",
+        "title": "Web Storage",
+        "level": 3
+      },
+      {
+        "id": "fetch-ajax-websockets-service-workers",
+        "title": "Fetch, AJAX, WebSockets, Service Workers",
+        "level": 3
+      },
+      {
+        "id": "6-5-frontend-frameworks",
+        "title": "6.5 Frontend Frameworks",
+        "level": 2
+      },
+      {
+        "id": "6-6-node-js-and-express",
+        "title": "6.6 Node.js and Express",
+        "level": 2
+      },
+      {
+        "id": "6-7-how-web-development-knowledge-reveals-vulnerabilities",
+        "title": "6.7 How Web Development Knowledge Reveals Vulnerabilities",
+        "level": 2
+      },
+      {
+        "id": "6-8-exercises",
+        "title": "6.8 Exercises",
+        "level": 2
+      },
+      {
+        "id": "6-9-key-takeaways",
+        "title": "6.9 Key Takeaways",
+        "level": 2
+      },
+      {
+        "id": "6-10-references",
+        "title": "6.10 References",
+        "level": 2
+      }
+    ],
+    "schoolIds": [
+      "web-development-architecture"
+    ],
+    "tags": [
+      "HTML",
+      "CSS",
+      "JavaScript",
+      "browser"
+    ],
+    "prerequisites": [
+      4,
+      5
+    ],
+    "path": "/content/chapters/ch06.md"
+  },
+  {
+    "id": 7,
+    "slug": "chapter-07",
+    "title": "Backend, Databases, and APIs",
+    "number": 7,
+    "part": "II — Programming for Security Researchers",
+    "description": "Backend architecture, SQL and NoSQL databases, REST APIs, sessions, JWT, OAuth 2.0 and the full request lifecycle.",
+    "difficulty": "Intermediate",
+    "level": 3,
+    "minutes": 80,
+    "words": 1230,
+    "sections": [
+      {
+        "id": "7-1-backend-architecture",
+        "title": "7.1 Backend Architecture",
+        "level": 2
+      },
+      {
+        "id": "7-2-api-styles",
+        "title": "7.2 API Styles",
+        "level": 2
+      },
+      {
+        "id": "rest",
+        "title": "REST",
+        "level": 3
+      },
+      {
+        "id": "graphql",
+        "title": "GraphQL",
+        "level": 3
+      },
+      {
+        "id": "grpc",
+        "title": "gRPC",
+        "level": 3
+      },
+      {
+        "id": "7-3-authentication-vs-authorization",
+        "title": "7.3 Authentication vs. Authorization",
+        "level": 2
+      },
+      {
+        "id": "7-4-oauth-2-0-and-openid-connect",
+        "title": "7.4 OAuth 2.0 and OpenID Connect",
+        "level": 2
+      },
+      {
+        "id": "7-5-jwt-json-web-tokens",
+        "title": "7.5 JWT (JSON Web Tokens)",
+        "level": 2
+      },
+      {
+        "id": "7-6-sql-and-databases",
+        "title": "7.6 SQL and Databases",
+        "level": 2
+      },
+      {
+        "id": "7-7-other-backend-concepts",
+        "title": "7.7 Other Backend Concepts",
+        "level": 2
+      },
+      {
+        "id": "7-8-common-backend-security-mistakes",
+        "title": "7.8 Common Backend Security Mistakes",
+        "level": 2
+      },
+      {
+        "id": "7-9-exercises",
+        "title": "7.9 Exercises",
+        "level": 2
+      },
+      {
+        "id": "7-10-key-takeaways",
+        "title": "7.10 Key Takeaways",
+        "level": 2
+      },
+      {
+        "id": "7-11-references",
+        "title": "7.11 References",
+        "level": 2
+      }
+    ],
+    "schoolIds": [
+      "web-development-architecture",
+      "api-security-research"
+    ],
+    "tags": [
+      "REST",
+      "SQL",
+      "auth",
+      "JWT",
+      "OAuth"
+    ],
+    "prerequisites": [
+      5,
+      6
+    ],
+    "path": "/content/chapters/ch07.md"
+  },
+  {
+    "id": 8,
+    "slug": "chapter-08",
+    "title": "Web Security Architecture",
+    "number": 8,
+    "part": "III — Web Application Security Mastery",
+    "description": "How the web is assembled: HTTP semantics, TLS, proxies, CDNs, browser isolation, cookies and content security policy.",
+    "difficulty": "Intermediate",
+    "level": 3,
+    "minutes": 70,
+    "words": 1144,
+    "sections": [
+      {
+        "id": "8-1-the-modern-web-stack",
+        "title": "8.1 The Modern Web Stack",
+        "level": 2
+      },
+      {
+        "id": "8-2-request-response-lifecycle",
+        "title": "8.2 Request--Response Lifecycle",
+        "level": 2
+      },
+      {
+        "id": "8-3-http-methods-headers-status-codes",
+        "title": "8.3 HTTP Methods, Headers, Status Codes",
+        "level": 2
+      },
+      {
+        "id": "8-4-cookies-and-sessions",
+        "title": "8.4 Cookies and Sessions",
+        "level": 2
+      },
+      {
+        "id": "8-5-authentication-flows",
+        "title": "8.5 Authentication Flows",
+        "level": 2
+      },
+      {
+        "id": "8-6-authorization-models",
+        "title": "8.6 Authorization Models",
+        "level": 2
+      },
+      {
+        "id": "8-7-security-boundaries-diagram",
+        "title": "8.7 Security Boundaries Diagram",
+        "level": 2
+      },
+      {
+        "id": "8-8-case-study-tracing-a-login",
+        "title": "8.8 Case Study: Tracing a Login",
+        "level": 2
+      },
+      {
+        "id": "8-9-exercises",
+        "title": "8.9 Exercises",
+        "level": 2
+      },
+      {
+        "id": "8-10-key-takeaways",
+        "title": "8.10 Key Takeaways",
+        "level": 2
+      },
+      {
+        "id": "8-11-references",
+        "title": "8.11 References",
+        "level": 2
+      }
+    ],
+    "schoolIds": [
+      "web-development-architecture",
+      "cryptography-applied-security",
+      "web-application-security"
+    ],
+    "tags": [
+      "HTTP",
+      "TLS",
+      "cookies",
+      "CSP",
+      "SOP"
+    ],
+    "prerequisites": [
+      4,
+      7
+    ],
+    "path": "/content/chapters/ch08.md"
+  },
+  {
+    "id": 9,
+    "slug": "chapter-09",
+    "title": "OWASP Top 10 and Beyond",
+    "number": 9,
+    "part": "III — Web Application Security Mastery",
+    "description": "The complete OWASP Top 10 with root causes, exploitation mechanics, detection methods and defences for every major web vulnerability class.",
+    "difficulty": "Intermediate",
+    "level": 4,
+    "minutes": 130,
+    "words": 4493,
+    "sections": [
+      {
+        "id": "9-1-the-owasp-top-10-2025",
+        "title": "9.1 The OWASP Top 10:2025",
+        "level": 2
+      },
+      {
+        "id": "9-2-the-research-template",
+        "title": "9.2 The Research Template",
+        "level": 2
+      },
+      {
+        "id": "9-3-broken-access-control-idor-bola-bfla-privilege-escalation",
+        "title": "9.3 Broken Access Control: IDOR, BOLA, BFLA, Privilege Escalation",
+        "level": 2
+      },
+      {
+        "id": "9-4-injection-sql-injection",
+        "title": "9.4 Injection: SQL Injection",
+        "level": 2
+      },
+      {
+        "id": "9-5-cross-site-scripting-xss",
+        "title": "9.5 Cross-Site Scripting (XSS)",
+        "level": 2
+      },
+      {
+        "id": "9-6-cross-site-request-forgery-csrf",
+        "title": "9.6 Cross-Site Request Forgery (CSRF)",
+        "level": 2
+      },
+      {
+        "id": "9-7-server-side-request-forgery-ssrf",
+        "title": "9.7 Server-Side Request Forgery (SSRF)",
+        "level": 2
+      },
+      {
+        "id": "9-8-file-upload-and-remote-code-execution",
+        "title": "9.8 File Upload and Remote Code Execution",
+        "level": 2
+      },
+      {
+        "id": "9-9-xml-external-entity-xxe",
+        "title": "9.9 XML External Entity (XXE)",
+        "level": 2
+      },
+      {
+        "id": "9-10-path-traversal-and-lfi-rfi",
+        "title": "9.10 Path Traversal and LFI/RFI",
+        "level": 2
+      },
+      {
+        "id": "9-11-insecure-deserialization",
+        "title": "9.11 Insecure Deserialization",
+        "level": 2
+      },
+      {
+        "id": "9-12-command-and-template-injection",
+        "title": "9.12 Command and Template Injection",
+        "level": 2
+      },
+      {
+        "id": "9-13-open-redirects-and-host-header-injection",
+        "title": "9.13 Open Redirects and Host Header Injection",
+        "level": 2
+      },
+      {
+        "id": "9-14-http-request-smuggling-and-cache-poisoning",
+        "title": "9.14 HTTP Request Smuggling and Cache Poisoning",
+        "level": 2
+      },
+      {
+        "id": "9-15-race-conditions",
+        "title": "9.15 Race Conditions",
+        "level": 2
+      },
+      {
+        "id": "9-16-business-logic-vulnerabilities",
+        "title": "9.16 Business Logic Vulnerabilities",
+        "level": 2
+      },
+      {
+        "id": "9-17-prototype-pollution",
+        "title": "9.17 Prototype Pollution",
+        "level": 2
+      },
+      {
+        "id": "9-18-cryptographic-failures-misconfiguration-integrity-logging-exceptional-conditions",
+        "title": "9.18 Cryptographic Failures, Misconfiguration, Integrity, Logging, Exceptional Conditions",
+        "level": 2
+      },
+      {
+        "id": "9-19-subdomain-takeover",
+        "title": "9.19 Subdomain Takeover",
+        "level": 2
+      },
+      {
+        "id": "9-20-cross-cutting-methodology-from-signal-to-finding",
+        "title": "9.20 Cross-Cutting Methodology: From Signal to Finding",
+        "level": 2
+      },
+      {
+        "id": "9-21-key-takeaways",
+        "title": "9.21 Key Takeaways",
+        "level": 2
+      },
+      {
+        "id": "9-22-references",
+        "title": "9.22 References",
+        "level": 2
+      }
+    ],
+    "schoolIds": [
+      "web-application-security"
+    ],
+    "tags": [
+      "OWASP",
+      "injection",
+      "XSS",
+      "SSRF",
+      "access control"
+    ],
+    "prerequisites": [
+      6,
+      7,
+      8
+    ],
+    "path": "/content/chapters/ch09.md"
+  },
+  {
+    "id": 10,
+    "slug": "chapter-10",
+    "title": "Advanced Web Exploitation Concepts",
+    "number": 10,
+    "part": "III — Web Application Security Mastery",
+    "description": "Advanced web exploitation: request smuggling, cache attacks, host header abuse, deserialization, prototype pollution, SSTI and race conditions.",
+    "difficulty": "Advanced",
+    "level": 6,
+    "minutes": 120,
+    "words": 1376,
+    "sections": [
+      {
+        "id": "10-1-thinking-in-chains",
+        "title": "10.1 Thinking in Chains",
+        "level": 2
+      },
+      {
+        "id": "10-2-authentication-bypass-research",
+        "title": "10.2 Authentication Bypass Research",
+        "level": 2
+      },
+      {
+        "id": "10-3-authorization-logic-analysis",
+        "title": "10.3 Authorization Logic Analysis",
+        "level": 2
+      },
+      {
+        "id": "10-4-desync-and-request-smuggling-theory",
+        "title": "10.4 Desync and Request Smuggling Theory",
+        "level": 2
+      },
+      {
+        "id": "10-5-cache-behavior-analysis",
+        "title": "10.5 Cache Behavior Analysis",
+        "level": 2
+      },
+      {
+        "id": "10-6-race-condition-research",
+        "title": "10.6 Race Condition Research",
+        "level": 2
+      },
+      {
+        "id": "10-7-prototype-pollution-deep-dive",
+        "title": "10.7 Prototype Pollution Deep Dive",
+        "level": 2
+      },
+      {
+        "id": "10-8-advanced-ssrf",
+        "title": "10.8 Advanced SSRF",
+        "level": 2
+      },
+      {
+        "id": "10-9-oauth-and-jwt-implementation-flaws",
+        "title": "10.9 OAuth and JWT Implementation Flaws",
+        "level": 2
+      },
+      {
+        "id": "10-10-websocket-and-graphql-security",
+        "title": "10.10 WebSocket and GraphQL Security",
+        "level": 2
+      },
+      {
+        "id": "10-11-multi-tenant-isolation-failures",
+        "title": "10.11 Multi-Tenant Isolation Failures",
+        "level": 2
+      },
+      {
+        "id": "10-12-chained-case-study-fictional",
+        "title": "10.12 Chained Case Study (Fictional)",
+        "level": 2
+      },
+      {
+        "id": "10-13-reporting-complex-chains",
+        "title": "10.13 Reporting Complex Chains",
+        "level": 2
+      },
+      {
+        "id": "10-14-key-takeaways",
+        "title": "10.14 Key Takeaways",
+        "level": 2
+      },
+      {
+        "id": "10-15-references",
+        "title": "10.15 References",
+        "level": 2
+      }
+    ],
+    "schoolIds": [
+      "web-application-security"
+    ],
+    "tags": [
+      "smuggling",
+      "cache poisoning",
+      "prototype pollution",
+      "SSTI"
+    ],
+    "prerequisites": [
+      9
+    ],
+    "path": "/content/chapters/ch10.md"
+  },
+  {
+    "id": 11,
+    "slug": "chapter-11",
+    "title": "Introduction to Bug Bounty Hunting",
+    "number": 11,
+    "part": "IV — Bug Bounty Professional Mastery",
+    "description": "What bug bounty is, how platforms operate, program policies, and the mindset of a professional researcher.",
+    "difficulty": "Beginner",
+    "level": 4,
+    "minutes": 55,
+    "words": 762,
+    "sections": [
+      {
+        "id": "11-1-what-bug-bounty-programs-are",
+        "title": "11.1 What Bug Bounty Programs Are",
+        "level": 2
+      },
+      {
+        "id": "11-2-public-vs-private-programs",
+        "title": "11.2 Public vs. Private Programs",
+        "level": 2
+      },
+      {
+        "id": "11-3-economics-and-rewards",
+        "title": "11.3 Economics and Rewards",
+        "level": 2
+      },
+      {
+        "id": "11-4-severity-cvss-cwe-cve",
+        "title": "11.4 Severity, CVSS, CWE, CVE",
+        "level": 2
+      },
+      {
+        "id": "11-5-triage-duplicates-and-outcomes",
+        "title": "11.5 Triage, Duplicates, and Outcomes",
+        "level": 2
+      },
+      {
+        "id": "11-6-researcher-reputation",
+        "title": "11.6 Researcher Reputation",
+        "level": 2
+      },
+      {
+        "id": "11-7-professional-communication",
+        "title": "11.7 Professional Communication",
+        "level": 2
+      },
+      {
+        "id": "11-8-key-takeaways",
+        "title": "11.8 Key Takeaways",
+        "level": 2
+      },
+      {
+        "id": "11-9-references",
+        "title": "11.9 References",
+        "level": 2
+      }
+    ],
+    "schoolIds": [
+      "advanced-bug-bounty-hunting"
+    ],
+    "tags": [
+      "bug bounty",
+      "programs",
+      "ethics"
+    ],
+    "prerequisites": [
+      8
+    ],
+    "path": "/content/chapters/ch11.md"
+  },
+  {
+    "id": 12,
+    "slug": "chapter-12",
+    "title": "Bug Bounty Platforms",
+    "number": 12,
+    "part": "IV — Bug Bounty Professional Mastery",
+    "description": "HackerOne, Bugcrowd, Intigriti, YesWeHack, Immunefi and VDPs: how triage, scopes and rewards actually work.",
+    "difficulty": "Beginner",
+    "level": 4,
+    "minutes": 45,
+    "words": 794,
+    "sections": [
+      {
+        "id": "12-1-common-workflow-across-platforms",
+        "title": "12.1 Common Workflow Across Platforms",
+        "level": 2
+      },
+      {
+        "id": "12-2-hackerone",
+        "title": "12.2 HackerOne",
+        "level": 2
+      },
+      {
+        "id": "12-3-bugcrowd",
+        "title": "12.3 Bugcrowd",
+        "level": 2
+      },
+      {
+        "id": "12-4-intigriti",
+        "title": "12.4 Intigriti",
+        "level": 2
+      },
+      {
+        "id": "12-5-yeswehack",
+        "title": "12.5 YesWeHack",
+        "level": 2
+      },
+      {
+        "id": "12-6-synack",
+        "title": "12.6 Synack",
+        "level": 2
+      },
+      {
+        "id": "12-7-open-bug-bounty",
+        "title": "12.7 Open Bug Bounty",
+        "level": 2
+      },
+      {
+        "id": "12-8-vendor-vdps-and-bug-programs",
+        "title": "12.8 Vendor VDPs and Bug Programs",
+        "level": 2
+      },
+      {
+        "id": "12-9-choosing-a-program",
+        "title": "12.9 Choosing a Program",
+        "level": 2
+      },
+      {
+        "id": "12-10-common-rejection-reasons-recap",
+        "title": "12.10 Common Rejection Reasons (Recap)",
+        "level": 2
+      },
+      {
+        "id": "12-11-key-takeaways",
+        "title": "12.11 Key Takeaways",
+        "level": 2
+      },
+      {
+        "id": "12-12-references",
+        "title": "12.12 References",
+        "level": 2
+      }
+    ],
+    "schoolIds": [
+      "advanced-bug-bounty-hunting"
+    ],
+    "tags": [
+      "HackerOne",
+      "Bugcrowd",
+      "Intigriti",
+      "Immunefi"
+    ],
+    "prerequisites": [
+      11
+    ],
+    "path": "/content/chapters/ch12.md"
+  },
+  {
+    "id": 13,
+    "slug": "chapter-13",
+    "title": "Scope and Rules of Engagement",
+    "number": 13,
+    "part": "IV — Bug Bounty Professional Mastery",
+    "description": "Reading scopes and rules of engagement, understanding authorization boundaries and staying inside them.",
+    "difficulty": "Intermediate",
+    "level": 4,
+    "minutes": 50,
+    "words": 1178,
+    "sections": [
+      {
+        "id": "13-1-the-authorization-rule",
+        "title": "13.1 The Authorization Rule",
+        "level": 2
+      },
+      {
+        "id": "13-2-anatomy-of-a-program-policy",
+        "title": "13.2 Anatomy of a Program Policy",
+        "level": 2
+      },
+      {
+        "id": "13-3-scope-interpretation",
+        "title": "13.3 Scope Interpretation",
+        "level": 2
+      },
+      {
+        "id": "in-scope-assets",
+        "title": "In-Scope Assets",
+        "level": 3
+      },
+      {
+        "id": "out-of-scope-assets",
+        "title": "Out-of-Scope Assets",
+        "level": 3
+      },
+      {
+        "id": "wildcards-and-ambiguity",
+        "title": "Wildcards and Ambiguity",
+        "level": 3
+      },
+      {
+        "id": "13-4-testing-restrictions-typical",
+        "title": "13.4 Testing Restrictions (Typical)",
+        "level": 2
+      },
+      {
+        "id": "13-5-production-environment-safety",
+        "title": "13.5 Production Environment Safety",
+        "level": 2
+      },
+      {
+        "id": "13-6-account-creation-and-test-accounts",
+        "title": "13.6 Account Creation and Test Accounts",
+        "level": 2
+      },
+      {
+        "id": "13-7-proof-of-concept-limitations",
+        "title": "13.7 Proof-of-Concept Limitations",
+        "level": 2
+      },
+      {
+        "id": "13-8-responsible-disclosure-timelines",
+        "title": "13.8 Responsible Disclosure Timelines",
+        "level": 2
+      },
+      {
+        "id": "13-9-sample-program-policy-fictional-teaching-example",
+        "title": "13.9 Sample Program Policy (Fictional Teaching Example)",
+        "level": 2
+      },
+      {
+        "id": "13-10-legal-and-ethical-boundaries",
+        "title": "13.10 Legal and Ethical Boundaries",
+        "level": 2
+      },
+      {
+        "id": "13-11-pre-test-checklist",
+        "title": "13.11 Pre-Test Checklist",
+        "level": 2
+      },
+      {
+        "id": "13-12-key-takeaways",
+        "title": "13.12 Key Takeaways",
+        "level": 2
+      },
+      {
+        "id": "13-13-references",
+        "title": "13.13 References",
+        "level": 2
+      }
+    ],
+    "schoolIds": [
+      "advanced-bug-bounty-hunting"
+    ],
+    "tags": [
+      "scope",
+      "rules of engagement",
+      "legal"
+    ],
+    "prerequisites": [
+      11,
+      12
+    ],
+    "path": "/content/chapters/ch13.md"
+  },
+  {
+    "id": 14,
+    "slug": "chapter-14",
+    "title": "Reconnaissance and Attack Surface Mapping",
+    "number": 14,
+    "part": "IV — Bug Bounty Professional Mastery",
+    "description": "Passive and active reconnaissance, DNS/OSINT, subdomain discovery, port scanning, fingerprinting and attack-surface mapping.",
+    "difficulty": "Intermediate",
+    "level": 5,
+    "minutes": 110,
+    "words": 1155,
+    "sections": [
+      {
+        "id": "14-1-the-recon-mindset",
+        "title": "14.1 The Recon Mindset",
+        "level": 2
+      },
+      {
+        "id": "14-2-asset-discovery-and-subdomain-enumeration",
+        "title": "14.2 Asset Discovery and Subdomain Enumeration",
+        "level": 2
+      },
+      {
+        "id": "14-3-tools-study-format",
+        "title": "14.3 Tools Study Format",
+        "level": 2
+      },
+      {
+        "id": "amass",
+        "title": "Amass",
+        "level": 3
+      },
+      {
+        "id": "subfinder",
+        "title": "Subfinder",
+        "level": 3
+      },
+      {
+        "id": "httpx",
+        "title": "httpx",
+        "level": 3
+      },
+      {
+        "id": "dnsx",
+        "title": "dnsx",
+        "level": 3
+      },
+      {
+        "id": "naabu",
+        "title": "Naabu",
+        "level": 3
+      },
+      {
+        "id": "nmap",
+        "title": "Nmap",
+        "level": 3
+      },
+      {
+        "id": "katana",
+        "title": "Katana",
+        "level": 3
+      },
+      {
+        "id": "waybackurls-gau",
+        "title": "Waybackurls / Gau",
+        "level": 3
+      },
+      {
+        "id": "feroxbuster-ffuf-gobuster",
+        "title": "Feroxbuster / ffuf / Gobuster",
+        "level": 3
+      },
+      {
+        "id": "whatweb-wappalyzer",
+        "title": "WhatWeb / Wappalyzer",
+        "level": 3
+      },
+      {
+        "id": "shodan-censys-securitytrails",
+        "title": "Shodan / Censys / SecurityTrails",
+        "level": 3
+      },
+      {
+        "id": "14-4-building-an-attack-surface-map",
+        "title": "14.4 Building an Attack Surface Map",
+        "level": 2
+      },
+      {
+        "id": "14-5-javascript-analysis",
+        "title": "14.5 JavaScript Analysis",
+        "level": 2
+      },
+      {
+        "id": "14-6-cloud-asset-exposure",
+        "title": "14.6 Cloud Asset Exposure",
+        "level": 2
+      },
+      {
+        "id": "14-7-false-positive-reduction",
+        "title": "14.7 False-Positive Reduction",
+        "level": 2
+      },
+      {
+        "id": "14-8-exercises",
+        "title": "14.8 Exercises",
+        "level": 2
+      },
+      {
+        "id": "14-9-key-takeaways",
+        "title": "14.9 Key Takeaways",
+        "level": 2
+      },
+      {
+        "id": "14-10-references",
+        "title": "14.10 References",
+        "level": 2
+      }
+    ],
+    "schoolIds": [
+      "recon-attack-surface-intelligence",
+      "advanced-bug-bounty-hunting"
+    ],
+    "tags": [
+      "recon",
+      "OSINT",
+      "subdomains",
+      "assets"
+    ],
+    "prerequisites": [
+      4,
+      13
+    ],
+    "path": "/content/chapters/ch14.md"
+  },
+  {
+    "id": 15,
+    "slug": "chapter-15",
+    "title": "Manual Bug Hunting Methodology",
+    "number": 15,
+    "part": "IV — Bug Bounty Professional Mastery",
+    "description": "A repeatable manual testing methodology: from a target inventory to parameter analysis, impact validation and clean evidence.",
+    "difficulty": "Intermediate",
+    "level": 5,
+    "minutes": 95,
+    "words": 1079,
+    "sections": [
+      {
+        "id": "15-1-the-professional-loop",
+        "title": "15.1 The Professional Loop",
+        "level": 2
+      },
+      {
+        "id": "15-2-reading-the-program-and-application",
+        "title": "15.2 Reading the Program and Application",
+        "level": 2
+      },
+      {
+        "id": "15-3-mapping-the-application",
+        "title": "15.3 Mapping the Application",
+        "level": 2
+      },
+      {
+        "id": "15-4-test-accounts-and-roles",
+        "title": "15.4 Test Accounts and Roles",
+        "level": 2
+      },
+      {
+        "id": "15-5-capturing-and-understanding-requests",
+        "title": "15.5 Capturing and Understanding Requests",
+        "level": 2
+      },
+      {
+        "id": "15-6-identifying-trust-boundaries",
+        "title": "15.6 Identifying Trust Boundaries",
+        "level": 2
+      },
+      {
+        "id": "15-7-mapping-authorization-checks",
+        "title": "15.7 Mapping Authorization Checks",
+        "level": 2
+      },
+      {
+        "id": "15-8-parameter-investigation",
+        "title": "15.8 Parameter Investigation",
+        "level": 2
+      },
+      {
+        "id": "15-9-comparing-roles-and-api-responses",
+        "title": "15.9 Comparing Roles and API Responses",
+        "level": 2
+      },
+      {
+        "id": "15-10-edge-cases-and-business-logic",
+        "title": "15.10 Edge Cases and Business Logic",
+        "level": 2
+      },
+      {
+        "id": "15-11-prioritizing-testing",
+        "title": "15.11 Prioritizing Testing",
+        "level": 2
+      },
+      {
+        "id": "15-12-end-to-end-fictional-case-study",
+        "title": "15.12 End-to-End Fictional Case Study",
+        "level": 2
+      },
+      {
+        "id": "15-13-building-a-personal-methodology",
+        "title": "15.13 Building a Personal Methodology",
+        "level": 2
+      },
+      {
+        "id": "15-14-key-takeaways",
+        "title": "15.14 Key Takeaways",
+        "level": 2
+      },
+      {
+        "id": "15-15-references",
+        "title": "15.15 References",
+        "level": 2
+      }
+    ],
+    "schoolIds": [
+      "advanced-bug-bounty-hunting",
+      "burp-suite-mastery"
+    ],
+    "tags": [
+      "methodology",
+      "manual testing",
+      "Burp"
+    ],
+    "prerequisites": [
+      9,
+      14
+    ],
+    "path": "/content/chapters/ch15.md"
+  },
+  {
+    "id": 16,
+    "slug": "chapter-16",
+    "title": "Essential Security Research Tools",
+    "number": 16,
+    "part": "V — Security Tools Encyclopedia",
+    "description": "56 security tools with architecture, installation, commands, output interpretation, limits, alternatives and beginner-to-advanced workflows.",
+    "difficulty": "Intermediate",
+    "level": 5,
+    "minutes": 120,
+    "words": 7778,
+    "sections": [
+      {
+        "id": "16-1-tool-categories",
+        "title": "16.1 Tool Categories",
+        "level": 2
+      },
+      {
+        "id": "16-2-tool-encyclopedia",
+        "title": "16.2 Tool Encyclopedia",
+        "level": 2
+      },
+      {
+        "id": "burp-suite-community-pro-interception-web-testing",
+        "title": "Burp Suite Community/Pro — Interception & Web Testing",
+        "level": 3
+      },
+      {
+        "id": "owasp-zap-interception-web-testing",
+        "title": "OWASP ZAP — Interception & Web Testing",
+        "level": 3
+      },
+      {
+        "id": "caido-interception-web-testing",
+        "title": "Caido — Interception & Web Testing",
+        "level": 3
+      },
+      {
+        "id": "mitmproxy-interception-web-testing",
+        "title": "mitmproxy — Interception & Web Testing",
+        "level": 3
+      },
+      {
+        "id": "postman-interception-web-testing",
+        "title": "Postman — Interception & Web Testing",
+        "level": 3
+      },
+      {
+        "id": "insomnia-interception-web-testing",
+        "title": "Insomnia — Interception & Web Testing",
+        "level": 3
+      },
+      {
+        "id": "http-toolkit-interception-web-testing",
+        "title": "HTTP Toolkit — Interception & Web Testing",
+        "level": 3
+      },
+      {
+        "id": "wireshark-network-analysis",
+        "title": "Wireshark — Network Analysis",
+        "level": 3
+      },
+      {
+        "id": "tcpdump-network-analysis",
+        "title": "tcpdump — Network Analysis",
+        "level": 3
+      },
+      {
+        "id": "nmap-network-analysis",
+        "title": "Nmap — Network Analysis",
+        "level": 3
+      },
+      {
+        "id": "masscan-network-analysis",
+        "title": "Masscan — Network Analysis",
+        "level": 3
+      },
+      {
+        "id": "netcat-nc-network-analysis",
+        "title": "Netcat (nc) — Network Analysis",
+        "level": 3
+      },
+      {
+        "id": "amass-reconnaissance",
+        "title": "Amass — Reconnaissance",
+        "level": 3
+      },
+      {
+        "id": "subfinder-reconnaissance",
+        "title": "Subfinder — Reconnaissance",
+        "level": 3
+      },
+      {
+        "id": "assetfinder-reconnaissance",
+        "title": "Assetfinder — Reconnaissance",
+        "level": 3
+      },
+      {
+        "id": "httpx-reconnaissance",
+        "title": "httpx — Reconnaissance",
+        "level": 3
+      },
+      {
+        "id": "dnsx-reconnaissance",
+        "title": "dnsx — Reconnaissance",
+        "level": 3
+      },
+      {
+        "id": "nuclei-reconnaissance",
+        "title": "Nuclei — Reconnaissance",
+        "level": 3
+      },
+      {
+        "id": "katana-reconnaissance",
+        "title": "Katana — Reconnaissance",
+        "level": 3
+      },
+      {
+        "id": "waybackurls-reconnaissance",
+        "title": "Waybackurls — Reconnaissance",
+        "level": 3
+      },
+      {
+        "id": "gau-getallurls-reconnaissance",
+        "title": "Gau (GetAllURLs) — Reconnaissance",
+        "level": 3
+      },
+      {
+        "id": "feroxbuster-reconnaissance",
+        "title": "Feroxbuster — Reconnaissance",
+        "level": 3
+      },
+      {
+        "id": "ffuf-reconnaissance",
+        "title": "ffuf — Reconnaissance",
+        "level": 3
+      },
+      {
+        "id": "gobuster-reconnaissance",
+        "title": "Gobuster — Reconnaissance",
+        "level": 3
+      },
+      {
+        "id": "whatweb-reconnaissance",
+        "title": "WhatWeb — Reconnaissance",
+        "level": 3
+      },
+      {
+        "id": "wappalyzer-reconnaissance",
+        "title": "Wappalyzer — Reconnaissance",
+        "level": 3
+      },
+      {
+        "id": "shodan-reconnaissance",
+        "title": "Shodan — Reconnaissance",
+        "level": 3
+      },
+      {
+        "id": "censys-reconnaissance",
+        "title": "Censys — Reconnaissance",
+        "level": 3
+      },
+      {
+        "id": "securitytrails-reconnaissance",
+        "title": "SecurityTrails — Reconnaissance",
+        "level": 3
+      },
+      {
+        "id": "semgrep-vulnerability-research",
+        "title": "Semgrep — Vulnerability Research",
+        "level": 3
+      },
+      {
+        "id": "codeql-vulnerability-research",
+        "title": "CodeQL — Vulnerability Research",
+        "level": 3
+      },
+      {
+        "id": "gitleaks-vulnerability-research",
+        "title": "Gitleaks — Vulnerability Research",
+        "level": 3
+      },
+      {
+        "id": "trivy-vulnerability-research",
+        "title": "Trivy — Vulnerability Research",
+        "level": 3
+      },
+      {
+        "id": "grype-vulnerability-research",
+        "title": "Grype — Vulnerability Research",
+        "level": 3
+      },
+      {
+        "id": "checkov-vulnerability-research",
+        "title": "Checkov — Vulnerability Research",
+        "level": 3
+      },
+      {
+        "id": "owasp-dependency-check-vulnerability-research",
+        "title": "OWASP Dependency-Check — Vulnerability Research",
+        "level": 3
+      },
+      {
+        "id": "browser-developer-tools-web-analysis",
+        "title": "Browser Developer Tools — Web Analysis",
+        "level": 3
+      },
+      {
+        "id": "retire-js-web-analysis",
+        "title": "Retire.js — Web Analysis",
+        "level": 3
+      },
+      {
+        "id": "jwt-io-web-analysis",
+        "title": "JWT.io — Web Analysis",
+        "level": 3
+      },
+      {
+        "id": "cyberchef-web-analysis",
+        "title": "CyberChef — Web Analysis",
+        "level": 3
+      },
+      {
+        "id": "testssl-sh-web-analysis",
+        "title": "testssl.sh — Web Analysis",
+        "level": 3
+      },
+      {
+        "id": "ghidra-reverse-engineering",
+        "title": "Ghidra — Reverse Engineering",
+        "level": 3
+      },
+      {
+        "id": "ida-free-reverse-engineering",
+        "title": "IDA Free — Reverse Engineering",
+        "level": 3
+      },
+      {
+        "id": "radare2-rizin-reverse-engineering",
+        "title": "radare2 / rizin — Reverse Engineering",
+        "level": 3
+      },
+      {
+        "id": "gdb-reverse-engineering",
+        "title": "GDB — Reverse Engineering",
+        "level": 3
+      },
+      {
+        "id": "frida-reverse-engineering-mobile",
+        "title": "Frida — Reverse Engineering / Mobile",
+        "level": 3
+      },
+      {
+        "id": "mobsf-mobile-security",
+        "title": "MobSF — Mobile Security",
+        "level": 3
+      },
+      {
+        "id": "jadx-mobile-security",
+        "title": "JADX — Mobile Security",
+        "level": 3
+      },
+      {
+        "id": "apktool-mobile-security",
+        "title": "APKTool — Mobile Security",
+        "level": 3
+      },
+      {
+        "id": "objection-mobile-security",
+        "title": "Objection — Mobile Security",
+        "level": 3
+      },
+      {
+        "id": "android-studio-emulator-mobile-security",
+        "title": "Android Studio Emulator — Mobile Security",
+        "level": 3
+      },
+      {
+        "id": "prowler-cloud-security",
+        "title": "Prowler — Cloud Security",
+        "level": 3
+      },
+      {
+        "id": "scoutsuite-cloud-security",
+        "title": "ScoutSuite — Cloud Security",
+        "level": 3
+      },
+      {
+        "id": "cloudmapper-cloud-security",
+        "title": "CloudMapper — Cloud Security",
+        "level": 3
+      },
+      {
+        "id": "pacu-cloud-security",
+        "title": "Pacu — Cloud Security",
+        "level": 3
+      },
+      {
+        "id": "cloudsplaining-cloud-security",
+        "title": "Cloudsplaining — Cloud Security",
+        "level": 3
+      },
+      {
+        "id": "16-3-command-cheat-sheet",
+        "title": "16.3 Command Cheat Sheet",
+        "level": 2
+      },
+      {
+        "id": "16-4-key-takeaways",
+        "title": "16.4 Key Takeaways",
+        "level": 2
+      },
+      {
+        "id": "16-5-references",
+        "title": "16.5 References",
+        "level": 2
+      }
+    ],
+    "schoolIds": [
+      "tools-encyclopedia",
+      "burp-suite-mastery",
+      "recon-attack-surface-intelligence"
+    ],
+    "tags": [
+      "tools",
+      "Burp",
+      "Nmap",
+      "ffuf",
+      "nuclei"
+    ],
+    "prerequisites": [
+      3,
+      4,
+      14
+    ],
+    "path": "/content/chapters/ch16.md"
+  },
+  {
+    "id": 17,
+    "slug": "chapter-17",
+    "title": "API Security Mastery",
+    "number": 17,
+    "part": "VI — API, Mobile, Cloud and Infrastructure Security",
+    "description": "API security: BOLA/BFLA, mass assignment, excessive exposure, GraphQL introspection, API keys, rate limits and mobile backends.",
+    "difficulty": "Intermediate",
+    "level": 5,
+    "minutes": 95,
+    "words": 892,
+    "sections": [
+      {
+        "id": "17-1-the-api-security-top-10",
+        "title": "17.1 The API Security Top 10",
+        "level": 2
+      },
+      {
+        "id": "17-2-rest-api-vulnerabilities",
+        "title": "17.2 REST API Vulnerabilities",
+        "level": 2
+      },
+      {
+        "id": "17-3-graphql-vulnerabilities",
+        "title": "17.3 GraphQL Vulnerabilities",
+        "level": 2
+      },
+      {
+        "id": "17-4-api-authentication-and-authorization",
+        "title": "17.4 API Authentication and Authorization",
+        "level": 2
+      },
+      {
+        "id": "17-5-excessive-data-exposure-and-mass-assignment",
+        "title": "17.5 Excessive Data Exposure and Mass Assignment",
+        "level": 2
+      },
+      {
+        "id": "17-6-rate-limiting-and-resource-consumption",
+        "title": "17.6 Rate Limiting and Resource Consumption",
+        "level": 2
+      },
+      {
+        "id": "17-7-api-inventory-and-improper-asset-management",
+        "title": "17.7 API Inventory and Improper Asset Management",
+        "level": 2
+      },
+      {
+        "id": "17-8-webhook-security",
+        "title": "17.8 Webhook Security",
+        "level": 2
+      },
+      {
+        "id": "17-9-api-fuzzing-and-schema-analysis",
+        "title": "17.9 API Fuzzing and Schema Analysis",
+        "level": 2
+      },
+      {
+        "id": "17-10-multi-tenant-api-security",
+        "title": "17.10 Multi-Tenant API Security",
+        "level": 2
+      },
+      {
+        "id": "17-11-api-security-testing-exercises",
+        "title": "17.11 API Security Testing Exercises",
+        "level": 2
+      },
+      {
+        "id": "17-12-key-takeaways",
+        "title": "17.12 Key Takeaways",
+        "level": 2
+      },
+      {
+        "id": "17-13-references",
+        "title": "17.13 References",
+        "level": 2
+      }
+    ],
+    "schoolIds": [
+      "api-security-research",
+      "web-application-security"
+    ],
+    "tags": [
+      "REST",
+      "GraphQL",
+      "BOLA",
+      "mass assignment"
+    ],
+    "prerequisites": [
+      7,
+      9
+    ],
+    "path": "/content/chapters/ch17.md"
+  },
+  {
+    "id": 18,
+    "slug": "chapter-18",
+    "title": "Android and iOS Security",
+    "number": 18,
+    "part": "VI — API, Mobile, Cloud and Infrastructure Security",
+    "description": "Android and iOS architecture, storage, permissions, deep links, pinning, static and dynamic analysis with lab-safe tooling.",
+    "difficulty": "Intermediate",
+    "level": 6,
+    "minutes": 100,
+    "words": 895,
+    "sections": [
+      {
+        "id": "18-1-mobile-platform-architecture",
+        "title": "18.1 Mobile Platform Architecture",
+        "level": 2
+      },
+      {
+        "id": "android",
+        "title": "Android",
+        "level": 3
+      },
+      {
+        "id": "ios",
+        "title": "iOS",
+        "level": 3
+      },
+      {
+        "id": "18-2-apk-and-ipa-structure",
+        "title": "18.2 APK and IPA Structure",
+        "level": 2
+      },
+      {
+        "id": "18-3-common-mobile-vulnerabilities",
+        "title": "18.3 Common Mobile Vulnerabilities",
+        "level": 2
+      },
+      {
+        "id": "18-4-deep-links-and-intents",
+        "title": "18.4 Deep Links and Intents",
+        "level": 2
+      },
+      {
+        "id": "18-5-certificate-pinning",
+        "title": "18.5 Certificate Pinning",
+        "level": 2
+      },
+      {
+        "id": "18-6-secure-storage",
+        "title": "18.6 Secure Storage",
+        "level": 2
+      },
+      {
+        "id": "18-7-root-jailbreak-detection",
+        "title": "18.7 Root/Jailbreak Detection",
+        "level": 2
+      },
+      {
+        "id": "18-8-static-analysis",
+        "title": "18.8 Static Analysis",
+        "level": 2
+      },
+      {
+        "id": "18-9-dynamic-analysis",
+        "title": "18.9 Dynamic Analysis",
+        "level": 2
+      },
+      {
+        "id": "18-10-tool-integration",
+        "title": "18.10 Tool Integration",
+        "level": 2
+      },
+      {
+        "id": "18-11-legal-and-ethical-scope",
+        "title": "18.11 Legal and Ethical Scope",
+        "level": 2
+      },
+      {
+        "id": "18-12-exercises",
+        "title": "18.12 Exercises",
+        "level": 2
+      },
+      {
+        "id": "18-13-key-takeaways",
+        "title": "18.13 Key Takeaways",
+        "level": 2
+      },
+      {
+        "id": "18-14-references",
+        "title": "18.14 References",
+        "level": 2
+      }
+    ],
+    "schoolIds": [
+      "mobile-application-security"
+    ],
+    "tags": [
+      "Android",
+      "iOS",
+      "APK",
+      "Frida",
+      "MobSF"
+    ],
+    "prerequisites": [
+      7,
+      8
+    ],
+    "path": "/content/chapters/ch18.md"
+  },
+  {
+    "id": 19,
+    "slug": "chapter-19",
+    "title": "Cloud and Infrastructure Security",
+    "number": 19,
+    "part": "VI — API, Mobile, Cloud and Infrastructure Security",
+    "description": "AWS, GCP and Azure security models, IAM, metadata services, containers, Kubernetes, CI/CD and cloud misconfiguration assessment.",
+    "difficulty": "Intermediate",
+    "level": 6,
+    "minutes": 105,
+    "words": 929,
+    "sections": [
+      {
+        "id": "19-1-cloud-fundamentals-and-shared-responsibility",
+        "title": "19.1 Cloud Fundamentals and Shared Responsibility",
+        "level": 2
+      },
+      {
+        "id": "19-2-iam-and-credentials",
+        "title": "19.2 IAM and Credentials",
+        "level": 2
+      },
+      {
+        "id": "19-3-storage-misconfigurations",
+        "title": "19.3 Storage Misconfigurations",
+        "level": 2
+      },
+      {
+        "id": "19-4-cloud-metadata-services",
+        "title": "19.4 Cloud Metadata Services",
+        "level": 2
+      },
+      {
+        "id": "19-5-serverless-security",
+        "title": "19.5 Serverless Security",
+        "level": 2
+      },
+      {
+        "id": "19-6-container-security",
+        "title": "19.6 Container Security",
+        "level": 2
+      },
+      {
+        "id": "19-7-kubernetes-security",
+        "title": "19.7 Kubernetes Security",
+        "level": 2
+      },
+      {
+        "id": "19-8-ci-cd-security",
+        "title": "19.8 CI/CD Security",
+        "level": 2
+      },
+      {
+        "id": "19-9-secrets-management",
+        "title": "19.9 Secrets Management",
+        "level": 2
+      },
+      {
+        "id": "19-10-infrastructure-as-code-iac",
+        "title": "19.10 Infrastructure as Code (IaC)",
+        "level": 2
+      },
+      {
+        "id": "19-11-network-security-groups-and-logging",
+        "title": "19.11 Network Security Groups and Logging",
+        "level": 2
+      },
+      {
+        "id": "19-12-supply-chain-security",
+        "title": "19.12 Supply Chain Security",
+        "level": 2
+      },
+      {
+        "id": "19-13-researching-cloud-security-safely",
+        "title": "19.13 Researching Cloud Security Safely",
+        "level": 2
+      },
+      {
+        "id": "19-14-exercises",
+        "title": "19.14 Exercises",
+        "level": 2
+      },
+      {
+        "id": "19-15-key-takeaways",
+        "title": "19.15 Key Takeaways",
+        "level": 2
+      },
+      {
+        "id": "19-16-references",
+        "title": "19.16 References",
+        "level": 2
+      }
+    ],
+    "schoolIds": [
+      "cloud-security"
+    ],
+    "tags": [
+      "AWS",
+      "GCP",
+      "Azure",
+      "Kubernetes",
+      "IAM"
+    ],
+    "prerequisites": [
+      4,
+      8
+    ],
+    "path": "/content/chapters/ch19.md"
+  },
+  {
+    "id": 20,
+    "slug": "chapter-20",
+    "title": "Source Code and Software Supply Chain Security",
+    "number": 20,
+    "part": "VI — API, Mobile, Cloud and Infrastructure Security",
+    "description": "Source-code auditing, software supply-chain attacks, SAST/DAST/SCA, dependency security and secure development lifecycle.",
+    "difficulty": "Advanced",
+    "level": 6,
+    "minutes": 90,
+    "words": 875,
+    "sections": [
+      {
+        "id": "20-1-secure-code-review",
+        "title": "20.1 Secure Code Review",
+        "level": 2
+      },
+      {
+        "id": "20-2-static-and-dynamic-analysis",
+        "title": "20.2 Static and Dynamic Analysis",
+        "level": 2
+      },
+      {
+        "id": "20-3-dependency-vulnerabilities",
+        "title": "20.3 Dependency Vulnerabilities",
+        "level": 2
+      },
+      {
+        "id": "20-4-typosquatting-and-dependency-confusion",
+        "title": "20.4 Typosquatting and Dependency Confusion",
+        "level": 2
+      },
+      {
+        "id": "20-5-secret-exposure",
+        "title": "20.5 Secret Exposure",
+        "level": 2
+      },
+      {
+        "id": "20-6-git-history-analysis",
+        "title": "20.6 Git History Analysis",
+        "level": 2
+      },
+      {
+        "id": "20-7-ci-cd-pipeline-security",
+        "title": "20.7 CI/CD Pipeline Security",
+        "level": 2
+      },
+      {
+        "id": "20-8-build-system-security",
+        "title": "20.8 Build System Security",
+        "level": 2
+      },
+      {
+        "id": "20-9-software-bill-of-materials-sbom",
+        "title": "20.9 Software Bill of Materials (SBOM)",
+        "level": 2
+      },
+      {
+        "id": "20-10-open-source-vulnerability-research",
+        "title": "20.10 Open-Source Vulnerability Research",
+        "level": 2
+      },
+      {
+        "id": "20-11-secure-development-lifecycle-sdl",
+        "title": "20.11 Secure Development Lifecycle (SDL)",
+        "level": 2
+      },
+      {
+        "id": "20-12-practical-code-review-exercises",
+        "title": "20.12 Practical Code Review Exercises",
+        "level": 2
+      },
+      {
+        "id": "20-13-key-takeaways",
+        "title": "20.13 Key Takeaways",
+        "level": 2
+      },
+      {
+        "id": "20-14-references",
+        "title": "20.14 References",
+        "level": 2
+      }
+    ],
+    "schoolIds": [
+      "secure-coding-application-defense"
+    ],
+    "tags": [
+      "SAST",
+      "supply chain",
+      "code review",
+      "DevSecOps"
+    ],
+    "prerequisites": [
+      7,
+      9
+    ],
+    "path": "/content/chapters/ch20.md"
+  },
+  {
+    "id": 21,
+    "slug": "chapter-21",
+    "title": "Binary Exploitation and Memory Safety",
+    "number": 21,
+    "part": "VII — Advanced Security Research",
+    "description": "x86/x86-64 and ARM fundamentals, stack and heap layout, overflows, UAF, ROP and modern exploit mitigations in isolated labs.",
+    "difficulty": "Advanced",
+    "level": 7,
+    "minutes": 130,
+    "words": 766,
+    "sections": [
+      {
+        "id": "21-1-foundations-in-c",
+        "title": "21.1 Foundations in C",
+        "level": 2
+      },
+      {
+        "id": "21-2-memory-layout-revisited",
+        "title": "21.2 Memory Layout (Revisited)",
+        "level": 2
+      },
+      {
+        "id": "21-3-vulnerability-classes",
+        "title": "21.3 Vulnerability Classes",
+        "level": 2
+      },
+      {
+        "id": "21-4-mitigations",
+        "title": "21.4 Mitigations",
+        "level": 2
+      },
+      {
+        "id": "21-5-fuzzing-and-crash-analysis",
+        "title": "21.5 Fuzzing and Crash Analysis",
+        "level": 2
+      },
+      {
+        "id": "21-6-debugging-workflow",
+        "title": "21.6 Debugging Workflow",
+        "level": 2
+      },
+      {
+        "id": "21-7-secure-coding",
+        "title": "21.7 Secure Coding",
+        "level": 2
+      },
+      {
+        "id": "21-8-ethical-boundaries",
+        "title": "21.8 Ethical Boundaries",
+        "level": 2
+      },
+      {
+        "id": "21-9-exercises",
+        "title": "21.9 Exercises",
+        "level": 2
+      },
+      {
+        "id": "21-10-key-takeaways",
+        "title": "21.10 Key Takeaways",
+        "level": 2
+      },
+      {
+        "id": "21-11-references",
+        "title": "21.11 References",
+        "level": 2
+      }
+    ],
+    "schoolIds": [
+      "advanced-exploitation-binary-security"
+    ],
+    "tags": [
+      "assembly",
+      "stack",
+      "heap",
+      "ROP",
+      "memory corruption"
+    ],
+    "prerequisites": [
+      2,
+      3
+    ],
+    "path": "/content/chapters/ch21.md"
+  },
+  {
+    "id": 22,
+    "slug": "chapter-22",
+    "title": "Reverse Engineering",
+    "number": 22,
+    "part": "VII — Advanced Security Research",
+    "description": "Executable formats, disassembly, decompilation, debugging, malware behaviour analysis, persistence, sandboxes and memory forensics.",
+    "difficulty": "Advanced",
+    "level": 7,
+    "minutes": 110,
+    "words": 674,
+    "sections": [
+      {
+        "id": "22-1-what-reverse-engineering-is",
+        "title": "22.1 What Reverse Engineering Is",
+        "level": 2
+      },
+      {
+        "id": "22-2-static-vs-dynamic-analysis",
+        "title": "22.2 Static vs. Dynamic Analysis",
+        "level": 2
+      },
+      {
+        "id": "22-3-binary-formats",
+        "title": "22.3 Binary Formats",
+        "level": 2
+      },
+      {
+        "id": "22-4-disassembly-and-decompilation",
+        "title": "22.4 Disassembly and Decompilation",
+        "level": 2
+      },
+      {
+        "id": "22-5-function-identification",
+        "title": "22.5 Function Identification",
+        "level": 2
+      },
+      {
+        "id": "22-6-malware-analysis-fundamentals-safe-context",
+        "title": "22.6 Malware Analysis Fundamentals (Safe Context)",
+        "level": 2
+      },
+      {
+        "id": "22-7-software-behavior-analysis",
+        "title": "22.7 Software Behavior Analysis",
+        "level": 2
+      },
+      {
+        "id": "22-8-protocol-reverse-engineering",
+        "title": "22.8 Protocol Reverse Engineering",
+        "level": 2
+      },
+      {
+        "id": "22-9-tools",
+        "title": "22.9 Tools",
+        "level": 2
+      },
+      {
+        "id": "22-10-exercises",
+        "title": "22.10 Exercises",
+        "level": 2
+      },
+      {
+        "id": "22-11-key-takeaways",
+        "title": "22.11 Key Takeaways",
+        "level": 2
+      },
+      {
+        "id": "22-12-references",
+        "title": "22.12 References",
+        "level": 2
+      }
+    ],
+    "schoolIds": [
+      "reverse-engineering-malware-analysis"
+    ],
+    "tags": [
+      "Ghidra",
+      "ELF",
+      "PE",
+      "debugging",
+      "YARA"
+    ],
+    "prerequisites": [
+      21
+    ],
+    "path": "/content/chapters/ch22.md"
+  },
+  {
+    "id": 23,
+    "slug": "chapter-23",
+    "title": "Fuzzing and Automated Vulnerability Discovery",
+    "number": 23,
+    "part": "VII — Advanced Security Research",
+    "description": "Mutation, generation, coverage-guided, grammar and differential fuzzing; sanitizers, crash triage and root-cause analysis.",
+    "difficulty": "Advanced",
+    "level": 7,
+    "minutes": 100,
+    "words": 628,
+    "sections": [
+      {
+        "id": "23-1-what-fuzzing-is",
+        "title": "23.1 What Fuzzing Is",
+        "level": 2
+      },
+      {
+        "id": "23-2-fuzzing-strategies",
+        "title": "23.2 Fuzzing Strategies",
+        "level": 2
+      },
+      {
+        "id": "23-3-crash-triage",
+        "title": "23.3 Crash Triage",
+        "level": 2
+      },
+      {
+        "id": "23-4-corpus-management",
+        "title": "23.4 Corpus Management",
+        "level": 2
+      },
+      {
+        "id": "23-5-sanitizers",
+        "title": "23.5 Sanitizers",
+        "level": 2
+      },
+      {
+        "id": "23-6-reproducibility-and-harnesses",
+        "title": "23.6 Reproducibility and Harnesses",
+        "level": 2
+      },
+      {
+        "id": "23-7-tools",
+        "title": "23.7 Tools",
+        "level": 2
+      },
+      {
+        "id": "23-8-small-practical-projects",
+        "title": "23.8 Small Practical Projects",
+        "level": 2
+      },
+      {
+        "id": "23-9-ethical-boundaries",
+        "title": "23.9 Ethical Boundaries",
+        "level": 2
+      },
+      {
+        "id": "23-10-key-takeaways",
+        "title": "23.10 Key Takeaways",
+        "level": 2
+      },
+      {
+        "id": "23-11-references",
+        "title": "23.11 References",
+        "level": 2
+      }
+    ],
+    "schoolIds": [
+      "fuzzing-vulnerability-research"
+    ],
+    "tags": [
+      "AFL++",
+      "libFuzzer",
+      "sanitizers",
+      "crash triage"
+    ],
+    "prerequisites": [
+      5,
+      21
+    ],
+    "path": "/content/chapters/ch23.md"
+  },
+  {
+    "id": 24,
+    "slug": "chapter-24",
+    "title": "AI and LLM Security",
+    "number": 24,
+    "part": "VIII — Cybersecurity in the AI Era",
+    "description": "AI-assisted security work and AI application security: prompt injection, RAG/agent/MCP risks, OWASP LLM Top 10 and AI red teaming.",
+    "difficulty": "Intermediate",
+    "level": 7,
+    "minutes": 120,
+    "words": 2630,
+    "sections": [
+      {
+        "id": "24-1-why-ai-security-is-different",
+        "title": "24.1 Why AI Security Is Different",
+        "level": 2
+      },
+      {
+        "id": "24-2-machine-learning-foundations",
+        "title": "24.2 Machine Learning Foundations",
+        "level": 2
+      },
+      {
+        "id": "24-3-llm-architecture",
+        "title": "24.3 LLM Architecture",
+        "level": 2
+      },
+      {
+        "id": "transformers",
+        "title": "Transformers",
+        "level": 3
+      },
+      {
+        "id": "tokenization",
+        "title": "Tokenization",
+        "level": 3
+      },
+      {
+        "id": "embeddings-and-vector-databases",
+        "title": "Embeddings and Vector Databases",
+        "level": 3
+      },
+      {
+        "id": "inference-and-serving",
+        "title": "Inference and Serving",
+        "level": 3
+      },
+      {
+        "id": "24-4-rag-systems",
+        "title": "24.4 RAG Systems",
+        "level": 2
+      },
+      {
+        "id": "24-5-ai-agents-and-tool-calling",
+        "title": "24.5 AI Agents and Tool Calling",
+        "level": 2
+      },
+      {
+        "id": "24-6-current-owasp-guidance-verified-2026",
+        "title": "24.6 Current OWASP Guidance (Verified 2026)",
+        "level": 2
+      },
+      {
+        "id": "24-7-ai-specific-vulnerabilities",
+        "title": "24.7 AI-Specific Vulnerabilities",
+        "level": 2
+      },
+      {
+        "id": "prompt-injection",
+        "title": "Prompt Injection",
+        "level": 3
+      },
+      {
+        "id": "jailbreaks",
+        "title": "Jailbreaks",
+        "level": 3
+      },
+      {
+        "id": "system-prompt-hidden-context-leakage",
+        "title": "System Prompt / Hidden Context Leakage",
+        "level": 3
+      },
+      {
+        "id": "sensitive-information-disclosure",
+        "title": "Sensitive Information Disclosure",
+        "level": 3
+      },
+      {
+        "id": "insecure-output-handling",
+        "title": "Insecure Output Handling",
+        "level": 3
+      },
+      {
+        "id": "excessive-agency-and-improper-tool-authorization",
+        "title": "Excessive Agency and Improper Tool Authorization",
+        "level": 3
+      },
+      {
+        "id": "insecure-rag-pipelines-and-vector-embedding-weaknesses",
+        "title": "Insecure RAG Pipelines and Vector/Embedding Weaknesses",
+        "level": 3
+      },
+      {
+        "id": "training-data-poisoning-and-model-poisoning",
+        "title": "Training Data Poisoning and Model Poisoning",
+        "level": 3
+      },
+      {
+        "id": "model-extraction-inversion-and-membership-inference",
+        "title": "Model Extraction, Inversion, and Membership Inference",
+        "level": 3
+      },
+      {
+        "id": "adversarial-examples",
+        "title": "Adversarial Examples",
+        "level": 3
+      },
+      {
+        "id": "denial-of-service-unbounded-consumption",
+        "title": "Denial of Service / Unbounded Consumption",
+        "level": 3
+      },
+      {
+        "id": "untrusted-tool-outputs-and-agent-privilege-escalation",
+        "title": "Untrusted Tool Outputs and Agent Privilege Escalation",
+        "level": 3
+      },
+      {
+        "id": "insecure-mcp-implementations-and-ai-supply-chains",
+        "title": "Insecure MCP Implementations and AI Supply Chains",
+        "level": 3
+      },
+      {
+        "id": "multimodal-and-browser-computer-use-agents",
+        "title": "Multimodal and Browser/Computer-Use Agents",
+        "level": 3
+      },
+      {
+        "id": "24-8-ai-security-tools-and-resources",
+        "title": "24.8 AI Security Tools and Resources",
+        "level": 2
+      },
+      {
+        "id": "24-9-ai-bug-bounty-research-methodology",
+        "title": "24.9 AI Bug Bounty Research Methodology",
+        "level": 2
+      },
+      {
+        "id": "24-10-jailbreaks-vs-real-vulnerabilities",
+        "title": "24.10 Jailbreaks vs. Real Vulnerabilities",
+        "level": 2
+      },
+      {
+        "id": "24-11-defensive-architecture-what-good-looks-like",
+        "title": "24.11 Defensive Architecture (What Good Looks Like)",
+        "level": 2
+      },
+      {
+        "id": "24-12-exercises-authorized-labs-only",
+        "title": "24.12 Exercises (Authorized Labs Only)",
+        "level": 2
+      },
+      {
+        "id": "24-13-key-takeaways",
+        "title": "24.13 Key Takeaways",
+        "level": 2
+      },
+      {
+        "id": "24-14-references",
+        "title": "24.14 References",
+        "level": 2
+      }
+    ],
+    "schoolIds": [
+      "ai-future-of-cybersecurity"
+    ],
+    "tags": [
+      "LLM",
+      "prompt injection",
+      "RAG",
+      "agentic AI",
+      "MITRE ATLAS"
+    ],
+    "prerequisites": [
+      9,
+      20
+    ],
+    "path": "/content/chapters/ch24.md"
+  },
+  {
+    "id": 25,
+    "slug": "chapter-25",
+    "title": "Writing High-Quality Vulnerability Reports",
+    "number": 25,
+    "part": "IX — Professional Bug Bounty Operations",
+    "description": "Writing reports that triage fast: structure, impact, reproduction, CVSS/CWE, PoC hygiene and handling triage feedback.",
+    "difficulty": "Intermediate",
+    "level": 5,
+    "minutes": 70,
+    "words": 3424,
+    "sections": [
+      {
+        "id": "25-1-anatomy-of-a-high-quality-report",
+        "title": "25.1 Anatomy of a High-Quality Report",
+        "level": 2
+      },
+      {
+        "id": "25-2-severity-and-cvss",
+        "title": "25.2 Severity and CVSS",
+        "level": 2
+      },
+      {
+        "id": "25-3-triage-outcomes-and-communication",
+        "title": "25.3 Triage Outcomes and Communication",
+        "level": 2
+      },
+      {
+        "id": "25-4-twenty-fictional-example-reports",
+        "title": "25.4 Twenty Fictional Example Reports",
+        "level": 2
+      },
+      {
+        "id": "example-report-1-idor-exposes-another-user-s-order-details-on-api-shop-lab-test",
+        "title": "Example Report 1: IDOR exposes another user's order details on `api.shop-lab.test`",
+        "level": 3
+      },
+      {
+        "id": "example-report-2-stored-xss-in-product-review-field",
+        "title": "Example Report 2: Stored XSS in product review field",
+        "level": 3
+      },
+      {
+        "id": "example-report-3-sql-injection-in-login-via-username-parameter",
+        "title": "Example Report 3: SQL injection in login via username parameter",
+        "level": 3
+      },
+      {
+        "id": "example-report-4-password-reset-token-lacks-expiry-and-rate-limiting",
+        "title": "Example Report 4: Password reset token lacks expiry and rate limiting",
+        "level": 3
+      },
+      {
+        "id": "example-report-5-reflected-xss-in-search-parameter",
+        "title": "Example Report 5: Reflected XSS in search parameter",
+        "level": 3
+      },
+      {
+        "id": "example-report-6-ssrf-in-url-preview-fetches-internal-service",
+        "title": "Example Report 6: SSRF in URL preview fetches internal service",
+        "level": 3
+      },
+      {
+        "id": "example-report-7-negative-quantity-produces-negative-order-total",
+        "title": "Example Report 7: Negative quantity produces negative order total",
+        "level": 3
+      },
+      {
+        "id": "example-report-8-admin-endpoint-callable-by-ordinary-user-bfla",
+        "title": "Example Report 8: Admin endpoint callable by ordinary user (BFLA)",
+        "level": 3
+      },
+      {
+        "id": "example-report-9-insecure-direct-file-reference-in-download-endpoint",
+        "title": "Example Report 9: Insecure direct file reference in download endpoint",
+        "level": 3
+      },
+      {
+        "id": "example-report-10-unauthenticated-graphql-introspection-enabled",
+        "title": "Example Report 10: Unauthenticated GraphQL introspection enabled",
+        "level": 3
+      },
+      {
+        "id": "example-report-11-open-redirect-in-post-login-next-parameter",
+        "title": "Example Report 11: Open redirect in post-login `next` parameter",
+        "level": 3
+      },
+      {
+        "id": "example-report-12-host-header-poisoning-in-password-reset-links",
+        "title": "Example Report 12: Host header poisoning in password-reset links",
+        "level": 3
+      },
+      {
+        "id": "example-report-13-web-cache-poisoning-via-unkeyed-header",
+        "title": "Example Report 13: Web cache poisoning via unkeyed header",
+        "level": 3
+      },
+      {
+        "id": "example-report-14-mass-assignment-allows-role-escalation",
+        "title": "Example Report 14: Mass assignment allows role escalation",
+        "level": 3
+      },
+      {
+        "id": "example-report-15-race-condition-allows-repeated-coupon-redemption",
+        "title": "Example Report 15: Race condition allows repeated coupon redemption",
+        "level": 3
+      },
+      {
+        "id": "example-report-16-prototype-pollution-in-config-merge",
+        "title": "Example Report 16: Prototype pollution in config merge",
+        "level": 3
+      },
+      {
+        "id": "example-report-17-xxe-leaks-local-configuration-file",
+        "title": "Example Report 17: XXE leaks local configuration file",
+        "level": 3
+      },
+      {
+        "id": "example-report-18-jwt-accepts-alg-none-signature-bypass",
+        "title": "Example Report 18: JWT accepts `alg:none` signature bypass",
+        "level": 3
+      },
+      {
+        "id": "example-report-19-indirect-prompt-injection-triggers-unauthorized-tool-call",
+        "title": "Example Report 19: Indirect prompt injection triggers unauthorized tool call",
+        "level": 3
+      },
+      {
+        "id": "example-report-20-cross-tenant-document-retrieval-in-rag-index",
+        "title": "Example Report 20: Cross-tenant document retrieval in RAG index",
+        "level": 3
+      },
+      {
+        "id": "25-5-key-takeaways",
+        "title": "25.5 Key Takeaways",
+        "level": 2
+      },
+      {
+        "id": "25-6-references",
+        "title": "25.6 References",
+        "level": 2
+      }
+    ],
+    "schoolIds": [
+      "advanced-bug-bounty-hunting"
+    ],
+    "tags": [
+      "report writing",
+      "CVSS",
+      "triage"
+    ],
+    "prerequisites": [
+      11,
+      15
+    ],
+    "path": "/content/chapters/ch25.md"
+  },
+  {
+    "id": 26,
+    "slug": "chapter-26",
+    "title": "Building a Professional Bug Bounty Workflow",
+    "number": 26,
+    "part": "IX — Professional Bug Bounty Operations",
+    "description": "Operating a professional engagement end to end: selection, mapping, testing, validation, reporting and continuous improvement.",
+    "difficulty": "Intermediate",
+    "level": 6,
+    "minutes": 65,
+    "words": 556,
+    "sections": [
+      {
+        "id": "26-1-the-ten-phases",
+        "title": "26.1 The Ten Phases",
+        "level": 2
+      },
+      {
+        "id": "phase-1-program-selection",
+        "title": "Phase 1: Program Selection",
+        "level": 3
+      },
+      {
+        "id": "phase-2-scope-analysis",
+        "title": "Phase 2: Scope Analysis",
+        "level": 3
+      },
+      {
+        "id": "phase-3-asset-inventory",
+        "title": "Phase 3: Asset Inventory",
+        "level": 3
+      },
+      {
+        "id": "phase-4-application-mapping",
+        "title": "Phase 4: Application Mapping",
+        "level": 3
+      },
+      {
+        "id": "phase-5-manual-testing",
+        "title": "Phase 5: Manual Testing",
+        "level": 3
+      },
+      {
+        "id": "phase-6-vulnerability-validation",
+        "title": "Phase 6: Vulnerability Validation",
+        "level": 3
+      },
+      {
+        "id": "phase-7-impact-assessment",
+        "title": "Phase 7: Impact Assessment",
+        "level": 3
+      },
+      {
+        "id": "phase-8-evidence-collection",
+        "title": "Phase 8: Evidence Collection",
+        "level": 3
+      },
+      {
+        "id": "phase-9-report-writing",
+        "title": "Phase 9: Report Writing",
+        "level": 3
+      },
+      {
+        "id": "phase-10-submission-and-triage",
+        "title": "Phase 10: Submission and Triage",
+        "level": 3
+      },
+      {
+        "id": "26-2-reusable-program-analysis-template",
+        "title": "26.2 Reusable Program Analysis Template",
+        "level": 2
+      },
+      {
+        "id": "26-3-research-log-template",
+        "title": "26.3 Research Log Template",
+        "level": 2
+      },
+      {
+        "id": "26-4-endpoint-test-checklist",
+        "title": "26.4 Endpoint Test Checklist",
+        "level": 2
+      },
+      {
+        "id": "26-5-weekly-review",
+        "title": "26.5 Weekly Review",
+        "level": 2
+      },
+      {
+        "id": "26-6-key-takeaways",
+        "title": "26.6 Key Takeaways",
+        "level": 2
+      },
+      {
+        "id": "26-7-references",
+        "title": "26.7 References",
+        "level": 2
+      }
+    ],
+    "schoolIds": [
+      "advanced-bug-bounty-hunting"
+    ],
+    "tags": [
+      "workflow",
+      "documentation",
+      "automation"
+    ],
+    "prerequisites": [
+      13,
+      14,
+      25
+    ],
+    "path": "/content/chapters/ch26.md"
+  },
+  {
+    "id": 27,
+    "slug": "chapter-27",
+    "title": "Career and Professional Development",
+    "number": 27,
+    "part": "IX — Professional Bug Bounty Operations",
+    "description": "Building a reputation, writing research, measuring skill honestly and collaborating professionally.",
+    "difficulty": "Beginner",
+    "level": 8,
+    "minutes": 55,
+    "words": 580,
+    "sections": [
+      {
+        "id": "27-1-building-a-research-portfolio",
+        "title": "27.1 Building a Research Portfolio",
+        "level": 2
+      },
+      {
+        "id": "27-2-publishing-research-responsibly",
+        "title": "27.2 Publishing Research Responsibly",
+        "level": 2
+      },
+      {
+        "id": "27-3-networking-and-community",
+        "title": "27.3 Networking and Community",
+        "level": 2
+      },
+      {
+        "id": "27-4-certifications",
+        "title": "27.4 Certifications",
+        "level": 2
+      },
+      {
+        "id": "27-5-career-paths",
+        "title": "27.5 Career Paths",
+        "level": 2
+      },
+      {
+        "id": "27-6-continuous-learning",
+        "title": "27.6 Continuous Learning",
+        "level": 2
+      },
+      {
+        "id": "27-7-key-takeaways",
+        "title": "27.7 Key Takeaways",
+        "level": 2
+      },
+      {
+        "id": "27-8-references",
+        "title": "27.8 References",
+        "level": 2
+      }
+    ],
+    "schoolIds": [
+      "advanced-bug-bounty-hunting"
+    ],
+    "tags": [
+      "career",
+      "ports",
+      "communication"
+    ],
+    "prerequisites": [
+      11
+    ],
+    "path": "/content/chapters/ch27.md"
+  },
+  {
+    "id": 28,
+    "slug": "chapter-28",
+    "title": "Build Your Own Cybersecurity Research Laboratory",
+    "number": 28,
+    "part": "X — Hands-on Laboratory and Projects",
+    "description": "Build an isolated, legal practice laboratory: VMs, containers, intentionally vulnerable apps and snapshot discipline.",
+    "difficulty": "Beginner",
+    "level": 2,
+    "minutes": 90,
+    "words": 764,
+    "sections": [
+      {
+        "id": "28-1-lab-design-principles",
+        "title": "28.1 Lab Design Principles",
+        "level": 2
+      },
+      {
+        "id": "28-2-host-and-virtualization",
+        "title": "28.2 Host and Virtualization",
+        "level": 2
+      },
+      {
+        "id": "28-3-docker-and-vulnerable-applications",
+        "title": "28.3 Docker and Vulnerable Applications",
+        "level": 2
+      },
+      {
+        "id": "28-4-tool-installation",
+        "title": "28.4 Tool Installation",
+        "level": 2
+      },
+      {
+        "id": "28-5-local-dns-and-hosts",
+        "title": "28.5 Local DNS and Hosts",
+        "level": 2
+      },
+      {
+        "id": "28-6-test-accounts",
+        "title": "28.6 Test Accounts",
+        "level": 2
+      },
+      {
+        "id": "28-7-logging-and-evidence-management",
+        "title": "28.7 Logging and Evidence Management",
+        "level": 2
+      },
+      {
+        "id": "28-8-learning-platforms",
+        "title": "28.8 Learning Platforms",
+        "level": 2
+      },
+      {
+        "id": "28-9-progression",
+        "title": "28.9 Progression",
+        "level": 2
+      },
+      {
+        "id": "28-10-safety-checklist",
+        "title": "28.10 Safety Checklist",
+        "level": 2
+      },
+      {
+        "id": "28-11-key-takeaways",
+        "title": "28.11 Key Takeaways",
+        "level": 2
+      },
+      {
+        "id": "28-12-references",
+        "title": "28.12 References",
+        "level": 2
+      }
+    ],
+    "schoolIds": [
+      "practical-labs"
+    ],
+    "tags": [
+      "labs",
+      "VM",
+      "Docker",
+      "Juice Shop"
+    ],
+    "prerequisites": [
+      3,
+      4
+    ],
+    "path": "/content/chapters/ch28.md"
+  },
+  {
+    "id": 29,
+    "slug": "chapter-29",
+    "title": "30 Practical Security Research Projects",
+    "number": 29,
+    "part": "X — Hands-on Laboratory and Projects",
+    "description": "30 concrete build projects with requirements, architecture, milestones, testing, security notes and portfolio guidance.",
+    "difficulty": "Intermediate",
+    "level": 5,
+    "minutes": 150,
+    "words": 3141,
+    "sections": [
+      {
+        "id": "project-1-http-security-header-analyzer",
+        "title": "Project 1: HTTP Security Header Analyzer",
+        "level": 2
+      },
+      {
+        "id": "project-2-dns-reconnaissance-utility",
+        "title": "Project 2: DNS Reconnaissance Utility",
+        "level": 2
+      },
+      {
+        "id": "project-3-local-network-analyzer",
+        "title": "Project 3: Local Network Analyzer",
+        "level": 2
+      },
+      {
+        "id": "project-4-authentication-security-tester",
+        "title": "Project 4: Authentication Security Tester",
+        "level": 2
+      },
+      {
+        "id": "project-5-jwt-security-analyzer",
+        "title": "Project 5: JWT Security Analyzer",
+        "level": 2
+      },
+      {
+        "id": "project-6-api-security-testing-framework",
+        "title": "Project 6: API Security Testing Framework",
+        "level": 2
+      },
+      {
+        "id": "project-7-subdomain-inventory-tool-authorized",
+        "title": "Project 7: Subdomain Inventory Tool (Authorized)",
+        "level": 2
+      },
+      {
+        "id": "project-8-web-technology-fingerprinting-tool",
+        "title": "Project 8: Web Technology Fingerprinting Tool",
+        "level": 2
+      },
+      {
+        "id": "project-9-security-misconfiguration-scanner-local-lab",
+        "title": "Project 9: Security Misconfiguration Scanner (Local Lab)",
+        "level": 2
+      },
+      {
+        "id": "project-10-automated-report-generator",
+        "title": "Project 10: Automated Report Generator",
+        "level": 2
+      },
+      {
+        "id": "project-11-browser-security-analysis-tool",
+        "title": "Project 11: Browser Security Analysis Tool",
+        "level": 2
+      },
+      {
+        "id": "project-12-javascript-endpoint-analyzer",
+        "title": "Project 12: JavaScript Endpoint Analyzer",
+        "level": 2
+      },
+      {
+        "id": "project-13-secure-file-upload-testing-lab",
+        "title": "Project 13: Secure File Upload Testing Lab",
+        "level": 2
+      },
+      {
+        "id": "project-14-sql-injection-demonstration-lab",
+        "title": "Project 14: SQL Injection Demonstration Lab",
+        "level": 2
+      },
+      {
+        "id": "project-15-xss-demonstration-lab",
+        "title": "Project 15: XSS Demonstration Lab",
+        "level": 2
+      },
+      {
+        "id": "project-16-ssrf-prevention-and-validation-lab",
+        "title": "Project 16: SSRF Prevention and Validation Lab",
+        "level": 2
+      },
+      {
+        "id": "project-17-oauth-security-laboratory",
+        "title": "Project 17: OAuth Security Laboratory",
+        "level": 2
+      },
+      {
+        "id": "project-18-graphql-authorization-testing-lab",
+        "title": "Project 18: GraphQL Authorization Testing Lab",
+        "level": 2
+      },
+      {
+        "id": "project-19-race-condition-demonstration-lab",
+        "title": "Project 19: Race Condition Demonstration Lab",
+        "level": 2
+      },
+      {
+        "id": "project-20-docker-security-analyzer",
+        "title": "Project 20: Docker Security Analyzer",
+        "level": 2
+      },
+      {
+        "id": "project-21-cloud-iam-configuration-analyzer",
+        "title": "Project 21: Cloud IAM Configuration Analyzer",
+        "level": 2
+      },
+      {
+        "id": "project-22-dependency-vulnerability-analyzer",
+        "title": "Project 22: Dependency Vulnerability Analyzer",
+        "level": 2
+      },
+      {
+        "id": "project-23-secret-scanning-tool",
+        "title": "Project 23: Secret Scanning Tool",
+        "level": 2
+      },
+      {
+        "id": "project-24-android-application-security-analyzer",
+        "title": "Project 24: Android Application Security Analyzer",
+        "level": 2
+      },
+      {
+        "id": "project-25-fuzzing-harness",
+        "title": "Project 25: Fuzzing Harness",
+        "level": 2
+      },
+      {
+        "id": "project-26-binary-crash-analysis-tool",
+        "title": "Project 26: Binary Crash Analysis Tool",
+        "level": 2
+      },
+      {
+        "id": "project-27-rag-security-testing-framework",
+        "title": "Project 27: RAG Security Testing Framework",
+        "level": 2
+      },
+      {
+        "id": "project-28-llm-prompt-injection-evaluation-framework",
+        "title": "Project 28: LLM Prompt Injection Evaluation Framework",
+        "level": 2
+      },
+      {
+        "id": "project-29-ai-agent-tool-permission-auditor",
+        "title": "Project 29: AI Agent Tool-Permission Auditor",
+        "level": 2
+      },
+      {
+        "id": "project-30-personal-bug-bounty-research-dashboard",
+        "title": "Project 30: Personal Bug Bounty Research Dashboard",
+        "level": 2
+      },
+      {
+        "id": "29-1-key-takeaways",
+        "title": "29.1 Key Takeaways",
+        "level": 2
+      }
+    ],
+    "schoolIds": [
+      "projects-portfolio"
+    ],
+    "tags": [
+      "projects",
+      "portfolio",
+      "GitHub"
+    ],
+    "prerequisites": [
+      5,
+      14
+    ],
+    "path": "/content/chapters/ch29.md"
+  },
+  {
+    "id": 30,
+    "slug": "chapter-30",
+    "title": "12-Month Cybersecurity Mastery Roadmap",
+    "number": 30,
+    "part": "XI — Complete Learning Roadmap",
+    "description": "A 12-month, adjustable study roadmap with monthly themes, checkpoints and measurable advancement criteria.",
+    "difficulty": "Beginner",
+    "level": 1,
+    "minutes": 60,
+    "words": 2089,
+    "sections": [
+      {
+        "id": "30-1-adapting-to-your-weekly-time-budget",
+        "title": "30.1 Adapting to Your Weekly Time Budget",
+        "level": 2
+      },
+      {
+        "id": "30-2-monthly-plans",
+        "title": "30.2 Monthly Plans",
+        "level": 2
+      },
+      {
+        "id": "month-1-computer-science-and-linux",
+        "title": "Month 1: Computer Science and Linux",
+        "level": 3
+      },
+      {
+        "id": "month-2-networking",
+        "title": "Month 2: Networking",
+        "level": 3
+      },
+      {
+        "id": "month-3-programming-and-web-development",
+        "title": "Month 3: Programming and Web Development",
+        "level": 3
+      },
+      {
+        "id": "month-4-web-security-foundations",
+        "title": "Month 4: Web Security Foundations",
+        "level": 3
+      },
+      {
+        "id": "month-5-bug-bounty-foundations",
+        "title": "Month 5: Bug Bounty Foundations",
+        "level": 3
+      },
+      {
+        "id": "month-6-advanced-web-security",
+        "title": "Month 6: Advanced Web Security",
+        "level": 3
+      },
+      {
+        "id": "month-7-cloud-and-infrastructure-security",
+        "title": "Month 7: Cloud and Infrastructure Security",
+        "level": 3
+      },
+      {
+        "id": "month-8-mobile-and-api-security",
+        "title": "Month 8: Mobile and API Security",
+        "level": 3
+      },
+      {
+        "id": "month-9-advanced-security-research",
+        "title": "Month 9: Advanced Security Research",
+        "level": 3
+      },
+      {
+        "id": "month-10-ai-and-llm-security",
+        "title": "Month 10: AI and LLM Security",
+        "level": 3
+      },
+      {
+        "id": "month-11-professional-bug-bounty-practice",
+        "title": "Month 11: Professional Bug Bounty Practice",
+        "level": 3
+      },
+      {
+        "id": "month-12-advanced-research-and-specialization",
+        "title": "Month 12: Advanced Research and Specialization",
+        "level": 3
+      },
+      {
+        "id": "30-3-quarterly-checkpoints",
+        "title": "30.3 Quarterly Checkpoints",
+        "level": 2
+      },
+      {
+        "id": "30-4-key-takeaways",
+        "title": "30.4 Key Takeaways",
+        "level": 2
+      }
+    ],
+    "schoolIds": [
+      "learning-roadmap"
+    ],
+    "tags": [
+      "roadmap",
+      "12 months",
+      "milestones"
+    ],
+    "prerequisites": [
+      1
+    ],
+    "path": "/content/chapters/ch30.md"
+  },
+  {
+    "id": 31,
+    "slug": "chapter-31",
+    "title": "Essential Books",
+    "number": 31,
+    "part": "XII — Master Study Material",
+    "description": "Curated books organised by discipline and level, with guidance on how to read technical material actively.",
+    "difficulty": "Beginner",
+    "level": 1,
+    "minutes": 25,
+    "words": 919,
+    "sections": [
+      {
+        "id": "31-1-computer-science-and-systems",
+        "title": "31.1 Computer Science and Systems",
+        "level": 2
+      },
+      {
+        "id": "31-2-networking",
+        "title": "31.2 Networking",
+        "level": 2
+      },
+      {
+        "id": "31-3-linux-and-operating-systems",
+        "title": "31.3 Linux and Operating Systems",
+        "level": 2
+      },
+      {
+        "id": "31-4-web-and-application-security",
+        "title": "31.4 Web and Application Security",
+        "level": 2
+      },
+      {
+        "id": "31-5-reverse-engineering-and-binary-exploitation",
+        "title": "31.5 Reverse Engineering and Binary Exploitation",
+        "level": 2
+      },
+      {
+        "id": "31-6-cryptography-and-privacy",
+        "title": "31.6 Cryptography and Privacy",
+        "level": 2
+      },
+      {
+        "id": "31-7-cloud-container-and-infrastructure",
+        "title": "31.7 Cloud, Container, and Infrastructure",
+        "level": 2
+      },
+      {
+        "id": "31-8-ai-and-llm-security",
+        "title": "31.8 AI and LLM Security",
+        "level": 2
+      },
+      {
+        "id": "31-9-how-to-build-a-reference-library",
+        "title": "31.9 How to Build a Reference Library",
+        "level": 2
+      },
+      {
+        "id": "31-10-key-takeaways",
+        "title": "31.10 Key Takeaways",
+        "level": 2
+      }
+    ],
+    "schoolIds": [
+      "study-material"
+    ],
+    "tags": [
+      "books",
+      "reading"
+    ],
+    "prerequisites": [],
+    "path": "/content/chapters/ch31.md"
+  },
+  {
+    "id": 32,
+    "slug": "chapter-32",
+    "title": "Courses and Learning Platforms",
+    "number": 32,
+    "part": "XII — Master Study Material",
+    "description": "Courses and learning platforms evaluated by focus, prerequisites and outcomes, with honest free/paid distinctions.",
+    "difficulty": "Beginner",
+    "level": 1,
+    "minutes": 25,
+    "words": 522,
+    "sections": [
+      {
+        "id": "32-1-suggested-combinations",
+        "title": "32.1 Suggested Combinations",
+        "level": 2
+      },
+      {
+        "id": "32-2-evaluating-a-course",
+        "title": "32.2 Evaluating a Course",
+        "level": 2
+      },
+      {
+        "id": "32-3-key-takeaways",
+        "title": "32.3 Key Takeaways",
+        "level": 2
+      }
+    ],
+    "schoolIds": [
+      "study-material"
+    ],
+    "tags": [
+      "courses",
+      "platforms"
+    ],
+    "prerequisites": [],
+    "path": "/content/chapters/ch32.md"
+  },
+  {
+    "id": 33,
+    "slug": "chapter-33",
+    "title": "Security Research Papers",
+    "number": 33,
+    "part": "XII — Master Study Material",
+    "description": "Foundational and current security research with difficulty ratings, prerequisites and a method for reading papers.",
+    "difficulty": "Advanced",
+    "level": 8,
+    "minutes": 70,
+    "words": 1179,
+    "sections": [
+      {
+        "id": "33-1-foundations-of-security-and-cryptography",
+        "title": "33.1 Foundations of Security and Cryptography",
+        "level": 2
+      },
+      {
+        "id": "33-2-web-and-application-security",
+        "title": "33.2 Web and Application Security",
+        "level": 2
+      },
+      {
+        "id": "33-3-memory-safety-and-exploitation",
+        "title": "33.3 Memory Safety and Exploitation",
+        "level": 2
+      },
+      {
+        "id": "33-4-fuzzing-and-automated-discovery",
+        "title": "33.4 Fuzzing and Automated Discovery",
+        "level": 2
+      },
+      {
+        "id": "33-5-supply-chain-and-software-security",
+        "title": "33.5 Supply Chain and Software Security",
+        "level": 2
+      },
+      {
+        "id": "33-6-machine-learning-and-ai-security",
+        "title": "33.6 Machine Learning and AI Security",
+        "level": 2
+      },
+      {
+        "id": "33-7-how-to-read-a-security-paper",
+        "title": "33.7 How to Read a Security Paper",
+        "level": 2
+      },
+      {
+        "id": "33-8-key-takeaways",
+        "title": "33.8 Key Takeaways",
+        "level": 2
+      }
+    ],
+    "schoolIds": [
+      "research-library"
+    ],
+    "tags": [
+      "papers",
+      "research",
+      "citations"
+    ],
+    "prerequisites": [
+      9,
+      21
+    ],
+    "path": "/content/chapters/ch33.md"
+  },
+  {
+    "id": 34,
+    "slug": "chapter-34",
+    "title": "Master Question Bank",
+    "number": 34,
+    "part": "XIII — Examination and Researcher Assessment",
+    "description": "1011 explanatory questions across six domains — the retrieval-practice backbone of the platform.",
+    "difficulty": "All levels",
+    "level": 1,
+    "minutes": 300,
+    "words": 28082,
+    "sections": [
+      {
+        "id": "34-1-foundational-questions",
+        "title": "34.1 Foundational Questions",
+        "level": 2
+      },
+      {
+        "id": "34-2-web-questions",
+        "title": "34.2 Web Questions",
+        "level": 2
+      },
+      {
+        "id": "34-3-network-questions",
+        "title": "34.3 Network Questions",
+        "level": 2
+      },
+      {
+        "id": "34-4-advanced-questions",
+        "title": "34.4 Advanced Questions",
+        "level": 2
+      },
+      {
+        "id": "34-5-cloud-questions",
+        "title": "34.5 Cloud Questions",
+        "level": 2
+      },
+      {
+        "id": "34-6-ai-questions",
+        "title": "34.6 AI Questions",
+        "level": 2
+      },
+      {
+        "id": "34-7-how-to-use-this-bank",
+        "title": "34.7 How to Use This Bank",
+        "level": 2
+      },
+      {
+        "id": "34-8-key-takeaways",
+        "title": "34.8 Key Takeaways",
+        "level": 2
+      }
+    ],
+    "schoolIds": [
+      "assessments"
+    ],
+    "tags": [
+      "question bank",
+      "recall",
+      "practice"
+    ],
+    "prerequisites": [],
+    "path": "/content/chapters/ch34.md"
+  },
+  {
+    "id": 35,
+    "slug": "chapter-35",
+    "title": "Practical Assessments",
+    "number": 35,
+    "part": "XIII — Examination and Researcher Assessment",
+    "description": "Scenario-based practical assessments that require reasoning, not recognition, before advanced skills unlock.",
+    "difficulty": "Intermediate",
+    "level": 5,
+    "minutes": 120,
+    "words": 1633,
+    "sections": [
+      {
+        "id": "35-1-assessment-1-beginner-security-assessment",
+        "title": "35.1 Assessment 1: Beginner Security Assessment",
+        "level": 2
+      },
+      {
+        "id": "35-2-assessment-2-intermediate-web-security-assessment",
+        "title": "35.2 Assessment 2: Intermediate Web Security Assessment",
+        "level": 2
+      },
+      {
+        "id": "35-3-assessment-3-advanced-application-security-assessment",
+        "title": "35.3 Assessment 3: Advanced Application Security Assessment",
+        "level": 2
+      },
+      {
+        "id": "35-4-assessment-4-api-security-challenge",
+        "title": "35.4 Assessment 4: API Security Challenge",
+        "level": 2
+      },
+      {
+        "id": "35-5-assessment-5-cloud-security-challenge",
+        "title": "35.5 Assessment 5: Cloud Security Challenge",
+        "level": 2
+      },
+      {
+        "id": "35-6-assessment-6-ai-security-challenge",
+        "title": "35.6 Assessment 6: AI Security Challenge",
+        "level": 2
+      },
+      {
+        "id": "35-7-assessment-7-final-independent-research-assessment",
+        "title": "35.7 Assessment 7: Final Independent Research Assessment",
+        "level": 2
+      },
+      {
+        "id": "solutions",
+        "title": "Solutions",
+        "level": 2
+      },
+      {
+        "id": "solutions-to-assessment-1",
+        "title": "Solutions to Assessment 1",
+        "level": 3
+      },
+      {
+        "id": "solutions-to-assessment-2",
+        "title": "Solutions to Assessment 2",
+        "level": 3
+      },
+      {
+        "id": "solutions-to-assessment-3",
+        "title": "Solutions to Assessment 3",
+        "level": 3
+      },
+      {
+        "id": "solutions-to-assessment-4",
+        "title": "Solutions to Assessment 4",
+        "level": 3
+      },
+      {
+        "id": "solutions-to-assessment-5",
+        "title": "Solutions to Assessment 5",
+        "level": 3
+      },
+      {
+        "id": "solutions-to-assessment-6",
+        "title": "Solutions to Assessment 6",
+        "level": 3
+      },
+      {
+        "id": "solutions-to-assessment-7",
+        "title": "Solutions to Assessment 7",
+        "level": 3
+      },
+      {
+        "id": "35-8-key-takeaways",
+        "title": "35.8 Key Takeaways",
+        "level": 2
+      }
+    ],
+    "schoolIds": [
+      "assessments"
+    ],
+    "tags": [
+      "assessments",
+      "scenarios",
+      "practical"
+    ],
+    "prerequisites": [
+      9,
+      14
+    ],
+    "path": "/content/chapters/ch35.md"
+  },
+  {
+    "id": 36,
+    "slug": "chapter-36",
+    "title": "Final Researcher Handbook",
+    "number": 36,
+    "part": "XIV — Final Researcher Handbook",
+    "description": "Quick-reference checklists, templates and a glossary consolidating the operational material from all chapters.",
+    "difficulty": "All levels",
+    "level": 9,
+    "minutes": 60,
+    "words": 8561,
+    "sections": [
+      {
+        "id": "36-1-tool-installation-reference",
+        "title": "36.1 Tool Installation Reference",
+        "level": 2
+      },
+      {
+        "id": "36-2-linux-command-cheat-sheet",
+        "title": "36.2 Linux Command Cheat Sheet",
+        "level": 2
+      },
+      {
+        "id": "36-3-networking-command-cheat-sheet",
+        "title": "36.3 Networking Command Cheat Sheet",
+        "level": 2
+      },
+      {
+        "id": "36-4-burp-suite-workflow-reference",
+        "title": "36.4 Burp Suite Workflow Reference",
+        "level": 2
+      },
+      {
+        "id": "36-5-owasp-vulnerability-checklist-top-10-2025",
+        "title": "36.5 OWASP Vulnerability Checklist (Top 10:2025)",
+        "level": 2
+      },
+      {
+        "id": "36-6-api-security-checklist",
+        "title": "36.6 API Security Checklist",
+        "level": 2
+      },
+      {
+        "id": "36-7-cloud-security-checklist",
+        "title": "36.7 Cloud Security Checklist",
+        "level": 2
+      },
+      {
+        "id": "36-8-mobile-security-checklist",
+        "title": "36.8 Mobile Security Checklist",
+        "level": 2
+      },
+      {
+        "id": "36-9-ai-security-checklist",
+        "title": "36.9 AI Security Checklist",
+        "level": 2
+      },
+      {
+        "id": "36-10-bug-bounty-scope-checklist",
+        "title": "36.10 Bug Bounty Scope Checklist",
+        "level": 2
+      },
+      {
+        "id": "36-11-vulnerability-report-template",
+        "title": "36.11 Vulnerability Report Template",
+        "level": 2
+      },
+      {
+        "id": "36-12-security-research-journal-template",
+        "title": "36.12 Security Research Journal Template",
+        "level": 2
+      },
+      {
+        "id": "36-13-daily-researcher-checklist",
+        "title": "36.13 Daily Researcher Checklist",
+        "level": 2
+      },
+      {
+        "id": "36-14-weekly-progress-tracker",
+        "title": "36.14 Weekly Progress Tracker",
+        "level": 2
+      },
+      {
+        "id": "36-15-monthly-assessment-framework",
+        "title": "36.15 Monthly Assessment Framework",
+        "level": 2
+      },
+      {
+        "id": "36-16-responsible-disclosure-guide",
+        "title": "36.16 Responsible Disclosure Guide",
+        "level": 2
+      },
+      {
+        "id": "36-17-security-researcher-ethics-charter",
+        "title": "36.17 Security Researcher Ethics Charter",
+        "level": 2
+      },
+      {
+        "id": "36-18-official-resource-directory",
+        "title": "36.18 Official Resource Directory",
+        "level": 2
+      },
+      {
+        "id": "36-19-complete-glossary",
+        "title": "36.19 Complete Glossary",
+        "level": 2
+      },
+      {
+        "id": "36-19-complete-glossary",
+        "title": "36.19 Complete Glossary",
+        "level": 2
+      },
+      {
+        "id": "36-20-index",
+        "title": "36.20 Index",
+        "level": 2
+      },
+      {
+        "id": "36-21-key-takeaways",
+        "title": "36.21 Key Takeaways",
+        "level": 2
+      }
+    ],
+    "schoolIds": [
+      "study-material"
+    ],
+    "tags": [
+      "handbook",
+      "checklists",
+      "glossary"
+    ],
+    "prerequisites": [],
+    "path": "/content/chapters/ch36.md"
+  }
+]

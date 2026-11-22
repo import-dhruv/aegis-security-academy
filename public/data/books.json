@@ -1,0 +1,206 @@
+[
+  {
+    "title": "*Computer Systems: A Programmer's Perspective* (3rd ed.)",
+    "author": "Bryant \\& O'Hallaron",
+    "focus": "Intermediate",
+    "category": "Computer Science and Systems"
+  },
+  {
+    "title": "*Computer Organization and Design* (5th/6th ed.)",
+    "author": "Patterson \\& Hennessy",
+    "focus": "Intermediate",
+    "category": "Computer Science and Systems"
+  },
+  {
+    "title": "*The Elements of Computing Systems* (Nisan \\& Schocken)",
+    "author": "Nisan, Schocken",
+    "focus": "Beginner--Intermediate",
+    "category": "Computer Science and Systems"
+  },
+  {
+    "title": "*Structure and Interpretation of Computer Programs*",
+    "author": "Abelson, Sussman",
+    "focus": "Intermediate--Advanced",
+    "category": "Computer Science and Systems"
+  },
+  {
+    "title": "*Operating System Concepts*",
+    "author": "Silberschatz, Galvin, Gagne",
+    "focus": "Intermediate",
+    "category": "Computer Science and Systems"
+  },
+  {
+    "title": "*Modern Operating Systems*",
+    "author": "Tanenbaum",
+    "focus": "Intermediate",
+    "category": "Computer Science and Systems"
+  },
+  {
+    "title": "*Computer Networks* (5th/6th ed.)",
+    "author": "Tanenbaum \\& Wetherall",
+    "focus": "Intermediate",
+    "category": "Networking"
+  },
+  {
+    "title": "*Computer Networking: A Top-Down Approach*",
+    "author": "Kurose \\& Ross",
+    "focus": "Beginner--Intermediate",
+    "category": "Networking"
+  },
+  {
+    "title": "*TCP/IP Illustrated, Volume 1*",
+    "author": "Stevens, Fall",
+    "focus": "Advanced",
+    "category": "Networking"
+  },
+  {
+    "title": "*The Linux Programming Interface*",
+    "author": "Michael Kerrisk",
+    "focus": "Advanced",
+    "category": "Linux and Operating Systems"
+  },
+  {
+    "title": "*Advanced Programming in the UNIX Environment*",
+    "author": "Stevens \\& Rago",
+    "focus": "Advanced",
+    "category": "Linux and Operating Systems"
+  },
+  {
+    "title": "*Linux Device Drivers*",
+    "author": "Corbet, Rubini, Hartman",
+    "focus": "Advanced",
+    "category": "Linux and Operating Systems"
+  },
+  {
+    "title": "*The Linux Command Line*",
+    "author": "William Shotts",
+    "focus": "Beginner",
+    "category": "Linux and Operating Systems"
+  },
+  {
+    "title": "*The Web Application Hacker's Handbook* (2nd ed.)",
+    "author": "Stuttard \\& Pinto",
+    "focus": "Intermediate",
+    "category": "Web and Application Security"
+  },
+  {
+    "title": "*Web Security for Developers*",
+    "author": "Malcolm McDonald",
+    "focus": "Beginner--Intermediate",
+    "category": "Web and Application Security"
+  },
+  {
+    "title": "*OWASP Web Security Testing Guide*",
+    "author": "OWASP (community)",
+    "focus": "Intermediate",
+    "category": "Web and Application Security"
+  },
+  {
+    "title": "*API Security in Action*",
+    "author": "Neil Madden",
+    "focus": "Intermediate",
+    "category": "Web and Application Security"
+  },
+  {
+    "title": "*Security in Depth* series",
+    "author": "Various",
+    "focus": "Intermediate",
+    "category": "Web and Application Security"
+  },
+  {
+    "title": "*Hacking: The Art of Exploitation* (2nd ed.)",
+    "author": "Jon Erickson",
+    "focus": "Intermediate",
+    "category": "Reverse Engineering and Binary Exploitation"
+  },
+  {
+    "title": "*The Art of Software Security Assessment*",
+    "author": "Dowd, McDonald, Schuh",
+    "focus": "Advanced",
+    "category": "Reverse Engineering and Binary Exploitation"
+  },
+  {
+    "title": "*Practical Reverse Engineering*",
+    "author": "Dang, Gazet, Bachaalany",
+    "focus": "Intermediate",
+    "category": "Reverse Engineering and Binary Exploitation"
+  },
+  {
+    "title": "*Reverse Engineering for Beginners*",
+    "author": "Dennis Yurichev",
+    "focus": "Beginner--Advanced",
+    "category": "Reverse Engineering and Binary Exploitation"
+  },
+  {
+    "title": "*Understanding Cryptography*",
+    "author": "Paar \\& Pelzl",
+    "focus": "Intermediate",
+    "category": "Cryptography and Privacy"
+  },
+  {
+    "title": "*Cryptography Engineering*",
+    "author": "Ferguson, Schneier, Kohno",
+    "focus": "Intermediate",
+    "category": "Cryptography and Privacy"
+  },
+  {
+    "title": "*Serious Cryptography*",
+    "author": "Jean-Philippe Aumasson",
+    "focus": "Intermediate",
+    "category": "Cryptography and Privacy"
+  },
+  {
+    "title": "*AWS Security Cookbook* / * AWS Security*",
+    "author": "Various",
+    "focus": "Intermediate",
+    "category": "Cloud, Container, and Infrastructure"
+  },
+  {
+    "title": "*Kubernetes Security*",
+    "author": "Various",
+    "focus": "Intermediate--Advanced",
+    "category": "Cloud, Container, and Infrastructure"
+  },
+  {
+    "title": "*Docker Security*",
+    "author": "Sean Kavanagh",
+    "focus": "Intermediate",
+    "category": "Cloud, Container, and Infrastructure"
+  },
+  {
+    "title": "*Infrastructure as Code*",
+    "author": "Kief Morris",
+    "focus": "Intermediate",
+    "category": "Cloud, Container, and Infrastructure"
+  },
+  {
+    "title": "Book / Resource",
+    "author": "Author(s)",
+    "focus": "Level",
+    "category": "AI and LLM Security"
+  },
+  {
+    "title": "*AI Security* (emerging field --- treat as evolving)",
+    "author": "Various",
+    "focus": "Intermediate",
+    "category": "AI and LLM Security"
+  },
+  {
+    "title": "*Hands-On Machine Learning with Scikit-Learn, Keras, and TensorFlow*",
+    "author": "Aurélien Géron",
+    "focus": "Intermediate",
+    "category": "AI and LLM Security"
+  },
+  {
+    "title": "*Attention Is All You Need* (paper)",
+    "author": "Vaswani et al.",
+    "focus": "Advanced",
+    "category": "AI and LLM Security"
+  },
+  {
+    "title": "*OWASP LLM & Agentic Top 10*",
+    "author": "OWASP GenAI Project",
+    "focus": "Intermediate",
+    "category": "AI and LLM Security"
+  }
+]

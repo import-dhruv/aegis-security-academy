@@ -1,0 +1,248 @@
+[
+  {
+    "id": "computer-science-foundations",
+    "name": "Computer Science Foundations",
+    "icon": "cpu",
+    "description": "The mental model of computation: architecture, OS, memory, files, algorithms and the math security rests on.",
+    "chapterIds": [
+      2,
+      3,
+      5
+    ]
+  },
+  {
+    "id": "networking-internet-architecture",
+    "name": "Networking & Internet Architecture",
+    "icon": "network",
+    "description": "OSI/TCP-IP from first principles through packet analysis and modern cloud networking.",
+    "chapterIds": [
+      4
+    ]
+  },
+  {
+    "id": "linux-windows-security",
+    "name": "Linux & Windows Security",
+    "icon": "server",
+    "description": "OS internals, identity, permissions, logging, privilege boundaries and hardening.",
+    "chapterIds": [
+      3
+    ]
+  },
+  {
+    "id": "web-development-architecture",
+    "name": "Web Development & Architecture",
+    "icon": "code",
+    "description": "How applications are actually built — frontend, backend, databases, auth and the request lifecycle.",
+    "chapterIds": [
+      6,
+      7,
+      8
+    ]
+  },
+  {
+    "id": "cybersecurity-fundamentals",
+    "name": "Cybersecurity Fundamentals",
+    "icon": "shield",
+    "description": "CIA triad, risk, threat modelling, controls, frameworks and the professional boundary.",
+    "chapterIds": [
+      1
+    ]
+  },
+  {
+    "id": "cryptography-applied-security",
+    "name": "Cryptography & Applied Security",
+    "icon": "key",
+    "description": "Symmetric/asymmetric crypto, hashing, PKI, TLS and the maths and mistakes behind them.",
+    "chapterIds": [
+      2,
+      8
+    ]
+  },
+  {
+    "id": "web-application-security",
+    "name": "Web Application Security",
+    "icon": "bug",
+    "description": "The complete OWASP web and API vulnerability canon with root cause, detection and defence.",
+    "chapterIds": [
+      8,
+      9,
+      10,
+      17
+    ]
+  },
+  {
+    "id": "advanced-bug-bounty-hunting",
+    "name": "Advanced Bug Bounty Hunting",
+    "icon": "target",
+    "description": "Programs, scope, recon, manual methodology, reporting and a repeatable professional workflow.",
+    "chapterIds": [
+      11,
+      12,
+      13,
+      14,
+      15,
+      25,
+      26,
+      27
+    ]
+  },
+  {
+    "id": "recon-attack-surface-intelligence",
+    "name": "Reconnaissance & Attack Surface Intelligence",
+    "icon": "radar",
+    "description": "Passive and active discovery, OSINT, DNS, assets and visualization.",
+    "chapterIds": [
+      14,
+      16
+    ]
+  },
+  {
+    "id": "burp-suite-mastery",
+    "name": "Burp Suite Mastery",
+    "icon": "wrench",
+    "description": "Proxy, Repeater, Intruder, Scanner, Collaborator, extensions and advanced workflows.",
+    "chapterIds": [
+      15,
+      16
+    ]
+  },
+  {
+    "id": "tools-encyclopedia",
+    "name": "Security Tools Encyclopedia",
+    "icon": "wrench",
+    "description": "56 tools with architecture, installation, commands, output interpretation, limitations and authorized workflows.",
+    "chapterIds": [
+      16
+    ]
+  },
+  {
+    "id": "api-security-research",
+    "name": "API Security Research",
+    "icon": "braces",
+    "description": "REST, GraphQL and SOAP security: authorization, schema abuse, fuzzing and business logic.",
+    "chapterIds": [
+      7,
+      17
+    ]
+  },
+  {
+    "id": "mobile-application-security",
+    "name": "Mobile Application Security",
+    "icon": "smartphone",
+    "description": "Android and iOS architecture, storage, pinning, static and dynamic analysis.",
+    "chapterIds": [
+      18
+    ]
+  },
+  {
+    "id": "cloud-security",
+    "name": "Cloud Security",
+    "icon": "cloud",
+    "description": "AWS, GCP, Azure, containers, Kubernetes, CI/CD and cloud misconfiguration.",
+    "chapterIds": [
+      19
+    ]
+  },
+  {
+    "id": "advanced-exploitation-binary-security",
+    "name": "Advanced Exploitation & Binary Security",
+    "icon": "binary",
+    "description": "Assembly, memory layout, memory corruption, ROP and mitigations in isolated labs.",
+    "chapterIds": [
+      21
+    ]
+  },
+  {
+    "id": "reverse-engineering-malware-analysis",
+    "name": "Reverse Engineering & Malware Analysis",
+    "icon": "scan",
+    "description": "Formats, disassembly, decompilation, debugging, behaviour analysis and forensics.",
+    "chapterIds": [
+      22
+    ]
+  },
+  {
+    "id": "fuzzing-vulnerability-research",
+    "name": "Fuzzing & Vulnerability Research",
+    "icon": "flask",
+    "description": "Coverage-guided, grammar and differential fuzzing, sanitizers and crash triage.",
+    "chapterIds": [
+      23
+    ]
+  },
+  {
+    "id": "ai-future-of-cybersecurity",
+    "name": "AI & the Future of Cybersecurity",
+    "icon": "brain",
+    "description": "AI-assisted research and the security of LLM, RAG, agentic and MCP systems.",
+    "chapterIds": [
+      24
+    ]
+  },
+  {
+    "id": "secure-coding-application-defense",
+    "name": "Secure Coding & Application Defense",
+    "icon": "lock",
+    "description": "Input handling, auth architecture, SAST/DAST/SCA, code review and DevSecOps.",
+    "chapterIds": [
+      20
+    ]
+  },
+  {
+    "id": "practical-labs",
+    "name": "Practical Laboratories",
+    "icon": "flask-conical",
+    "description": "Legal, isolated, intentionally vulnerable environments and guided exercises.",
+    "chapterIds": [
+      28
+    ]
+  },
+  {
+    "id": "projects-portfolio",
+    "name": "Projects & Portfolio",
+    "icon": "folder-git",
+    "description": "Build real tools and demonstrate competence with documented, tested artifacts.",
+    "chapterIds": [
+      29
+    ]
+  },
+  {
+    "id": "learning-roadmap",
+    "name": "Learning Roadmap",
+    "icon": "map",
+    "description": "An adjustable path from absolute beginner to independent researcher.",
+    "chapterIds": [
+      30
+    ]
+  },
+  {
+    "id": "study-material",
+    "name": "Study Material",
+    "icon": "book-open",
+    "description": "Books, courses, the master handbook and reference material.",
+    "chapterIds": [
+      31,
+      32,
+      36
+    ]
+  },
+  {
+    "id": "research-library",
+    "name": "Research Library",
+    "icon": "file-search",
+    "description": "Curated papers with prerequisites, key findings and reproducibility notes.",
+    "chapterIds": [
+      33
+    ]
+  },
+  {
+    "id": "assessments",
+    "name": "Assessments",
+    "icon": "clipboard-check",
+    "description": "Question bank and scenario assessments that gate progression on demonstrated understanding.",
+    "chapterIds": [
+      34,
+      35
+    ]
+  }
+]

@@ -1,0 +1,107 @@
+[
+  {
+    "level": 1,
+    "name": "Cybersecurity Initiate",
+    "description": "Foundations, threat landscape, ethics and the risk mindset.",
+    "chapterIds": [
+      1,
+      2,
+      30,
+      31,
+      32,
+      34
+    ]
+  },
+  {
+    "level": 2,
+    "name": "Computer Systems Explorer",
+    "description": "Architecture, Linux, networking and scripting fluency.",
+    "chapterIds": [
+      3,
+      4,
+      5,
+      28
+    ]
+  },
+  {
+    "level": 3,
+    "name": "Network Analyst",
+    "description": "Traffic, web architecture and the browser/security model.",
+    "chapterIds": [
+      6,
+      7,
+      8
+    ]
+  },
+  {
+    "level": 4,
+    "name": "Security Practitioner",
+    "description": "OWASP core, programs, scope and professional basics.",
+    "chapterIds": [
+      9,
+      11,
+      12,
+      13
+    ]
+  },
+  {
+    "level": 5,
+    "name": "Web Security Researcher",
+    "description": "Web/API exploitation, recon, tools and reporting.",
+    "chapterIds": [
+      14,
+      15,
+      16,
+      17,
+      25,
+      29,
+      35
+    ]
+  },
+  {
+    "level": 6,
+    "name": "Bug Bounty Hunter",
+    "description": "Advanced web, cloud, mobile, API and autonomous workflow.",
+    "chapterIds": [
+      10,
+      18,
+      19,
+      20,
+      26
+    ]
+  },
+  {
+    "level": 7,
+    "name": "Advanced Vulnerability Researcher",
+    "description": "Binary security, reversing, fuzzing and AI security.",
+    "chapterIds": [
+      21,
+      22,
+      23,
+      24
+    ]
+  },
+  {
+    "level": 8,
+    "name": "Exploitation Specialist",
+    "description": "Deep exploitation and original research practice.",
+    "chapterIds": [
+      27,
+      33
+    ]
+  },
+  {
+    "level": 9,
+    "name": "Security Research Engineer",
+    "description": "Tool building, novel classes and publication-quality work.",
+    "chapterIds": [
+      36
+    ]
+  },
+  {
+    "level": 10,
+    "name": "Elite Security Researcher",
+    "description": "Independent discovery, responsible disclosure and community contribution.",
+    "chapterIds": []
+  }
+]

@@ -1,0 +1,278 @@
+[
+  {
+    "cve": "CVE-2021-44228",
+    "name": "Log4Shell",
+    "software": "Apache Log4j 2.0-beta9–2.14.1",
+    "category": "Remote Code Execution",
+    "severity": "Critical",
+    "cvss": "CVSS 3.1 10.0",
+    "year": 2021,
+    "rootCause": "JNDI lookups in log message substitution resolve attacker-controlled strings (e.g. ${jndi:ldap://...}) and load remote code.",
+    "impact": "Unauthenticated remote code execution on internet-facing Java services.",
+    "mitigation": "Upgrade to a fixed Log4j release; disable message JNDI lookups; restrict egress.",
+    "resources": [
+      "NVD: CVE-2021-44228",
+      "Apache Log4j security page",
+      "CISA emergency directive"
+    ],
+    "nvd": "https://nvd.nist.gov/vuln/detail/CVE-2021-44228",
+    "timeline": "Discovered by Chen Zhaojun of Alibaba Cloud Security; disclosed 9 Dec 2021; widely exploited within hours."
+  },
+  {
+    "cve": "CVE-2014-0160",
+    "name": "Heartbleed",
+    "software": "OpenSSL 1.0.1–1.0.1f",
+    "category": "Memory Disclosure",
+    "severity": "High",
+    "cvss": "CVSS 3.1 7.5",
+    "year": 2014,
+    "rootCause": "TLS heartbeat extension trusts attacker-supplied length and reads past the allocated buffer without bounds checking.",
+    "impact": "Disclosure of process memory including private keys, session tokens and credentials.",
+    "mitigation": "Upgrade OpenSSL, reissue certificates and rotate all secrets.",
+    "resources": [
+      "NVD: CVE-2014-0160",
+      "heartbleed.com",
+      "CERT advisory"
+    ],
+    "nvd": "https://nvd.nist.gov/vuln/detail/CVE-2014-0160",
+    "timeline": "Reported to OpenSSL by Neel Mehta; disclosed 7 Apr 2014."
+  },
+  {
+    "cve": "CVE-2014-6271",
+    "name": "Shellshock",
+    "software": "GNU Bash 3.0–4.3",
+    "category": "Command Injection",
+    "severity": "Critical",
+    "cvss": "CVSS 3.1 9.8",
+    "year": 2014,
+    "rootCause": "Bash parses function definitions from environment variables, executing trailing commands during import.",
+    "impact": "Remote command execution via CGI and other interfaces that pass environment variables.",
+    "mitigation": "Patch Bash; avoid passing untrusted data into environment variables.",
+    "resources": [
+      "NVD: CVE-2014-6271",
+      "GNU Bash advisories",
+      "US-CERT alert"
+    ],
+    "nvd": "https://nvd.nist.gov/vuln/detail/CVE-2014-6271",
+    "timeline": "Reported by Stéphane Chazelas; disclosed 24 Sep 2014."
+  },
+  {
+    "cve": "CVE-2017-5638",
+    "name": "Apache Struts OGNL Injection",
+    "software": "Apache Struts 2.3.x / 2.5.x",
+    "category": "Remote Code Execution",
+    "severity": "Critical",
+    "cvss": "CVSS 3.1 10.0",
+    "year": 2017,
+    "rootCause": "OGNL expression evaluation of an attacker-controlled Content-Type header in the file upload interceptor.",
+    "impact": "Unauthenticated remote code execution; famously exploited in the Equifax breach.",
+    "mitigation": "Upgrade Struts; validate and restrict Content-Type parsing.",
+    "resources": [
+      "NVD: CVE-2017-5638",
+      "Apache Struts security bulletin S2-045"
+    ],
+    "nvd": "https://nvd.nist.gov/vuln/detail/CVE-2017-5638",
+    "timeline": "Disclosed March 2017; mass exploitation followed publication of PoCs."
+  },
+  {
+    "cve": "CVE-2020-1472",
+    "name": "ZeroLogon",
+    "software": "Microsoft Windows Server Netlogon",
+    "category": "Authentication Bypass",
+    "severity": "Critical",
+    "cvss": "CVSS 3.1 10.0",
+    "year": 2020,
+    "rootCause": "AES-CFB8 implementation reuses an all-zero initialization vector, enabling probabilistic forgery of the computer credential exchange.",
+    "impact": "Domain controller machine password reset and potential full domain compromise.",
+    "mitigation": "Apply MS patches and enforce secure RPC.",
+    "resources": [
+      "NVD: CVE-2020-1472",
+      "Microsoft MSRC CVE-2020-1472",
+      "CISA guidance"
+    ],
+    "nvd": "https://nvd.nist.gov/vuln/detail/CVE-2020-1472",
+    "timeline": "Reported by Tom Tervoort of Secura; patched August 2020."
+  },
+  {
+    "cve": "CVE-2021-4034",
+    "name": "PwnKit",
+    "software": "polkit pkexec (Linux)",
+    "category": "Local Privilege Escalation",
+    "severity": "High",
+    "cvss": "CVSS 3.1 7.8",
+    "year": 2022,
+    "rootCause": "pkexec mishandles an empty argument vector, allowing environment variables to be interpreted as executables and library paths.",
+    "impact": "Any local unprivileged user can gain root on many default Linux distributions.",
+    "mitigation": "Patch polkit; remove setuid bit where possible.",
+    "resources": [
+      "NVD: CVE-2021-4034",
+      "Qualys advisory"
+    ],
+    "nvd": "https://nvd.nist.gov/vuln/detail/CVE-2021-4034",
+    "timeline": "Reported by Qualys Research; disclosed 25 Jan 2022."
+  },
+  {
+    "cve": "CVE-2021-26855",
+    "name": "ProxyLogon",
+    "software": "Microsoft Exchange Server 2013–2019",
+    "category": "Authentication Bypass / RCE",
+    "severity": "Critical",
+    "cvss": "CVSS 3.1 9.8",
+    "year": 2021,
+    "rootCause": "Front-end Exchange trusts a crafted X-AnimatedContent cookie and authenticates as the backend service.",
+    "impact": "Mailbox access and, chained with further flaws, remote code execution.",
+    "mitigation": "Apply Microsoft out-of-band patches; check for compromise.",
+    "resources": [
+      "NVD: CVE-2021-26855",
+      "Microsoft MSRC",
+      "CISA alert AA21-008A"
+    ],
+    "nvd": "https://nvd.nist.gov/vuln/detail/CVE-2021-26855",
+    "timeline": "Reported by DEV-CORE via Trend Micro's Zero Day Initiative; disclosed March 2021."
+  },
+  {
+    "cve": "CVE-2022-22965",
+    "name": "Spring4Shell",
+    "software": "Spring Framework 5.3.x / 5.2.x on Tomcat",
+    "category": "Remote Code Execution",
+    "severity": "Critical",
+    "cvss": "CVSS 3.1 9.8",
+    "year": 2022,
+    "rootCause": "Data binding of request parameters to a JDK 9+ Class object allows manipulation of class-loader properties and log file writing.",
+    "impact": "Remote code execution in certain Spring MVC deployments.",
+    "mitigation": "Upgrade Spring Framework; restrict data binding.",
+    "resources": [
+      "NVD: CVE-2022-22965",
+      "VMware Spring advisory"
+    ],
+    "nvd": "https://nvd.nist.gov/vuln/detail/CVE-2022-22965",
+    "timeline": "Disclosed March/April 2022."
+  },
+  {
+    "cve": "CVE-2022-1388",
+    "name": "F5 BIG-IP Auth Bypass",
+    "software": "F5 BIG-IP 16.x/15.x/14.x/13.x",
+    "category": "Authentication Bypass / RCE",
+    "severity": "Critical",
+    "cvss": "CVSS 3.1 9.8",
+    "year": 2022,
+    "rootCause": "iControl REST skips authentication for requests with certain hop-by-hop headers and an authenticated-like username.",
+    "impact": "Unauthenticated administrative API access and command execution on vulnerable management interfaces.",
+    "mitigation": "Patch; restrict management interface access.",
+    "resources": [
+      "NVD: CVE-2022-1388",
+      "F5 security advisory K23605346"
+    ],
+    "nvd": "https://nvd.nist.gov/vuln/detail/CVE-2022-1388",
+    "timeline": "Disclosed 4 May 2022; mass scanning followed."
+  },
+  {
+    "cve": "CVE-2023-34362",
+    "name": "MOVEit Transfer SQL Injection",
+    "software": "Progress MOVEit Transfer",
+    "category": "SQL Injection",
+    "severity": "Critical",
+    "cvss": "CVSS 3.1 9.8",
+    "year": 2023,
+    "rootCause": "SQL injection in a web endpoint permits unauthenticated database access and deployment of a web shell.",
+    "impact": "Large-scale data theft affecting many downstream organizations.",
+    "mitigation": "Patch; hunt for web shells and IoCs.",
+    "resources": [
+      "NVD: CVE-2023-34362",
+      "Progress security advisory"
+    ],
+    "nvd": "https://nvd.nist.gov/vuln/detail/CVE-2023-34362",
+    "timeline": "Discovered in May 2023; widely exploited over the following months."
+  },
+  {
+    "cve": "CVE-2023-4966",
+    "name": "Citrix Bleed",
+    "software": "Citrix NetScaler ADC / Gateway",
+    "category": "Session Token Disclosure",
+    "severity": "Critical",
+    "cvss": "CVSS 3.1 9.4",
+    "year": 2023,
+    "rootCause": "Improper buffer handling in an authentication endpoint leaks session tokens in HTTP responses.",
+    "impact": "Hijacking of authenticated sessions without credentials, including after patching if tokens were not reset.",
+    "mitigation": "Patch and terminate all active sessions.",
+    "resources": [
+      "NVD: CVE-2023-4966",
+      "Citrix security advisory"
+    ],
+    "nvd": "https://nvd.nist.gov/vuln/detail/CVE-2023-4966",
+    "timeline": "Disclosed October 2023; exploited as a zero-day beforehand."
+  },
+  {
+    "cve": "CVE-2024-3094",
+    "name": "XZ Utils Backdoor",
+    "software": "liblzma / xz 5.6.0–5.6.1",
+    "category": "Supply Chain",
+    "severity": "Critical",
+    "cvss": "CVSS 3.1 10.0",
+    "year": 2024,
+    "rootCause": "Malicious code hidden in release tarballs and build scripts alters liblzma behaviour when linked into OpenSSH via a specific patch workflow.",
+    "impact": "Potential remote code execution in SSH authentication paths on affected distributions.",
+    "mitigation": "Downgrade to 5.4.x; audit build artifacts and provenance.",
+    "resources": [
+      "NVD: CVE-2024-3094",
+      "CISA advisory",
+      "OpenSSF analysis"
+    ],
+    "nvd": "https://nvd.nist.gov/vuln/detail/CVE-2024-3094",
+    "timeline": "Discovered by Andres Freund in March 2024; rapid global response."
+  },
+  {
+    "cve": "CVE-2019-0708",
+    "name": "BlueKeep",
+    "software": "Microsoft Windows RDP",
+    "category": "Remote Code Execution",
+    "severity": "Critical",
+    "cvss": "CVSS 3.1 9.8",
+    "year": 2019,
+    "rootCause": "Use-after-free in the Remote Desktop Services kernel driver allows pre-authentication code execution.",
+    "impact": "Wormable RCE over port 3389 without credentials.",
+    "mitigation": "Patch; disable RDP where unnecessary; enable NLA.",
+    "resources": [
+      "NVD: CVE-2019-0708",
+      "Microsoft MSRC"
+    ],
+    "nvd": "https://nvd.nist.gov/vuln/detail/CVE-2019-0708",
+    "timeline": "Discovered by the UK NCSC; patched May 2019."
+  },
+  {
+    "cve": "CVE-2019-11043",
+    "name": "PHP-FPM Underflow RCE",
+    "software": "PHP-FPM with nginx fastcgi_split_path_info",
+    "category": "Remote Code Execution",
+    "severity": "Critical",
+    "cvss": "CVSS 3.1 9.8",
+    "year": 2019,
+    "rootCause": "An attacker-supplied PATH_INFO causes an underflow in FPM's path handling, leading to environment variable overwrite and code execution.",
+    "impact": "Remote code execution on common nginx + PHP-FPM configurations.",
+    "mitigation": "Patch PHP; correct fastcgi configuration.",
+    "resources": [
+      "NVD: CVE-2019-11043",
+      "PHP advisory"
+    ],
+    "nvd": "https://nvd.nist.gov/vuln/detail/CVE-2019-11043",
+    "timeline": "Discovered by Andrew Danau andrus at DEF CON 27."
+  },
+  {
+    "cve": "CVE-2023-23397",
+    "name": "Outlook NTLM Coercion",
+    "software": "Microsoft Outlook (Windows)",
+    "category": "Credential Theft",
+    "severity": "High",
+    "cvss": "CVSS 3.1 9.8",
+    "year": 2023,
+    "rootCause": "A crafted reminder with a UNC path causes Outlook to authenticate to an attacker-controlled SMB share using the user's Net-NTLMv2 hash.",
+    "impact": "Credential theft and relay attacks against internal systems.",
+    "mitigation": "Apply patches; block outbound SMB; enable Extended Protection for Authentication.",
+    "resources": [
+      "NVD: CVE-2023-23397",
+      "Microsoft MSRC / MSTIC"
+    ],
+    "nvd": "https://nvd.nist.gov/vuln/detail/CVE-2023-23397",
+    "timeline": "Reported by Microsoft Threat Intelligence; patched March 2023."
+  }
+]

@@ -1,0 +1,55 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "aegis-academy-backend"
+version = "0.1.0"
+description = "Production-minded FastAPI scaffold for the AEGIS Cybersecurity & Bug Bounty Academy: accounts, persisted learning progress, static content API and a grounded AI tutor."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "AEGIS Academy" }]
+keywords = ["fastapi", "cybersecurity-education", "bug-bounty", "async-sqlalchemy"]
+classifiers = [
+  "Framework :: FastAPI",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Education",
+]
+dependencies = [
+  "fastapi>=0.110",
+  "uvicorn[standard]>=0.27",
+  "sqlalchemy>=2.0.25",
+  "asyncpg>=0.29",
+  "aiosqlite>=0.19",
+  "pydantic>=2.6",
+  "pydantic-settings>=2.2",
+  "redis>=5.0",
+  "pyjwt>=2.8",
+  "passlib[bcrypt]>=1.7.4",
+  "httpx>=0.27",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+  "pytest-asyncio>=0.23",
+  "ruff>=0.4",
+  "mypy>=1.9",
+]
+
+[project.scripts]
+aegis-api = "app.main:run"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["app*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]

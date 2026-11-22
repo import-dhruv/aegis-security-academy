@@ -1,0 +1,230 @@
+[
+  {
+    "id": "month-01",
+    "n": 1,
+    "title": "Computer Science and Linux",
+    "weeks": [
+      "Week 1: number systems, bits/bytes, CPU and memory hierarchy (Ch2).",
+      "Week 2: processes, threads, syscalls, user/kernel mode, stack/heap (Ch2).",
+      "Week 3: Linux shell, permissions, users, processes, packages (Ch3).",
+      "Week 4: Bash scripting, SSH, cron, logging; begin Python basics (Ch3, Ch5)."
+    ],
+    "concepts": "Chapters 1--3; *Computer Systems: A Programmer's Perspective* chapters 1--3.",
+    "reading": "MIT OpenCourseWare introductory CS; OverTheWire Bandit levels 0--10.",
+    "courses": "Linux man pages; Bash Guide; Python tutorial.",
+    "labs": "Set up Ubuntu VM and Kali VM; practice 20 shell commands daily; complete Bandit levels 0--10.",
+    "programming": "Write 5 Bash scripts; begin Python exercises (variables, loops, functions).",
+    "research": "Keep a learning journal; document each command learned.",
+    "revision": "Explain binary/hex conversion; draw process memory layout; list 10 Linux commands from memory.",
+    "criteria": "Can navigate Linux fluently, explain CPU/memory concepts, and write simple scripts."
+  },
+  {
+    "id": "month-02",
+    "n": 2,
+    "title": "Networking",
+    "weeks": [
+      "Week 1: OSI/TCP-IP, Ethernet, MAC, IP, CIDR/subnetting (Ch4).",
+      "Week 2: ARP, DNS, DHCP, ICMP; dig/traceroute (Ch4).",
+      "Week 3: TCP/UDP, ports, sockets, HTTP; Wireshark/tcpdump (Ch4, Ch8).",
+      "Week 4: TLS, proxies, NAT, firewalls; Nmap basics on lab network (Ch4)."
+    ],
+    "concepts": "Chapter 4; RFC 791/793/1034/9110 (skim); *Computer Networking: A Top-Down Approach* ch1--3.",
+    "reading": "Cisco Networking Academy intro; Wireshark user guide.",
+    "courses": "IETF RFC Editor; Wireshark docs; Nmap reference.",
+    "labs": "Capture a TCP handshake; run `dig +trace`; scan your own lab VM with Nmap.",
+    "programming": "Write a Python DNS lookup tool and a URL parser (Ch5 projects 2--3).",
+    "research": "Map your home network; document IP scheme and devices.",
+    "revision": "Subnet 5 CIDR examples; explain TLS handshake; interpret a packet capture.",
+    "criteria": "Can subnet, explain TCP/DNS/HTTP, and analyze basic captures."
+  },
+  {
+    "id": "month-03",
+    "n": 3,
+    "title": "Programming and Web Development",
+    "weeks": [
+      "Week 1: Python data structures, functions, OOP, exceptions (Ch5).",
+      "Week 2: regex, files, JSON, HTTP requests, sockets (Ch5).",
+      "Week 3: HTML/CSS/JS, DOM, browser security model (Ch6).",
+      "Week 4: backend, REST, SQL, databases, Node/Express basics (Ch7)."
+    ],
+    "concepts": "Chapters 5--7; Python docs; MDN web docs.",
+    "reading": "freeCodeCamp or MDN web tutorials; Python for Everybody (Coursera).",
+    "courses": "Python, MDN, PostgreSQL docs.",
+    "labs": "Build the HTTP header analyzer, port scanner, and log analyzer (Ch5).",
+    "programming": "Create a Flask/Express CRUD app with SQLite/Postgres; add authentication.",
+    "research": "Write a blog post explaining SOP and CORS.",
+    "revision": "Write a regex, a class, an HTTP request with timeout, and a parameterized SQL query.",
+    "criteria": "Can build a small web app and explain client/server/data flow."
+  },
+  {
+    "id": "month-04",
+    "n": 4,
+    "title": "Web Security Foundations",
+    "weeks": [
+      "Week 1: web architecture, request lifecycle, security headers (Ch8).",
+      "Week 2: OWASP Top 10:2025 categories A01--A05 (Ch9).",
+      "Week 3: A06--A10; XSS, CSRF, SQLi, SSRF deep dives (Ch9).",
+      "Week 4: Burp/ZAP workflows; certificate issues and auth failures (Ch9, Ch16)."
+    ],
+    "concepts": "Chapter 8--9; OWASP Top 10:2025; OWASP Web Testing Guide.",
+    "reading": "PortSwigger Web Security Academy (first 20 labs); OWASP Juice Shop walkthroughs.",
+    "courses": "OWASP, PortSwigger, MITRE CWE.",
+    "labs": "PortSwigger labs: reflected/stored XSS, SQLi, CSRF; Juice Shop score 1-star.",
+    "programming": "Build the XSS and SQLi demonstration labs (Ch29 projects 14--15).",
+    "research": "Write notes on root cause and remediation for each lab solved.",
+    "revision": "Explain 10 vulnerability classes with root cause and fix; solve 20 labs.",
+    "criteria": "Can identify and explain common OWASP vulnerabilities; use Burp competently."
+  },
+  {
+    "id": "month-05",
+    "n": 5,
+    "title": "Bug Bounty Foundations",
+    "weeks": [
+      "Week 1: programs, VDPs, disclosure, CVSS/CWE/CVE (Ch11).",
+      "Week 2: platforms, scope, rules of engagement (Ch12--13).",
+      "Week 3: recon methodology and tools (Ch14).",
+      "Week 4: manual testing methodology and case study (Ch15)."
+    ],
+    "concepts": "Chapters 11--15; ISO 29147 summary; platform policy pages.",
+    "reading": "HackerOne/ Bugcrowd researcher docs; PortSwigger recon content.",
+    "courses": "Official program policies; tool docs (Amass, subfinder, httpx).",
+    "labs": "Recon your own domain; test a lab app end-to-end using the Ch15 method.",
+    "programming": "Write the recon tool and inventory tool (Ch29 projects 1, 7).",
+    "research": "Draft a report for a lab finding using Ch25 template.",
+    "revision": "Parse a sample policy; identify scope, exclusions, restrictions; write 5 report summaries.",
+    "criteria": "Can interpret a policy, perform safe recon, and write a clear report."
+  },
+  {
+    "id": "month-06",
+    "n": 6,
+    "title": "Advanced Web Security",
+    "weeks": [
+      "Week 1: auth/authz logic, request smuggling theory (Ch10).",
+      "Week 2: caching, races, prototype pollution (Ch10).",
+      "Week 3: advanced SSRF, OAuth/JWT, WebSocket/GraphQL (Ch10, Ch17).",
+      "Week 4: business logic, multi-tenant, chains (Ch10, Ch17)."
+    ],
+    "concepts": "Chapter 10, 17; PortSwigger advanced labs; OWASP API Top 10.",
+    "reading": "PortSwigger advanced labs (smuggling, races); crAPI labs.",
+    "courses": "OAuth 2.0 RFCs; GraphQL docs.",
+    "labs": "PortSwigger advanced labs; crAPI BOLA/BFLA; DVWA high level.",
+    "programming": "Build GraphQL auth lab and race condition lab (Ch29 projects 18--19).",
+    "research": "Write a chain analysis for a fictional scenario.",
+    "revision": "Explain smuggling, cache poisoning, and a 3-step chain; solve 10 advanced labs.",
+    "criteria": "Can reason about complex chains and advanced web/API flaws."
+  },
+  {
+    "id": "month-07",
+    "n": 7,
+    "title": "Cloud and Infrastructure Security",
+    "weeks": [
+      "Week 1: cloud models, IAM, credentials, storage (Ch19).",
+      "Week 2: metadata services, serverless, containers (Ch19).",
+      "Week 3: Kubernetes, CI/CD, secrets, IaC (Ch19--20).",
+      "Week 4: supply chain, SBOM, auditing tools (Ch20, Ch16)."
+    ],
+    "concepts": "Chapters 19--20; AWS Well-Architected Security Pillar; CIS benchmarks.",
+    "reading": "AWS Skill Builder free courses; Microsoft Learn cloud security; Prowler docs.",
+    "courses": "Cloud provider docs; SLSA, SPDX, CycloneDX.",
+    "labs": "Free-tier AWS lab: run Prowler, fix one finding; scan a lab container with Trivy.",
+    "programming": "Build Docker security analyzer and IAM analyzer (Ch29 projects 20--21).",
+    "research": "Write a Terraform misconfiguration example and check it with Checkov.",
+    "revision": "Explain shared responsibility; find and fix 3 misconfigurations in your lab.",
+    "criteria": "Can audit a lab cloud account and explain major cloud risks."
+  },
+  {
+    "id": "month-08",
+    "n": 8,
+    "title": "Mobile and API Security",
+    "weeks": [
+      "Week 1: Android/iOS architecture, APK/IPA structure (Ch18).",
+      "Week 2: mobile storage, comms, deep links, pinning (Ch18).",
+      "Week 3: static/dynamic analysis with MobSF/JADX/Frida (Ch18).",
+      "Week 4: comprehensive API testing (Ch17)."
+    ],
+    "concepts": "Chapter 17--18; OWASP MASVS; OWASP API Top 10.",
+    "reading": "OWASP MASVS training; MobSF docs; PortSwigger mobile content.",
+    "courses": "Android developer security docs; OWASP API cheat sheets.",
+    "labs": "Analyze a vulnerable lab APK with MobSF and JADX; crAPI full pass.",
+    "programming": "Build Android analyzer and API testing framework (Ch29 projects 23, 6).",
+    "research": "Document 10 mobile findings and 10 API findings with CWE mappings.",
+    "revision": "Decompile an APK; capture mobile traffic via Burp; explain 5 API vulns.",
+    "criteria": "Can perform basic mobile and API security assessments in a lab."
+  },
+  {
+    "id": "month-09",
+    "n": 9,
+    "title": "Advanced Security Research",
+    "weeks": [
+      "Week 1: C memory, stack/heap, overflows (Ch21).",
+      "Week 2: mitigations, UAF, format strings; GDB (Ch21).",
+      "Week 3: reverse engineering, ELF/PE, Ghidra (Ch22).",
+      "Week 4: fuzzing, AFL++/libFuzzer, crash triage (Ch23)."
+    ],
+    "concepts": "Chapters 21--23; historical Phrack article; AFL++ docs.",
+    "reading": "OpenSecurityTraining2 intro x86-64; OverTheWire Narnia.",
+    "courses": "GDB, Ghidra, AFL++ docs.",
+    "labs": "OverTheWire Narnia; build and fuzz a small parser; triage one crash.",
+    "programming": "Build fuzzing harness and crash analysis tool (Ch29 projects 25--26).",
+    "research": "Write a reverse-engineering walkthrough for a lab binary.",
+    "revision": "Explain ASLR/NX/canaries; use GDB; triage a crash with ASan.",
+    "criteria": "Can explain memory corruption, use a debugger, and run a basic fuzzing campaign."
+  },
+  {
+    "id": "month-10",
+    "n": 10,
+    "title": "AI and LLM Security",
+    "weeks": [
+      "Week 1: ML/LLM architecture, transformers, embeddings (Ch24).",
+      "Week 2: RAG, agents, tool calling, memory (Ch24).",
+      "Week 3: OWASP LLM Top 10 2026 and Agentic Top 10 2026 (Ch24).",
+      "Week 4: AI tools, methodology, jailbreak vs. vuln (Ch24)."
+    ],
+    "concepts": "Chapter 24; OWASP LLM/Agentic Top 10 2026; MITRE ATLAS.",
+    "reading": "OWASP GenAI resources; Promptfoo/Garak docs; local model setup.",
+    "courses": "genai.owasp.org; atlas.mitre.org; NIST AI RMF.",
+    "labs": "Lakera Gandalf; build a local RAG app with two tenants; test injection.",
+    "programming": "Build RAG security framework, prompt injection evaluator, agent auditor (Ch29 projects 27--29).",
+    "research": "Write an evaluation report distinguishing safety from security findings.",
+    "revision": "Map an AI app to both OWASP lists; demonstrate one measurable security finding.",
+    "criteria": "Can analyze AI systems for prompt injection, RAG isolation, and tool authorization."
+  },
+  {
+    "id": "month-11",
+    "n": 11,
+    "title": "Professional Bug Bounty Practice",
+    "weeks": [
+      "Week 1: program selection, policy deep-dive, inventory (Ch26).",
+      "Week 2: manual testing on an authorized program or lab (Ch15).",
+      "Week 3: validation, impact, evidence, reporting (Ch25).",
+      "Week 4: triage communication, disclosure, portfolio (Ch25, Ch27)."
+    ],
+    "concepts": "Chapters 25--27; platform policies; public disclosures (where allowed).",
+    "reading": "Platform researcher docs; OWASP disclosure guidance.",
+    "courses": "Program policies; CVSS v4.0 calculator.",
+    "labs": "Choose one authorized program; perform a full workflow; submit one high-quality report if a valid finding exists.",
+    "programming": "Build the research dashboard (Ch29 project 30).",
+    "research": "Publish one technical blog post and polish a GitHub repo.",
+    "revision": "Write 3 full reports from lab findings; explain triage outcomes.",
+    "criteria": "Can run the full workflow professionally; has a portfolio artifact."
+  },
+  {
+    "id": "month-12",
+    "n": 12,
+    "title": "Advanced Research and Specialization",
+    "weeks": [
+      "Week 1: novel vulnerability research methodology; choose a niche.",
+      "Week 2: build a new tool or deepen a specialization.",
+      "Week 3: open-source contribution / responsible disclosure.",
+      "Week 4: portfolio review, roadmap revision, plan next year."
+    ],
+    "concepts": "Chapters 28--35; chosen specialization papers and advisories.",
+    "reading": "Security conferences/C TFtime events; advanced platform labs.",
+    "courses": "Academic papers (Ch33); official advisories.",
+    "labs": "Run a sustained research project in your niche; present or publish responsibly.",
+    "programming": "Extend one portfolio tool with new features and tests.",
+    "research": "Write a year-in-review and a 12-month specialization plan.",
+    "revision": "Defend your research methodology; explain one deep finding end-to-end.",
+    "criteria": "Has a demonstrable specialty, a public portfolio, and a concrete plan."
+  }
+]

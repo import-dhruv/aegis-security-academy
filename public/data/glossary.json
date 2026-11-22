@@ -1,0 +1,2218 @@
+[
+  {
+    "term": "ACL",
+    "definition": "Access Control List; a list of permissions attached to an object or network device."
+  },
+  {
+    "term": "AEAD",
+    "definition": "Authenticated Encryption with Associated Data; provides confidentiality and integrity together."
+  },
+  {
+    "term": "ALU",
+    "definition": "Arithmetic Logic Unit; the CPU component that performs arithmetic and logical operations."
+  },
+  {
+    "term": "API",
+    "definition": "Application Programming Interface; a defined way for software components to communicate."
+  },
+  {
+    "term": "API fuzzing",
+    "definition": "Sending malformed or unexpected API requests to find bugs."
+  },
+  {
+    "term": "API gateway",
+    "definition": "A service that centralizes routing, authentication, rate limiting, and observability for APIs."
+  },
+  {
+    "term": "API inventory",
+    "definition": "A maintained list of all APIs, versions, and their owners."
+  },
+  {
+    "term": "ARP",
+    "definition": "Address Resolution Protocol; maps IPv4 addresses to MAC addresses on a local network."
+  },
+  {
+    "term": "ARP spoofing",
+    "definition": "Forging ARP replies to associate an attacker's MAC with another IP, enabling local MITM."
+  },
+  {
+    "term": "ASLR",
+    "definition": "Address Space Layout Randomization; randomizes memory addresses to hinder exploitation."
+  },
+  {
+    "term": "Access control",
+    "definition": "The set of policies and mechanisms that determine who may access or modify a resource."
+  },
+  {
+    "term": "Address space",
+    "definition": "The range of virtual memory addresses available to a process."
+  },
+  {
+    "term": "Advanced persistent threat (APT)",
+    "definition": "A prolonged, targeted intrusion campaign, often state-sponsored, aimed at sustained access."
+  },
+  {
+    "term": "Adversarial machine learning",
+    "definition": "The study of attacks that deceive or manipulate ML models."
+  },
+  {
+    "term": "Agent (AI)",
+    "definition": "An AI system that plans, calls tools, and takes actions across multiple steps on behalf of a user."
+  },
+  {
+    "term": "Agentic AI",
+    "definition": "AI systems that act as autonomous actors with memory and tools, as opposed to passive model components."
+  },
+  {
+    "term": "Aggregation",
+    "definition": "Combining multiple data sources, sometimes exposing more than each alone."
+  },
+  {
+    "term": "Algorithm confusion",
+    "definition": "Tricking a verifier into using a different algorithm than intended, e.g., RS256 to HS256."
+  },
+  {
+    "term": "Allow-list",
+    "definition": "A list of explicitly permitted items; the preferred alternative to a deny-list."
+  },
+  {
+    "term": "Amass",
+    "definition": "OWASP tool for attack-surface mapping and subdomain enumeration."
+  },
+  {
+    "term": "Anomaly detection",
+    "definition": "Identifying behavior that deviates from a learned baseline."
+  },
+  {
+    "term": "Anti-CSRF token",
+    "definition": "A per-session or per-request secret that validates the origin of a state-changing request."
+  },
+  {
+    "term": "Antivirus",
+    "definition": "Software that detects and removes malware using signatures, heuristics, and behavioral analysis."
+  },
+  {
+    "term": "Apex domain",
+    "definition": "The root domain of a DNS zone, e.g., example.com."
+  },
+  {
+    "term": "Asymmetric encryption",
+    "definition": "Encryption using a public/private key pair (e.g., RSA, ECC)."
+  },
+  {
+    "term": "Attack chain",
+    "definition": "A sequence of vulnerabilities or steps combined to achieve an impact."
+  },
+  {
+    "term": "Attack surface",
+    "definition": "The sum of all points where an unauthorized user can interact with a system."
+  },
+  {
+    "term": "Attack tree",
+    "definition": "A hierarchical diagram of ways an attacker might achieve a goal."
+  },
+  {
+    "term": "Attribute-based access control",
+    "definition": "Authorization based on attributes of the subject, object, and environment."
+  },
+  {
+    "term": "Audit log",
+    "definition": "A chronological record of security-relevant events."
+  },
+  {
+    "term": "Authentication",
+    "definition": "Verifying the identity of a user or system."
+  },
+  {
+    "term": "Authentication bypass",
+    "definition": "Gaining access without valid credentials by exploiting a logic or implementation flaw."
+  },
+  {
+    "term": "Authorization",
+    "definition": "Determining what an authenticated identity is permitted to do."
+  },
+  {
+    "term": "Authorization code",
+    "definition": "A short-lived OAuth credential exchanged for an access token."
+  },
+  {
+    "term": "Availability",
+    "definition": "The property that systems and data are accessible when needed."
+  },
+  {
+    "term": "BIOS/UEFI",
+    "definition": "Firmware that initializes hardware before the operating system boots."
+  },
+  {
+    "term": "BOLA",
+    "definition": "Broken Object Level Authorization; failure to verify access to a specific object (IDOR)."
+  },
+  {
+    "term": "Backdoor",
+    "definition": "A hidden mechanism that bypasses normal authentication or security controls."
+  },
+  {
+    "term": "Backoff",
+    "definition": "Progressively increasing delays between retries to avoid overloading a service."
+  },
+  {
+    "term": "Backpropagation",
+    "definition": "The algorithm used to compute gradients and update neural network weights during training."
+  },
+  {
+    "term": "Bandwidth",
+    "definition": "The capacity of a network link, often measured in bits per second."
+  },
+  {
+    "term": "Bastion host",
+    "definition": "A hardened host designed to be the single point of access to a network."
+  },
+  {
+    "term": "Bayesian inference",
+    "definition": "Statistical inference updating beliefs with evidence; used in some security models."
+  },
+  {
+    "term": "Bcrypt",
+    "definition": "A password-hashing function designed to be computationally expensive."
+  },
+  {
+    "term": "Behavioral biometrics",
+    "definition": "Authentication based on patterns such as typing rhythm or mouse movement."
+  },
+  {
+    "term": "Bell-LaPadula",
+    "definition": "A formal confidentiality model enforcing no-read-up and no-write-down."
+  },
+  {
+    "term": "Biba model",
+    "definition": "A formal integrity model enforcing no-read-down and no-write-up."
+  },
+  {
+    "term": "Binary",
+    "definition": "A number system with base 2, using digits 0 and 1."
+  },
+  {
+    "term": "Binary exploitation",
+    "definition": "Finding and leveraging memory-corruption flaws in compiled programs."
+  },
+  {
+    "term": "Biometrics",
+    "definition": "Authentication using physical characteristics such as fingerprints or face."
+  },
+  {
+    "term": "Black-box testing",
+    "definition": "Testing without knowledge of internal structure or source code."
+  },
+  {
+    "term": "Blacklist",
+    "definition": "A list of explicitly blocked items; generally weaker than an allow-list."
+  },
+  {
+    "term": "Blind injection",
+    "definition": "Injection where results are inferred via behavior rather than returned data."
+  },
+  {
+    "term": "Block cipher",
+    "definition": "A symmetric cipher that encrypts fixed-size blocks of data (e.g., AES)."
+  },
+  {
+    "term": "Blue team",
+    "definition": "The defensive side of security operations."
+  },
+  {
+    "term": "Boolean-based injection",
+    "definition": "Inference technique using true/false response differences."
+  },
+  {
+    "term": "Bootstrap",
+    "definition": "The process by which a system initializes itself using minimal initial state."
+  },
+  {
+    "term": "Botnet",
+    "definition": "A network of compromised machines controlled by an attacker."
+  },
+  {
+    "term": "Breadth-first search",
+    "definition": "An algorithm exploring neighbors before deeper nodes; used in crawlers and graphs."
+  },
+  {
+    "term": "Brute force",
+    "definition": "Trying many candidate values until one succeeds."
+  },
+  {
+    "term": "Buffer",
+    "definition": "A region of memory used to hold data temporarily."
+  },
+  {
+    "term": "Buffer overflow",
+    "definition": "Writing data beyond a buffer's allocated boundary, corrupting adjacent memory."
+  },
+  {
+    "term": "Burp Suite",
+    "definition": "An integrated web application security testing platform from PortSwigger."
+  },
+  {
+    "term": "Business continuity",
+    "definition": "Planning to maintain critical functions during and after a disruption."
+  },
+  {
+    "term": "Business logic vulnerability",
+    "definition": "A flaw in workflow design that allows a disallowed outcome using legitimate functionality."
+  },
+  {
+    "term": "Byte order",
+    "definition": "Endianness; the order in which bytes of a multi-byte value are stored."
+  },
+  {
+    "term": "C2",
+    "definition": "Command and control infrastructure used to communicate with compromised hosts."
+  },
+  {
+    "term": "CAPTCHA",
+    "definition": "A challenge used to distinguish humans from automated clients."
+  },
+  {
+    "term": "CIA",
+    "definition": "See CIA triad."
+  },
+  {
+    "term": "CIA triad",
+    "definition": "Confidentiality, Integrity, and Availability; the three core security goals."
+  },
+  {
+    "term": "CIDR",
+    "definition": "Classless Inter-Domain Routing; IP address ranges written with a prefix length."
+  },
+  {
+    "term": "CIS benchmark",
+    "definition": "A consensus set of configuration security recommendations."
+  },
+  {
+    "term": "CORS",
+    "definition": "Cross-Origin Resource Sharing; a mechanism allowing controlled cross-origin reads."
+  },
+  {
+    "term": "CRLF injection",
+    "definition": "Injecting carriage-return/line-feed characters to add headers or split responses."
+  },
+  {
+    "term": "CSRF",
+    "definition": "Cross-Site Request Forgery; inducing a victim's browser to submit an unwanted request."
+  },
+  {
+    "term": "CSRF token",
+    "definition": "See anti-CSRF token."
+  },
+  {
+    "term": "CT log",
+    "definition": "See certificate transparency."
+  },
+  {
+    "term": "CVE",
+    "definition": "Common Vulnerabilities and Exposures; an identifier for a specific published vulnerability."
+  },
+  {
+    "term": "CWE",
+    "definition": "Common Weakness Enumeration; a taxonomy of software weakness types."
+  },
+  {
+    "term": "Cache key",
+    "definition": "The set of request attributes used to identify a cached response."
+  },
+  {
+    "term": "Cache poisoning",
+    "definition": "Causing a cache to store a malicious response that is served to other users."
+  },
+  {
+    "term": "Call stack",
+    "definition": "A stack data structure storing active function call frames."
+  },
+  {
+    "term": "Canonicalization",
+    "definition": "Converting data to a standard form before validation or comparison."
+  },
+  {
+    "term": "Certificate authority",
+    "definition": "An entity that issues digital certificates after verifying identity."
+  },
+  {
+    "term": "Certificate pinning",
+    "definition": "Restricting trusted certificates to a known set to defend against MITM."
+  },
+  {
+    "term": "Certificate transparency",
+    "definition": "Public logs recording all issued TLS certificates."
+  },
+  {
+    "term": "ChaCha20",
+    "definition": "A modern stream cipher often paired with Poly1305 for authenticated encryption."
+  },
+  {
+    "term": "Chained vulnerability",
+    "definition": "See attack chain."
+  },
+  {
+    "term": "Challenge-response",
+    "definition": "Authentication where one party presents a challenge and the other proves knowledge."
+  },
+  {
+    "term": "Checksum",
+    "definition": "A value computed from data to detect accidental corruption."
+  },
+  {
+    "term": "Child domain",
+    "definition": "A subdomain that is part of a parent DNS zone."
+  },
+  {
+    "term": "Ciphertext",
+    "definition": "Encrypted data."
+  },
+  {
+    "term": "Clickjacking",
+    "definition": "Tricking a user into clicking a hidden or disguised element via overlays."
+  },
+  {
+    "term": "Client-server",
+    "definition": "An architecture where clients request services from servers."
+  },
+  {
+    "term": "Clock skew",
+    "definition": "Difference in time between systems, relevant to token validity and logs."
+  },
+  {
+    "term": "Cloud IAM",
+    "definition": "Identity and access management services provided by cloud platforms."
+  },
+  {
+    "term": "Cloud computing",
+    "definition": "On-demand delivery of compute and storage resources over a network."
+  },
+  {
+    "term": "Code injection",
+    "definition": "Inserting code into a program through untrusted input."
+  },
+  {
+    "term": "Code review",
+    "definition": "Systematic examination of source code for defects."
+  },
+  {
+    "term": "Code signing",
+    "definition": "Digitally signing software to prove origin and integrity."
+  },
+  {
+    "term": "Collision",
+    "definition": "Two different inputs producing the same hash output."
+  },
+  {
+    "term": "Column-store",
+    "definition": "A database storing data by column rather than row, optimized for analytics."
+  },
+  {
+    "term": "Command and control",
+    "definition": "See C2."
+  },
+  {
+    "term": "Command injection",
+    "definition": "Executing arbitrary OS commands by inserting them into unsanitized input."
+  },
+  {
+    "term": "Common Crawl",
+    "definition": "A public corpus of web crawl data useful for historical URL discovery."
+  },
+  {
+    "term": "Common name",
+    "definition": "A certificate field historically used for hostname validation, now deprecated."
+  },
+  {
+    "term": "Comparative advantage",
+    "definition": "In security economics, the benefit of specializing in a particular defensive or offensive activity."
+  },
+  {
+    "term": "Compensating control",
+    "definition": "An alternative control used when the primary control is impractical."
+  },
+  {
+    "term": "Compiler",
+    "definition": "A tool that translates source code into machine code or bytecode."
+  },
+  {
+    "term": "Compiler optimization",
+    "definition": "Transformations a compiler applies to improve performance; can alter security behavior."
+  },
+  {
+    "term": "Compliance",
+    "definition": "Adherence to laws, regulations, standards, or policies."
+  },
+  {
+    "term": "Computer forensics",
+    "definition": "The practice of investigating digital evidence for legal or incident-response purposes."
+  },
+  {
+    "term": "Concurrency",
+    "definition": "Multiple computations proceeding simultaneously."
+  },
+  {
+    "term": "Confidentiality",
+    "definition": "The property that information is accessible only to authorized parties."
+  },
+  {
+    "term": "Configuration management",
+    "definition": "Maintaining systems in a desired, known state."
+  },
+  {
+    "term": "Container",
+    "definition": "A lightweight isolated process environment sharing the host kernel."
+  },
+  {
+    "term": "Container orchestration",
+    "definition": "Automated management of container deployment, scaling, and networking."
+  },
+  {
+    "term": "Content Security Policy (CSP)",
+    "definition": "An HTTP header restricting which sources of content a browser may load and execute."
+  },
+  {
+    "term": "Content discovery",
+    "definition": "Finding hidden paths and files on a web server."
+  },
+  {
+    "term": "Content-type",
+    "definition": "An HTTP header describing the media type of a body."
+  },
+  {
+    "term": "Control flow",
+    "definition": "The order in which instructions execute in a program."
+  },
+  {
+    "term": "Cookie",
+    "definition": "A small piece of data stored by the browser and sent with requests to a domain."
+  },
+  {
+    "term": "Cookie flags",
+    "definition": "Attributes such as HttpOnly, Secure, and SameSite that govern cookie behavior."
+  },
+  {
+    "term": "Cookie jar",
+    "definition": "A client-side store of cookies."
+  },
+  {
+    "term": "Corpus",
+    "definition": "A collection of seed inputs used in fuzzing."
+  },
+  {
+    "term": "Credential",
+    "definition": "Evidence used to authenticate, such as a password or token."
+  },
+  {
+    "term": "Credential stuffing",
+    "definition": "Using leaked username/password pairs against other services."
+  },
+  {
+    "term": "Credentials management",
+    "definition": "The practices governing storage, rotation, and use of credentials."
+  },
+  {
+    "term": "Cross-origin",
+    "definition": "Requests or resources from a different scheme, host, or port."
+  },
+  {
+    "term": "Cross-site scripting (XSS)",
+    "definition": "Executing attacker-controlled script in a victim's browser on a vulnerable origin."
+  },
+  {
+    "term": "Cryptographic failure",
+    "definition": "Exposure of sensitive data due to absent or incorrect cryptography."
+  },
+  {
+    "term": "Cryptographic nonce",
+    "definition": "A value used only once with a key for a specific operation."
+  },
+  {
+    "term": "Cryptography",
+    "definition": "The practice of securing information through encryption and related techniques."
+  },
+  {
+    "term": "DDoS",
+    "definition": "See distributed denial of service."
+  },
+  {
+    "term": "DEP/NX",
+    "definition": "Data Execution Prevention / No-execute; marks memory regions non-executable."
+  },
+  {
+    "term": "DES",
+    "definition": "Data Encryption Standard; an obsolete symmetric cipher."
+  },
+  {
+    "term": "DNS",
+    "definition": "Domain Name System; translates domain names to IP addresses."
+  },
+  {
+    "term": "DNS amplification",
+    "definition": "Reflection attack using DNS responses larger than requests."
+  },
+  {
+    "term": "DNS hijacking",
+    "definition": "Redirecting DNS resolution to a malicious or incorrect address."
+  },
+  {
+    "term": "DNS rebinding",
+    "definition": "Making a hostname resolve to a public IP then a private IP to bypass browser isolation."
+  },
+  {
+    "term": "DNS tunneling",
+    "definition": "Encoding data in DNS queries to exfiltrate information."
+  },
+  {
+    "term": "DNSSEC",
+    "definition": "DNS Security Extensions; cryptographic validation of DNS responses."
+  },
+  {
+    "term": "DOM",
+    "definition": "Document Object Model; the browser's tree representation of a page."
+  },
+  {
+    "term": "DOM XSS",
+    "definition": "XSS caused by client-side JavaScript writing untrusted data to a dangerous sink."
+  },
+  {
+    "term": "Daemon",
+    "definition": "A background process providing a service."
+  },
+  {
+    "term": "Data bending",
+    "definition": "Manipulating application data flows to achieve an unintended outcome."
+  },
+  {
+    "term": "Data exfiltration",
+    "definition": "Unauthorized transfer of data out of a system."
+  },
+  {
+    "term": "Data flow analysis",
+    "definition": "Tracking how data moves through a program."
+  },
+  {
+    "term": "Data loss prevention (DLP)",
+    "definition": "Controls designed to prevent sensitive data from leaving an organization."
+  },
+  {
+    "term": "Data minimization",
+    "definition": "Collecting only the data strictly necessary for a purpose."
+  },
+  {
+    "term": "Data model",
+    "definition": "An abstract description of how data is structured and related."
+  },
+  {
+    "term": "Database transaction",
+    "definition": "A sequence of operations executed atomically."
+  },
+  {
+    "term": "Decompilation",
+    "definition": "Translating machine or bytecode into higher-level source-like code."
+  },
+  {
+    "term": "Deep learning",
+    "definition": "Machine learning using multi-layer neural networks."
+  },
+  {
+    "term": "Deep link",
+    "definition": "A URL that navigates directly to a specific location inside a mobile app."
+  },
+  {
+    "term": "Deep packet inspection",
+    "definition": "Examining packet payloads beyond headers."
+  },
+  {
+    "term": "Denial of service (DoS)",
+    "definition": "Making a service unavailable to legitimate users."
+  },
+  {
+    "term": "Deny by default",
+    "definition": "A security posture where access is blocked unless explicitly permitted."
+  },
+  {
+    "term": "Deny-list",
+    "definition": "A list of explicitly blocked items."
+  },
+  {
+    "term": "Dependency confusion",
+    "definition": "Tricking a build to fetch a malicious public package instead of an internal one."
+  },
+  {
+    "term": "Deployment pipeline",
+    "definition": "The automated process that builds, tests, and releases software."
+  },
+  {
+    "term": "DevOps",
+    "definition": "Practices combining development and operations for rapid delivery."
+  },
+  {
+    "term": "Device fingerprinting",
+    "definition": "Identifying a device from a combination of observable attributes."
+  },
+  {
+    "term": "Differential fuzzing",
+    "definition": "Comparing outputs of two implementations on the same inputs."
+  },
+  {
+    "term": "Digital certificate",
+    "definition": "An electronic document binding a public key to an identity."
+  },
+  {
+    "term": "Directory service",
+    "definition": "A service that stores and organizes information about network resources and principals."
+  },
+  {
+    "term": "Directory traversal",
+    "definition": "See path traversal."
+  },
+  {
+    "term": "Distributed denial of service",
+    "definition": "DoS from many distributed sources."
+  },
+  {
+    "term": "Docker",
+    "definition": "A platform for building and running containers."
+  },
+  {
+    "term": "Domain fronting",
+    "definition": "Using a CDN or shared host to disguise the destination of traffic."
+  },
+  {
+    "term": "Domain generation algorithm",
+    "definition": "Algorithmic creation of many domains for resilient C2."
+  },
+  {
+    "term": "Double free",
+    "definition": "Freeing the same memory pointer twice, corrupting allocator state."
+  },
+  {
+    "term": "Double-submit cookie",
+    "definition": "CSRF defense using a token duplicated in a cookie and a request parameter."
+  },
+  {
+    "term": "Downgrade attack",
+    "definition": "Forcing a system to use an older, weaker protocol or algorithm."
+  },
+  {
+    "term": "Dynamic analysis",
+    "definition": "Analyzing software while it runs."
+  },
+  {
+    "term": "Dynamic link library",
+    "definition": "A shared library loaded by Windows programs at runtime."
+  },
+  {
+    "term": "ELF",
+    "definition": "Executable and Linkable Format; the standard Linux binary format."
+  },
+  {
+    "term": "Egress filtering",
+    "definition": "Controls on outbound traffic from a network."
+  },
+  {
+    "term": "Elevation of privilege",
+    "definition": "Gaining higher access rights than originally granted."
+  },
+  {
+    "term": "Elliptic curve cryptography",
+    "definition": "Public-key cryptography based on elliptic curve mathematics."
+  },
+  {
+    "term": "Embedding",
+    "definition": "A numeric vector representing semantic meaning of text or other data."
+  },
+  {
+    "term": "Encapsulation",
+    "definition": "Wrapping data with protocol headers at each network layer."
+  },
+  {
+    "term": "Encryption at rest",
+    "definition": "Encrypting stored data to protect it when not in use."
+  },
+  {
+    "term": "Encryption in transit",
+    "definition": "Encrypting data while it travels over a network (e.g., TLS)."
+  },
+  {
+    "term": "End-to-end encryption",
+    "definition": "Encryption where only the communicating endpoints can decrypt messages."
+  },
+  {
+    "term": "Endpoint detection and response (EDR)",
+    "definition": "Tools that monitor endpoints for malicious behavior and respond."
+  },
+  {
+    "term": "Entropy",
+    "definition": "Randomness; a measure used to assess the strength of random values."
+  },
+  {
+    "term": "Entropy source",
+    "definition": "A source of randomness used for keys and tokens."
+  },
+  {
+    "term": "Enumeration",
+    "definition": "Systematically discovering hosts, users, services, or resources."
+  },
+  {
+    "term": "Escalation",
+    "definition": "See privilege escalation."
+  },
+  {
+    "term": "Eval",
+    "definition": "A language feature that executes code from a string; dangerous with untrusted input."
+  },
+  {
+    "term": "Excessive agency",
+    "definition": "AI systems granted more autonomy, functionality, or permissions than needed."
+  },
+  {
+    "term": "Exfiltration",
+    "definition": "The unauthorized transfer of data out of a system or network."
+  },
+  {
+    "term": "Exploit",
+    "definition": "Code or technique that takes advantage of a vulnerability."
+  },
+  {
+    "term": "Exploit chain",
+    "definition": "See attack chain."
+  },
+  {
+    "term": "Fail-closed",
+    "definition": "A design that denies access when a control fails."
+  },
+  {
+    "term": "Fail-open",
+    "definition": "A design that permits access when a control fails (usually undesirable)."
+  },
+  {
+    "term": "Field-level authorization",
+    "definition": "Checking permission for each field or property returned or modified."
+  },
+  {
+    "term": "File descriptor",
+    "definition": "An integer handle used by a process to reference an open file or socket."
+  },
+  {
+    "term": "File inclusion",
+    "definition": "Loading a file path supplied by user input."
+  },
+  {
+    "term": "Filter bypass",
+    "definition": "Technique to evade a security filter by altering encoding or syntax."
+  },
+  {
+    "term": "Fingerprinting",
+    "definition": "Identifying technologies or versions from observable characteristics."
+  },
+  {
+    "term": "Firewall",
+    "definition": "A device or software that filters network traffic according to rules."
+  },
+  {
+    "term": "Firmware",
+    "definition": "Software embedded in hardware devices."
+  },
+  {
+    "term": "Flag",
+    "definition": "A bit in a protocol header (e.g., TCP SYN) or a value in a CTF challenge."
+  },
+  {
+    "term": "Flow control",
+    "definition": "Mechanism to prevent a sender overwhelming a receiver."
+  },
+  {
+    "term": "Fork",
+    "definition": "The creation of a new process as a copy of the parent."
+  },
+  {
+    "term": "Forward proxy",
+    "definition": "A proxy acting on behalf of clients."
+  },
+  {
+    "term": "Forward secrecy",
+    "definition": "A property ensuring session keys remain secret even if long-term keys are later compromised."
+  },
+  {
+    "term": "Frida",
+    "definition": "A dynamic instrumentation toolkit for injecting scripts into processes."
+  },
+  {
+    "term": "Function-level authorization",
+    "definition": "Checking whether the caller may invoke a given function or endpoint."
+  },
+  {
+    "term": "Fuzzer",
+    "definition": "A tool that generates inputs to find crashes or unexpected behavior."
+  },
+  {
+    "term": "Fuzzing",
+    "definition": "Automated testing with generated inputs to find crashes and bugs."
+  },
+  {
+    "term": "Gadget",
+    "definition": "A short instruction sequence ending in a return, used in ROP chains."
+  },
+  {
+    "term": "Garak",
+    "definition": "An open-source LLM vulnerability scanner."
+  },
+  {
+    "term": "Generic error",
+    "definition": "A uniform error message that avoids leaking internal details."
+  },
+  {
+    "term": "Gitleaks",
+    "definition": "A tool for scanning git repositories and history for secrets."
+  },
+  {
+    "term": "Graph database",
+    "definition": "A database using nodes and edges to represent relationships."
+  },
+  {
+    "term": "GraphQL",
+    "definition": "A query language for APIs with a typed schema."
+  },
+  {
+    "term": "GraphQL introspection",
+    "definition": "A feature allowing clients to query the schema; a source of information disclosure."
+  },
+  {
+    "term": "Grep",
+    "definition": "A command-line tool for searching text with patterns."
+  },
+  {
+    "term": "HSTS",
+    "definition": "HTTP Strict Transport Security; forces browsers to use HTTPS."
+  },
+  {
+    "term": "HTML injection",
+    "definition": "Inserting HTML into a page, potentially enabling XSS."
+  },
+  {
+    "term": "HTTP",
+    "definition": "Hypertext Transfer Protocol; the protocol of the web."
+  },
+  {
+    "term": "HTTP request smuggling",
+    "definition": "Exploiting disagreement between proxies and backends about request boundaries."
+  },
+  {
+    "term": "HTTP/2",
+    "definition": "A major HTTP revision with multiplexing and header compression over one connection."
+  },
+  {
+    "term": "HTTPS",
+    "definition": "HTTP over TLS."
+  },
+  {
+    "term": "Hash flooding",
+    "definition": "A DoS technique using many inputs that collide in a hash table."
+  },
+  {
+    "term": "Hash function",
+    "definition": "A function mapping data to a fixed-size digest; one-way and collision-resistant when secure."
+  },
+  {
+    "term": "Heap",
+    "definition": "A memory region used for dynamic allocation."
+  },
+  {
+    "term": "Heap spray",
+    "definition": "Placing many copies of data in the heap to increase exploit reliability."
+  },
+  {
+    "term": "Hydration",
+    "definition": "The process by which a client-side framework attaches to server-rendered markup."
+  },
+  {
+    "term": "Hypervisor",
+    "definition": "Software that creates and runs virtual machines."
+  },
+  {
+    "term": "IAM",
+    "definition": "Identity and Access Management; controls over identities and their permissions."
+  },
+  {
+    "term": "ICS",
+    "definition": "Industrial Control Systems used in critical infrastructure."
+  },
+  {
+    "term": "IDOR",
+    "definition": "Insecure Direct Object Reference; accessing objects by manipulating identifiers without authorization."
+  },
+  {
+    "term": "IDP",
+    "definition": "Identity Provider; a service that authenticates users for relying parties."
+  },
+  {
+    "term": "IDS",
+    "definition": "Intrusion Detection System; detects suspicious activity."
+  },
+  {
+    "term": "IPv4",
+    "definition": "Internet Protocol version 4 using 32-bit addresses."
+  },
+  {
+    "term": "IPv6",
+    "definition": "Internet Protocol version 6 using 128-bit addresses."
+  },
+  {
+    "term": "Identity federation",
+    "definition": "Linking identities across multiple systems using a trusted third party."
+  },
+  {
+    "term": "Immutability",
+    "definition": "The property that an object cannot be changed after creation."
+  },
+  {
+    "term": "Implicit flow",
+    "definition": "A deprecated OAuth flow that returned tokens in URL fragments."
+  },
+  {
+    "term": "In-band",
+    "definition": "Data or control information carried within the same channel."
+  },
+  {
+    "term": "Incident",
+    "definition": "An event that violates security policy or threatens assets."
+  },
+  {
+    "term": "Incident response",
+    "definition": "The process of handling a security incident: contain, eradicate, recover, learn."
+  },
+  {
+    "term": "Indirect object reference",
+    "definition": "A reference to an object whose meaning depends on context, e.g., a session-scoped cart ID."
+  },
+  {
+    "term": "Indirect prompt injection",
+    "definition": "Prompt injection delivered via external content such as retrieved documents or web pages."
+  },
+  {
+    "term": "Inference",
+    "definition": "Running a trained model to produce outputs for input data."
+  },
+  {
+    "term": "Inference attack",
+    "definition": "Deriving private information from model outputs."
+  },
+  {
+    "term": "Information disclosure",
+    "definition": "Exposing sensitive information to unauthorized parties."
+  },
+  {
+    "term": "Information security",
+    "definition": "Protecting information regardless of medium."
+  },
+  {
+    "term": "Ingress filtering",
+    "definition": "Controls on inbound traffic to a network."
+  },
+  {
+    "term": "Input validation",
+    "definition": "Checking that input conforms to expected rules before use."
+  },
+  {
+    "term": "Insecure deserialization",
+    "definition": "See insecure deserialization in the main glossary."
+  },
+  {
+    "term": "Instance metadata",
+    "definition": "Data about a cloud instance available to the instance itself."
+  },
+  {
+    "term": "Integrity",
+    "definition": "The property that data is accurate and unmodified without detection."
+  },
+  {
+    "term": "Integrity check",
+    "definition": "A verification that data has not been altered."
+  },
+  {
+    "term": "Intermediate certificate",
+    "definition": "A certificate chaining a leaf certificate to a root CA."
+  },
+  {
+    "term": "Intermediate representation",
+    "definition": "A portable low-level representation used by compilers and VMs."
+  },
+  {
+    "term": "Interpreter",
+    "definition": "A program that executes source code directly rather than compiling it ahead of time."
+  },
+  {
+    "term": "Intrusion prevention system",
+    "definition": "A device that blocks detected malicious traffic."
+  },
+  {
+    "term": "Issuer",
+    "definition": "The entity that issued a token or certificate and is identified by the iss claim."
+  },
+  {
+    "term": "JSON Web Key",
+    "definition": "A JSON structure representing a cryptographic key, often used with JWTs."
+  },
+  {
+    "term": "JWT",
+    "definition": "JSON Web Token; a signed, Base64URL-encoded token carrying claims."
+  },
+  {
+    "term": "Jailbreak (AI)",
+    "definition": "A prompt technique that bypasses a model's safety behavior."
+  },
+  {
+    "term": "JavaScript",
+    "definition": "A programming language executed in browsers and on servers via Node.js."
+  },
+  {
+    "term": "Kali Linux",
+    "definition": "A Debian-based distribution preloaded with security tools."
+  },
+  {
+    "term": "Kerberos",
+    "definition": "A network authentication protocol using tickets and symmetric cryptography."
+  },
+  {
+    "term": "Kernel",
+    "definition": "The core of an operating system, managing hardware and system resources."
+  },
+  {
+    "term": "Kernel mode",
+    "definition": "A privileged CPU mode where code has unrestricted hardware access."
+  },
+  {
+    "term": "Key derivation function",
+    "definition": "A function that derives one or more keys from a secret and other parameters."
+  },
+  {
+    "term": "Key exchange",
+    "definition": "A method for two parties to establish a shared secret over an insecure channel."
+  },
+  {
+    "term": "Key management",
+    "definition": "The processes for generating, storing, rotating, and destroying keys."
+  },
+  {
+    "term": "Key stretching",
+    "definition": "Repeated hashing to increase the cost of password guessing."
+  },
+  {
+    "term": "LFI",
+    "definition": "Local File Inclusion; including local files via untrusted input."
+  },
+  {
+    "term": "Lateral authentication",
+    "definition": "Authenticating to services on the same network with captured credentials."
+  },
+  {
+    "term": "Lateral movement",
+    "definition": "Moving from one compromised system to others in a network."
+  },
+  {
+    "term": "Least agency",
+    "definition": "The principle of giving AI agents only the autonomy necessary for the task."
+  },
+  {
+    "term": "Least privilege",
+    "definition": "Granting only the permissions necessary to perform a task."
+  },
+  {
+    "term": "Library",
+    "definition": "A collection of reusable code linked into programs."
+  },
+  {
+    "term": "Load balancer",
+    "definition": "A device that distributes requests across multiple servers."
+  },
+  {
+    "term": "Local file inclusion",
+    "definition": "See LFI."
+  },
+  {
+    "term": "Local storage",
+    "definition": "Browser API for persistent origin-scoped key/value storage."
+  },
+  {
+    "term": "Log injection",
+    "definition": "Inserting forged entries into logs via untrusted input."
+  },
+  {
+    "term": "Logging",
+    "definition": "Recording events for monitoring, auditing, and investigation."
+  },
+  {
+    "term": "Logic bomb",
+    "definition": "Code that triggers a malicious action when a condition is met."
+  },
+  {
+    "term": "MAC address",
+    "definition": "A 48-bit hardware address used on local networks."
+  },
+  {
+    "term": "MD5",
+    "definition": "An obsolete hash function vulnerable to collisions."
+  },
+  {
+    "term": "MITM",
+    "definition": "Man-in-the-Middle; an attacker secretly relaying or altering communications."
+  },
+  {
+    "term": "MITRE ATT&CK",
+    "definition": "A knowledge base of adversary tactics and techniques."
+  },
+  {
+    "term": "Machine learning",
+    "definition": "Algorithms that improve at a task through data rather than explicit programming."
+  },
+  {
+    "term": "Magic bytes",
+    "definition": "Signature bytes at the start of a file identifying its format."
+  },
+  {
+    "term": "Malicious insider",
+    "definition": "An authorized user who abuses their access."
+  },
+  {
+    "term": "Malware",
+    "definition": "Software designed to harm or exploit systems."
+  },
+  {
+    "term": "Managed service provider",
+    "definition": "A third party that manages IT services for other organizations."
+  },
+  {
+    "term": "Mandatory access control",
+    "definition": "Access control enforced by a central policy regardless of object owner."
+  },
+  {
+    "term": "Mass assignment",
+    "definition": "See mass assignment in main glossary."
+  },
+  {
+    "term": "Memory corruption",
+    "definition": "Altering memory in unintended ways, often through pointer errors."
+  },
+  {
+    "term": "Memory leak",
+    "definition": "Memory allocated but never released, causing increasing usage."
+  },
+  {
+    "term": "Memory safety",
+    "definition": "The property that a program cannot access memory outside its intended allocations."
+  },
+  {
+    "term": "Metadata filtering",
+    "definition": "Restricting vector or database queries to records matching an access-control attribute."
+  },
+  {
+    "term": "Metadata service",
+    "definition": "A cloud service providing instance information and temporary credentials."
+  },
+  {
+    "term": "Microarchitecture",
+    "definition": "The hardware implementation of an instruction set architecture."
+  },
+  {
+    "term": "Microservice",
+    "definition": "An architectural style composing an application from small, independent services."
+  },
+  {
+    "term": "Middleware",
+    "definition": "Software layer between the OS and applications, or between web server and app logic."
+  },
+  {
+    "term": "Minimization",
+    "definition": "Reducing a reproducer to the smallest form that still triggers the bug."
+  },
+  {
+    "term": "Model poisoning",
+    "definition": "Corrupting a model through malicious training or fine-tuning data."
+  },
+  {
+    "term": "Multi-factor authentication (MFA)",
+    "definition": "Requiring two or more authentication factors."
+  },
+  {
+    "term": "Multi-tenant",
+    "definition": "An architecture where multiple customers share the same infrastructure with logical isolation."
+  },
+  {
+    "term": "Mutation testing",
+    "definition": "Testing by introducing small changes to inputs or code."
+  },
+  {
+    "term": "Mutual TLS",
+    "definition": "TLS where both client and server present certificates."
+  },
+  {
+    "term": "NAT",
+    "definition": "Network Address Translation; mapping private addresses to public ones."
+  },
+  {
+    "term": "NOP sled",
+    "definition": "A sequence of no-operation instructions used in older exploitation techniques."
+  },
+  {
+    "term": "Namespace",
+    "definition": "A kernel feature isolating a category of system resources."
+  },
+  {
+    "term": "Natural language processing",
+    "definition": "The field of computing with human language, foundational to LLMs."
+  },
+  {
+    "term": "Network address",
+    "definition": "An IP address identifying a network rather than a host."
+  },
+  {
+    "term": "Network segmentation",
+    "definition": "See network segmentation in main glossary."
+  },
+  {
+    "term": "Network topology",
+    "definition": "The arrangement of nodes and links in a network."
+  },
+  {
+    "term": "Nmap",
+    "definition": "A network discovery and security scanning tool."
+  },
+  {
+    "term": "Non-repudiation",
+    "definition": "Assurance that an action cannot be denied, typically via signatures and logs."
+  },
+  {
+    "term": "Nonce",
+    "definition": "A number used once, often to prevent replay."
+  },
+  {
+    "term": "Null byte",
+    "definition": "A zero byte used as a string terminator in C; relevant to some path bypasses."
+  },
+  {
+    "term": "OAuth 2.0",
+    "definition": "An authorization framework for delegated access."
+  },
+  {
+    "term": "OIDC",
+    "definition": "OpenID Connect; an identity layer on top of OAuth 2.0."
+  },
+  {
+    "term": "OWASP",
+    "definition": "Open Web Application Security Project; a nonprofit security community."
+  },
+  {
+    "term": "Object-level authorization",
+    "definition": "See BOLA."
+  },
+  {
+    "term": "One-time pad",
+    "definition": "An unbreakable cipher when the key is truly random, as long as, and never reused."
+  },
+  {
+    "term": "Opaque token",
+    "definition": "A token whose meaning is known only to the issuing server."
+  },
+  {
+    "term": "Open redirect",
+    "definition": "A flaw allowing a parameter to control a redirect to an external site."
+  },
+  {
+    "term": "Origin",
+    "definition": "The combination of scheme, host, and port used in browser security decisions."
+  },
+  {
+    "term": "Output encoding",
+    "definition": "Converting data into a safe form for a specific output context."
+  },
+  {
+    "term": "PIN",
+    "definition": "A short numeric personal identification number."
+  },
+  {
+    "term": "Packet",
+    "definition": "A unit of data transmitted over a network."
+  },
+  {
+    "term": "Padding",
+    "definition": "Extra bytes added to data to meet a block size or conceal lengths."
+  },
+  {
+    "term": "Parallel fuzzing",
+    "definition": "Running multiple fuzzer instances across cores to increase throughput."
+  },
+  {
+    "term": "Parameter pollution",
+    "definition": "Supplying duplicate parameters to exploit inconsistent parsing."
+  },
+  {
+    "term": "Parameterized query",
+    "definition": "See parameterized query in main glossary."
+  },
+  {
+    "term": "Partitioning",
+    "definition": "Dividing data or systems into isolated parts."
+  },
+  {
+    "term": "Passive reconnaissance",
+    "definition": "Gathering information without directly interacting with the target."
+  },
+  {
+    "term": "Password hashing",
+    "definition": "Storing passwords as salted, slow hashes (e.g., Argon2id, bcrypt)."
+  },
+  {
+    "term": "Password spray",
+    "definition": "Trying a small set of common passwords across many accounts."
+  },
+  {
+    "term": "Patch management",
+    "definition": "The process of applying security updates systematically."
+  },
+  {
+    "term": "Path traversal",
+    "definition": "Using relative path sequences to access files outside a directory."
+  },
+  {
+    "term": "Payload",
+    "definition": "The part of an exploit that performs the intended action."
+  },
+  {
+    "term": "Payload splitting",
+    "definition": "Dividing a malicious prompt into parts to evade filters."
+  },
+  {
+    "term": "Penetration test",
+    "definition": "See penetration testing."
+  },
+  {
+    "term": "Penetration testing",
+    "definition": "See penetration testing in main glossary."
+  },
+  {
+    "term": "Perfect secrecy",
+    "definition": "The property that ciphertext reveals no information about the plaintext, achieved by a one-time pad."
+  },
+  {
+    "term": "Performance testing",
+    "definition": "Testing responsiveness and stability under load."
+  },
+  {
+    "term": "Permission",
+    "definition": "An authorization to perform a specific operation on a resource."
+  },
+  {
+    "term": "Permission model",
+    "definition": "The rules by which a platform grants capabilities to applications."
+  },
+  {
+    "term": "Persistent XSS",
+    "definition": "See stored XSS."
+  },
+  {
+    "term": "Phishing",
+    "definition": "Deceptive attempts to obtain credentials or information."
+  },
+  {
+    "term": "Phishing kit",
+    "definition": "A packaged set of files used to run phishing campaigns."
+  },
+  {
+    "term": "Pivoting",
+    "definition": "Using a compromised host to reach other networks."
+  },
+  {
+    "term": "Plaintext",
+    "definition": "See plaintext in main glossary."
+  },
+  {
+    "term": "Pointer",
+    "definition": "A variable holding a memory address."
+  },
+  {
+    "term": "Pointer arithmetic",
+    "definition": "Computing memory addresses by adding offsets to pointers."
+  },
+  {
+    "term": "Policy engine",
+    "definition": "A component that evaluates rules to make authorization decisions."
+  },
+  {
+    "term": "Port",
+    "definition": "A numeric identifier for a network service on a host."
+  },
+  {
+    "term": "Port scanning",
+    "definition": "Probing TCP/UDP ports to discover listening services."
+  },
+  {
+    "term": "Post-exploitation",
+    "definition": "Actions taken after initial access is achieved."
+  },
+  {
+    "term": "PostMessage",
+    "definition": "An API for cross-origin messaging that requires origin validation."
+  },
+  {
+    "term": "Powershell",
+    "definition": "A Windows scripting shell commonly used by administrators and attackers."
+  },
+  {
+    "term": "Pre-authentication",
+    "definition": "Access or actions available before identity verification."
+  },
+  {
+    "term": "Prefetch",
+    "definition": "Loading a resource before it is needed, which can trigger unintended requests."
+  },
+  {
+    "term": "Preflight request",
+    "definition": "An OPTIONS request checking CORS permission before a non-simple request."
+  },
+  {
+    "term": "Principle of least authority",
+    "definition": "See least privilege."
+  },
+  {
+    "term": "Private key",
+    "definition": "The secret half of an asymmetric key pair."
+  },
+  {
+    "term": "Privilege",
+    "definition": "An authorized level of access or capability."
+  },
+  {
+    "term": "Privilege escalation",
+    "definition": "Gaining higher privileges than authorized."
+  },
+  {
+    "term": "Privilege separation",
+    "definition": "Dividing a system into components, each with the minimum privileges needed."
+  },
+  {
+    "term": "Prompt injection",
+    "definition": "Manipulating an LLM through untrusted text that alters its instructions or behavior."
+  },
+  {
+    "term": "Proof of concept",
+    "definition": "A demonstration that a vulnerability exists and is exploitable."
+  },
+  {
+    "term": "Protocol",
+    "definition": "A set of rules governing communication between systems."
+  },
+  {
+    "term": "Prototype pollution",
+    "definition": "Injecting properties into JavaScript object prototypes via unsafe merges."
+  },
+  {
+    "term": "Proxy",
+    "definition": "An intermediary that relays requests between clients and servers."
+  },
+  {
+    "term": "Proxying",
+    "definition": "Forwarding requests through an intermediary."
+  },
+  {
+    "term": "Public key",
+    "definition": "The non-secret half of an asymmetric key pair, used for encryption or verification."
+  },
+  {
+    "term": "Public key infrastructure",
+    "definition": "The system of CAs, certificates, and revocation that enables trusted key distribution."
+  },
+  {
+    "term": "Public suffix",
+    "definition": "A domain under which independent registrants can create domains, e.g., .com or .co.uk."
+  },
+  {
+    "term": "Query parameter",
+    "definition": "A key/value pair appended to a URL after a question mark."
+  },
+  {
+    "term": "RCE",
+    "definition": "Remote Code Execution; running arbitrary code on a remote system."
+  },
+  {
+    "term": "ROP",
+    "definition": "Return-Oriented Programming; chaining existing code gadgets to execute arbitrary logic."
+  },
+  {
+    "term": "RSA",
+    "definition": "A widely used asymmetric cryptosystem."
+  },
+  {
+    "term": "Race condition",
+    "definition": "A bug arising from timing-dependent interleaving of concurrent operations."
+  },
+  {
+    "term": "Race window",
+    "definition": "The interval during which a race condition can be triggered."
+  },
+  {
+    "term": "Ransomware",
+    "definition": "Malware that encrypts data and demands payment for restoration."
+  },
+  {
+    "term": "Rate limiting",
+    "definition": "Restricting how many requests a client may make in a time window."
+  },
+  {
+    "term": "ReDoS",
+    "definition": "Regular Expression Denial of Service via catastrophic backtracking."
+  },
+  {
+    "term": "Rebinding",
+    "definition": "See DNS rebinding."
+  },
+  {
+    "term": "Reconnaissance",
+    "definition": "The phase of gathering information about a target."
+  },
+  {
+    "term": "Red team",
+    "definition": "An adversarial team that emulates real attackers in authorized exercises."
+  },
+  {
+    "term": "Reflection",
+    "definition": "Using a proxy or third party to hide the source of traffic."
+  },
+  {
+    "term": "Regex",
+    "definition": "See regular expression."
+  },
+  {
+    "term": "Regression testing",
+    "definition": "Re-testing after changes to ensure prior behavior still holds."
+  },
+  {
+    "term": "Regular expression (regex)",
+    "definition": "A pattern language for matching text; can cause ReDoS if misused."
+  },
+  {
+    "term": "Relaying",
+    "definition": "Forwarding authentication or messages between parties, sometimes maliciously."
+  },
+  {
+    "term": "Remote code execution",
+    "definition": "See RCE."
+  },
+  {
+    "term": "Replay attack",
+    "definition": "Capturing and re-sending a valid message to produce an unauthorized effect."
+  },
+  {
+    "term": "Repudiation",
+    "definition": "Denying that an action occurred; countered by logging and signatures."
+  },
+  {
+    "term": "Resource exhaustion",
+    "definition": "Consuming a resource (CPU, memory, disk, money) until service fails."
+  },
+  {
+    "term": "Response header",
+    "definition": "An HTTP header sent by a server in a response."
+  },
+  {
+    "term": "Rest",
+    "definition": "Representational State Transfer; an architectural style for web APIs using HTTP semantics."
+  },
+  {
+    "term": "Reverse engineering",
+    "definition": "Understanding a system's structure and behavior from its artifacts."
+  },
+  {
+    "term": "Reverse proxy",
+    "definition": "A proxy that sits in front of servers, hiding their identity and providing services."
+  },
+  {
+    "term": "Revocation",
+    "definition": "Invalidating a certificate or token before its natural expiry."
+  },
+  {
+    "term": "Risk",
+    "definition": "The potential for loss given threats, vulnerabilities, and impacts."
+  },
+  {
+    "term": "Risk assessment",
+    "definition": "The process of identifying and evaluating risks."
+  },
+  {
+    "term": "Robustness principle",
+    "definition": "Be conservative in what you send, liberal in what you accept; a source of parsing inconsistencies."
+  },
+  {
+    "term": "Role-based access control",
+    "definition": "Authorization based on assigned roles."
+  },
+  {
+    "term": "Root",
+    "definition": "The superuser account on Unix-like systems with full privileges."
+  },
+  {
+    "term": "Root cause",
+    "definition": "The underlying reason a vulnerability exists."
+  },
+  {
+    "term": "Root of trust",
+    "definition": "A trusted component from which security guarantees are derived."
+  },
+  {
+    "term": "Router",
+    "definition": "A device forwarding packets between networks."
+  },
+  {
+    "term": "Runtime application self-protection",
+    "definition": "Security checks embedded in the application runtime."
+  },
+  {
+    "term": "S3",
+    "definition": "Amazon Simple Storage Service; object storage commonly misconfigured."
+  },
+  {
+    "term": "SHA-256",
+    "definition": "A widely used cryptographic hash function from the SHA-2 family."
+  },
+  {
+    "term": "SIEM",
+    "definition": "Security Information and Event Management; centralized log analysis and alerting."
+  },
+  {
+    "term": "SOC",
+    "definition": "Security Operations Center; a team or facility monitoring security events."
+  },
+  {
+    "term": "SQL",
+    "definition": "Structured Query Language for relational databases."
+  },
+  {
+    "term": "SQL injection",
+    "definition": "See SQL injection in main glossary."
+  },
+  {
+    "term": "SSRF",
+    "definition": "Server-Side Request Forgery; inducing a server to make arbitrary requests."
+  },
+  {
+    "term": "Salt",
+    "definition": "Random data added to a password before hashing to defeat precomputed attacks."
+  },
+  {
+    "term": "Sandbox",
+    "definition": "An isolated environment for running untrusted code."
+  },
+  {
+    "term": "Sandbox escape",
+    "definition": "Breaking out of an isolated execution environment."
+  },
+  {
+    "term": "Sanitization",
+    "definition": "Cleaning or escaping untrusted data before use."
+  },
+  {
+    "term": "Scalar",
+    "definition": "A single value, as opposed to an array or object."
+  },
+  {
+    "term": "Schema",
+    "definition": "A formal description of data structure (e.g., for APIs or databases)."
+  },
+  {
+    "term": "Schema poisoning",
+    "definition": "Corrupting a schema or API definition to influence clients or tools."
+  },
+  {
+    "term": "Schema validation",
+    "definition": "Checking data against a defined structure and types."
+  },
+  {
+    "term": "Scope",
+    "definition": "The set of assets and tests authorized in an engagement or program."
+  },
+  {
+    "term": "Script kiddie",
+    "definition": "A low-skill attacker relying on ready-made tools."
+  },
+  {
+    "term": "Search engine dorking",
+    "definition": "Using search operators to find exposed resources."
+  },
+  {
+    "term": "Search engine optimization poisoning",
+    "definition": "Manipulating search results to distribute malicious links."
+  },
+  {
+    "term": "Secret",
+    "definition": "A sensitive credential such as a key, token, or password."
+  },
+  {
+    "term": "Secure SDLC",
+    "definition": "Integrating security practices into the software development lifecycle."
+  },
+  {
+    "term": "Secure coding",
+    "definition": "Writing software resistant to exploitation."
+  },
+  {
+    "term": "Secure element",
+    "definition": "A dedicated hardware component for storing secrets and performing crypto."
+  },
+  {
+    "term": "Security advisory",
+    "definition": "A vendor publication describing a vulnerability and remediation."
+  },
+  {
+    "term": "Security boundary",
+    "definition": "A point where different trust levels meet."
+  },
+  {
+    "term": "Security by obscurity",
+    "definition": "Relying on secrecy of implementation as a security control (weak)."
+  },
+  {
+    "term": "Security control",
+    "definition": "A measure that reduces risk."
+  },
+  {
+    "term": "Security engineering",
+    "definition": "Building systems and controls that provide security properties."
+  },
+  {
+    "term": "Security misconfiguration",
+    "definition": "Insecure or incomplete configuration of a system."
+  },
+  {
+    "term": "Security regression",
+    "definition": "A change that reintroduces a previously fixed vulnerability."
+  },
+  {
+    "term": "Seed",
+    "definition": "An initial input or value used to start a process, such as fuzzing or random generation."
+  },
+  {
+    "term": "Server-side",
+    "definition": "Logic executed on the server rather than in the client."
+  },
+  {
+    "term": "Server-side template injection",
+    "definition": "See template injection."
+  },
+  {
+    "term": "Session",
+    "definition": "Server-side state associated with a user interaction."
+  },
+  {
+    "term": "Session fixation",
+    "definition": "Forcing a victim to use an attacker-chosen session identifier."
+  },
+  {
+    "term": "Session hijacking",
+    "definition": "Taking over a victim's session by stealing or predicting the session token."
+  },
+  {
+    "term": "Session token",
+    "definition": "A value identifying a session, typically stored in a cookie."
+  },
+  {
+    "term": "Setuid",
+    "definition": "A Unix permission bit that runs a program with the owner's privileges."
+  },
+  {
+    "term": "Shared responsibility",
+    "definition": "The cloud model dividing security duties between provider and customer."
+  },
+  {
+    "term": "Shared secret",
+    "definition": "A secret value known to two or more parties."
+  },
+  {
+    "term": "Shell",
+    "definition": "A command-line interpreter providing an interface to the operating system."
+  },
+  {
+    "term": "Side channel",
+    "definition": "Leaking information through indirect effects such as timing or power use."
+  },
+  {
+    "term": "Side-channel attack",
+    "definition": "See side channel."
+  },
+  {
+    "term": "Signature",
+    "definition": "A cryptographic value proving authenticity and integrity."
+  },
+  {
+    "term": "Signature verification",
+    "definition": "Checking a digital signature using a public key."
+  },
+  {
+    "term": "Single sign-on (SSO)",
+    "definition": "Authenticating once to access multiple systems."
+  },
+  {
+    "term": "Single-packet attack",
+    "definition": "Sending concurrent requests in as few packets as possible to narrow race windows."
+  },
+  {
+    "term": "Single-use token",
+    "definition": "A token invalidated immediately after first use."
+  },
+  {
+    "term": "Social engineering",
+    "definition": "Manipulating people into revealing information or performing actions."
+  },
+  {
+    "term": "Socket",
+    "definition": "See socket in main glossary."
+  },
+  {
+    "term": "Software composition analysis",
+    "definition": "Automated identification of third-party components and their vulnerabilities."
+  },
+  {
+    "term": "Software supply chain",
+    "definition": "The chain of dependencies, build systems, and distribution used to produce software."
+  },
+  {
+    "term": "Source code analysis",
+    "definition": "See static analysis."
+  },
+  {
+    "term": "Spear phishing",
+    "definition": "Targeted phishing aimed at a specific individual or organization."
+  },
+  {
+    "term": "Spoofing",
+    "definition": "Impersonating another identity or source."
+  },
+  {
+    "term": "Stack",
+    "definition": "A LIFO memory region used for function frames and local variables."
+  },
+  {
+    "term": "Stack canary",
+    "definition": "A random value placed before the return address to detect stack overflows."
+  },
+  {
+    "term": "Stack frame",
+    "definition": "A block of stack memory for a single function call."
+  },
+  {
+    "term": "State machine",
+    "definition": "A model of behavior as transitions between states."
+  },
+  {
+    "term": "Stateful firewall",
+    "definition": "A firewall that tracks connection state rather than inspecting packets in isolation."
+  },
+  {
+    "term": "Stateful inspection",
+    "definition": "Firewall filtering that tracks connection state."
+  },
+  {
+    "term": "Static analysis",
+    "definition": "Analyzing code or binaries without executing them."
+  },
+  {
+    "term": "Static application security testing",
+    "definition": "See static analysis."
+  },
+  {
+    "term": "Stored XSS",
+    "definition": "XSS where the payload is persisted and served to other users."
+  },
+  {
+    "term": "Subdomain",
+    "definition": "A domain that is part of a larger domain."
+  },
+  {
+    "term": "Subdomain takeover",
+    "definition": "Claiming an external service referenced by a dangling DNS record."
+  },
+  {
+    "term": "Subject",
+    "definition": "The entity requesting access to an object."
+  },
+  {
+    "term": "Subresource integrity",
+    "definition": "A browser feature verifying fetched resources against a cryptographic hash."
+  },
+  {
+    "term": "Supply chain",
+    "definition": "See software supply chain."
+  },
+  {
+    "term": "Supply chain attack",
+    "definition": "Compromising a less-secure element of a supply chain to attack a target."
+  },
+  {
+    "term": "Symbol table",
+    "definition": "A data structure mapping names to addresses in a binary."
+  },
+  {
+    "term": "Symbolic execution",
+    "definition": "Analyzing programs by treating inputs as symbolic values and exploring paths."
+  },
+  {
+    "term": "Symmetric encryption",
+    "definition": "Encryption using a single shared key (e.g., AES)."
+  },
+  {
+    "term": "Syntax highlight",
+    "definition": "Coloring source code by token type for readability."
+  },
+  {
+    "term": "System call",
+    "definition": "The controlled interface between user programs and the kernel."
+  },
+  {
+    "term": "System call filter",
+    "definition": "A mechanism such as seccomp restricting which syscalls a process can make."
+  },
+  {
+    "term": "TLS",
+    "definition": "Transport Layer Security; the protocol providing confidentiality and integrity for network traffic."
+  },
+  {
+    "term": "TOCTOU",
+    "definition": "Time-of-check to time-of-use; a race between validation and use."
+  },
+  {
+    "term": "Table",
+    "definition": "A structured collection of rows and columns used to organize data in databases or documents."
+  },
+  {
+    "term": "Taint analysis",
+    "definition": "Tracking untrusted data from sources to sinks."
+  },
+  {
+    "term": "Template injection",
+    "definition": "Injecting template syntax into a template that is then rendered."
+  },
+  {
+    "term": "Temporary credentials",
+    "definition": "Short-lived credentials issued by a service such as AWS STS."
+  },
+  {
+    "term": "Test account",
+    "definition": "An account created solely for authorized testing with synthetic data."
+  },
+  {
+    "term": "Threat actor",
+    "definition": "An individual or group that poses a threat."
+  },
+  {
+    "term": "Threat hunting",
+    "definition": "Proactively searching for signs of compromise that automated tools missed."
+  },
+  {
+    "term": "Threat model",
+    "definition": "A structured description of assets, adversaries, and assumed capabilities."
+  },
+  {
+    "term": "Time-based injection",
+    "definition": "Inference using deliberate delays in responses."
+  },
+  {
+    "term": "Token",
+    "definition": "A value representing authorization or identity; also a unit of text for LLMs."
+  },
+  {
+    "term": "Token binding",
+    "definition": "Cryptographically binding a token to a client to prevent replay elsewhere."
+  },
+  {
+    "term": "Tokenization",
+    "definition": "See tokenization in main glossary."
+  },
+  {
+    "term": "Traceroute",
+    "definition": "A tool that maps the network path using TTL and ICMP."
+  },
+  {
+    "term": "Transport layer",
+    "definition": "The network layer providing end-to-end communication (TCP/UDP)."
+  },
+  {
+    "term": "Transport layer security",
+    "definition": "See TLS."
+  },
+  {
+    "term": "Triage",
+    "definition": "The process of evaluating incoming vulnerability reports."
+  },
+  {
+    "term": "Trojan",
+    "definition": "Malware disguised as legitimate software."
+  },
+  {
+    "term": "Trust boundary",
+    "definition": "A point where data passes between components with different trust levels."
+  },
+  {
+    "term": "Trusted computing base",
+    "definition": "The set of components that must be trusted for a system's security."
+  },
+  {
+    "term": "Trusted platform module",
+    "definition": "A hardware chip providing secure key storage and attestation."
+  },
+  {
+    "term": "Two's complement",
+    "definition": "A method of representing signed integers in binary."
+  },
+  {
+    "term": "Type confusion",
+    "definition": "Using a value as a different type than intended, often leading to memory errors."
+  },
+  {
+    "term": "Type juggling",
+    "definition": "Exploiting loose type comparisons in dynamically typed languages."
+  },
+  {
+    "term": "Typosquatting",
+    "definition": "Registering names similar to popular ones to deceive users or builds."
+  },
+  {
+    "term": "URL encoding",
+    "definition": "Representing special characters in URLs with percent-escapes."
+  },
+  {
+    "term": "URL scheme",
+    "definition": "The leading part of a URL identifying the protocol, e.g., https:."
+  },
+  {
+    "term": "Unicode",
+    "definition": "A character encoding standard supporting most of the world's writing systems."
+  },
+  {
+    "term": "Unicode normalization",
+    "definition": "Converting Unicode text to a canonical form, important for consistent validation."
+  },
+  {
+    "term": "Uninitialized memory",
+    "definition": "Memory containing unpredictable previous contents."
+  },
+  {
+    "term": "Untrusted input",
+    "definition": "Data from outside a trust boundary that must not be assumed safe."
+  },
+  {
+    "term": "User agent",
+    "definition": "An HTTP header identifying the client software."
+  },
+  {
+    "term": "User enumeration",
+    "definition": "Determining which usernames exist through observable differences."
+  },
+  {
+    "term": "User mode",
+    "definition": "An unprivileged CPU mode restricting hardware and memory access."
+  },
+  {
+    "term": "Virtual host",
+    "definition": "Multiple websites served from one IP address, distinguished by the Host header."
+  },
+  {
+    "term": "Virtual machine",
+    "definition": "A software emulation of a computer running its own OS."
+  },
+  {
+    "term": "Virtual memory",
+    "definition": "An abstraction giving each process a private address space backed by physical memory and disk."
+  },
+  {
+    "term": "Vulnerability",
+    "definition": "A weakness that can be exploited to violate security policy."
+  },
+  {
+    "term": "Vulnerability disclosure",
+    "definition": "The process of reporting and coordinating remediation of a vulnerability."
+  },
+  {
+    "term": "Vulnerability management",
+    "definition": "The ongoing process of discovering, prioritizing, and remediating vulnerabilities."
+  },
+  {
+    "term": "Vulnerability scanner",
+    "definition": "A tool that automatically detects known weaknesses."
+  },
+  {
+    "term": "WAF",
+    "definition": "See WAF in main glossary."
+  },
+  {
+    "term": "Web application firewall",
+    "definition": "See WAF."
+  },
+  {
+    "term": "WebSocket",
+    "definition": "A protocol providing full-duplex communication over a single connection."
+  },
+  {
+    "term": "Webhook",
+    "definition": "An HTTP callback that delivers event data to a third-party endpoint."
+  },
+  {
+    "term": "White-box testing",
+    "definition": "Testing with full knowledge of source and architecture."
+  },
+  {
+    "term": "Whitelist",
+    "definition": "An allow-list of permitted items; preferred over deny-lists."
+  },
+  {
+    "term": "Wildcard certificate",
+    "definition": "A TLS certificate valid for all subdomains at one level."
+  },
+  {
+    "term": "Wildcard domain",
+    "definition": "A DNS record or scope entry matching all subdomains at a level, e.g., *.example.com."
+  },
+  {
+    "term": "Wireshark",
+    "definition": "A graphical network protocol analyzer."
+  },
+  {
+    "term": "Work factor",
+    "definition": "The computational cost of an operation, especially in password hashing."
+  },
+  {
+    "term": "Write-up",
+    "definition": "A detailed written explanation of a vulnerability, challenge, or research finding."
+  },
+  {
+    "term": "X.509",
+    "definition": "The standard format for public key certificates."
+  },
+  {
+    "term": "XML parser",
+    "definition": "Software that reads XML; dangerous when external entities are enabled."
+  },
+  {
+    "term": "XOR",
+    "definition": "Exclusive OR; a bitwise operation used in cryptography and checksums."
+  },
+  {
+    "term": "XXE",
+    "definition": "XML External Entity; an attack where XML parsers resolve external entities."
+  },
+  {
+    "term": "Zero trust",
+    "definition": "A security model that trusts no user or system by default, even inside a network."
+  },
+  {
+    "term": "Zero-day",
+    "definition": "A vulnerability unknown to the vendor and defenders at the time of exploitation."
+  },
+  {
+    "term": "Zip slip",
+    "definition": "A path traversal attack via archive extraction with malicious file paths."
+  },
+  {
+    "term": "Zone transfer",
+    "definition": "A DNS mechanism (AXFR) to copy a zone; misconfiguration can leak all records."
+  }
+]
