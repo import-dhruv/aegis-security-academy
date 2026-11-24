@@ -8,7 +8,8 @@
     "start": "next start -p 3100",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "content:build": "python3 scripts/build_content.py"
+    "content:build": "python3 scripts/build_content.py",
+    "content:modules": "python3 scripts/build_modules.py"
   },
   "dependencies": {
     "clsx": "^2.1.1",

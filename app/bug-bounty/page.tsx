@@ -43,7 +43,7 @@ export default function BugBountyPage() {
         eyebrow="Professional practice"
         title="Bug Bounty Academy"
         description="A repeatable professional workflow from program selection to a triage-ready report — built on deep technical understanding, careful scope discipline and responsible conduct."
-        actions={<Link href="/simulator" className="btn-primary"><Workflow className="h-4 w-4" /> Open workflow simulator</Link>}
+        actions={<><Link href="/field-guide" className="btn-primary"><BookOpen className="h-4 w-4" /> 50-module field guide</Link><Link href="/simulator" className="btn-ghost"><Workflow className="h-4 w-4" /> Workflow simulator</Link></>}
       />
 
       <Panel className="mb-4 p-6">
