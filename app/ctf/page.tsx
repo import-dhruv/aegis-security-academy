@@ -74,7 +74,7 @@ export default function CtfPage() {
         eyebrow="Practice / Challenge Arena"
         title="CTF Challenge Arena"
         description="Short, reasoning-focused challenges modeled on real bug-bounty decisions. Work through the prompt, take hints one at a time, then compare your answer with the model solution."
-        actions={<Link href="/ethics" className="btn-ghost"><ShieldCheck className="h-4 w-4 text-mint-400" /> Rules &amp; ethics</Link>}
+        actions={<><Link href="/ctf-library" className="btn-primary"><Trophy className="h-4 w-4" /> 1000-challenge library</Link><Link href="/ethics" className="btn-ghost"><ShieldCheck className="h-4 w-4 text-mint-400" /> Rules &amp; ethics</Link></>}
       />
 
       <Panel className="mb-6 border-amber-500/25 bg-amber-500/[0.04] p-4 text-[13px] leading-relaxed text-amber-200/80">

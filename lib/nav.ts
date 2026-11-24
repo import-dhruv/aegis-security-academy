@@ -30,6 +30,7 @@ export const navGroups: { title: string; items: NavItem[] }[] = [
       { href: '/tools', label: 'Tools Encyclopedia', icon: 'Wrench' },
       { href: '/labs', label: 'Practical Labs', icon: 'FlaskConical' },
       { href: '/ctf', label: 'CTF Challenges', icon: 'Trophy' },
+      { href: '/ctf-library', label: '1000-Challenge CTF Library', icon: 'Flag' },
       { href: '/vulnerabilities', label: 'Vulnerability Database', icon: 'ShieldAlert' },
       { href: '/case-studies', label: 'Bug Bounty Case Studies', icon: 'FileSearch' },
       { href: '/real-cases', label: '500 Real Disclosed Cases', icon: 'BookOpenCheck' },
