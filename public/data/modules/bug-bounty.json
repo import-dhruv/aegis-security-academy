@@ -1,0 +1,1102 @@
+[
+  {
+    "id": "bug-bounty-01",
+    "topic": "bug-bounty",
+    "number": 1,
+    "title": "The Bug Bounty Ecosystem",
+    "level": "Beginner",
+    "minutes": 30,
+    "summary": "Understand how organizations, platforms, triage teams, and researchers interact in a modern bounty program.",
+    "objectives": [
+      "identify the main actors in a bounty program",
+      "distinguish internal and public programs",
+      "explain how value flows between parties"
+    ],
+    "takeaways": [
+      "programs are authorized, scoped engagements",
+      "platforms provide rules, triage, and payment",
+      "researchers trade time for reputation and rewards"
+    ],
+    "practice": "Map the actors and data flow of a public program using only its public program page.",
+    "sources": [],
+    "content": "## Core idea\nA bug bounty program is a structured arrangement in which an organization invites external researchers to find security flaws in exchange for recognition and compensation. The ecosystem has four actors: the asset owner (the company), the platform (HackerOne, Bugcrowd, Intigriti, or a self-hosted portal), the researcher (you), and the triage team that validates submissions. Unlike a penetration test, which is commissioned and scheduled, a public bounty is continuously open and self-selected: you choose when and what to test within the published scope. This flexibility is powerful but creates a hard obligation — authorization is conditional on following the program's rules. Every action must stay inside the stated scope, respect the rate limits, and avoid touching real user data. Programs succeed because they convert adversarial curiosity into a measurable security control; researchers succeed by treating the engagement as a professional service, not a scavenger hunt. Understand the flow: the platform publishes scope and rules, you probe only in-scope assets, you submit evidence, triage reproduces, the owner fixes, and reward plus reputation flow back to you.\n\n### Method\nWhen evaluating any ecosystem participant, record: (1) who owns the asset, (2) which platform mediates, (3) whether the program is public, private, or VDP, (4) how triage and payment work, and (5) what safe-harbor language exists. Build a one-page map before spending a minute testing.\n\n```bash\n# Illustrative: fetch a public program page for reading only\ncurl -sS -A \"research-notes/1.0\" https://hackerone.com/<LAB_HOST>/program\n# -sS: silent with errors; -A: identify your client honestly\n# Parse only public text; never automate logins or crawling\n```\n\n### Checklist\n- [ ] Asset owner identified\n- [ ] Platform and triage model noted\n- [ ] Program type (public/private/VDP) recorded\n- [ ] Safe-harbor statement located\n\n### Common mistakes\n- Assuming \"public\" means \"unrestricted\" — scope still binds you.\n- Testing before reading the rules.\n- Treating the platform as the asset owner.\n\n### Safety & scope\nRead only public pages unless you hold explicit credentials. Never test assets you do not own or that lack a published invitation.\n\n### Knowledge check\nQ: Who validates a finding in a typical platform program?\nA: The platform's triage team and the asset owner — not the researcher."
+  },
+  {
+    "id": "bug-bounty-02",
+    "topic": "bug-bounty",
+    "number": 2,
+    "title": "How Bounty Platforms Work",
+    "level": "Beginner",
+    "minutes": 30,
+    "summary": "Learn the lifecycle, interfaces, and incentives that make platforms the operating system of bug bounty.",
+    "objectives": [
+      "describe the submission lifecycle",
+      "explain triage and duplicate detection",
+      "use platform reputation correctly"
+    ],
+    "takeaways": [
+      "platforms mediate rules and payment",
+      "triage validates before the owner fixes",
+      "reputation reflects report quality"
+    ],
+    "practice": "Walk the public UI of a training platform and note each report status without submitting anything.",
+    "sources": [],
+    "content": "## Core idea\nPlatforms are the operating system of modern bug bounty. They provide the program page, scope, submission workflow, triage, bounty payments, duplicate detection, and reputation scores. Understanding their mechanics helps you work within the system rather than against it. Most platforms share a common lifecycle: a researcher submits a report, automated checks may enrich it, a triage analyst validates severity and duplicates, the customer confirms, a fix is deployed, and the researcher is rewarded and ranked. Private programs invite named researchers; public programs are open to all registered users. Platforms also mediate disclosure: they set embargo periods and coordinate public disclosure timelines. As a researcher you should treat the platform's UI as the source of truth for what is in scope, what counts as a duplicate, and how rewards are calculated. Never rely on third-party rumors about a program's rules.\n\n### Method\nFor each platform you use, document: submission fields, severity matrix, duplicate policy, disclosure setting, and payment terms. Learn how status flows (new → triaged → resolved). Keep your profile professional.\n\n```bash\n# Read-only: inspect a public program's published policy where offered\ncurl -sS https://hackerone.com/<LAB_HOST>/policy.json | head -40\n# -sS quiet with errors; head limits output for note-taking\n```\n\n### Checklist\n- [ ] Submission fields understood\n- [ ] Severity matrix saved\n- [ ] Duplicate policy noted\n- [ ] Disclosure setting recorded\n\n### Common mistakes\n- Assuming all platforms share the same rules.\n- Ignoring the duplicate policy before testing.\n- Treating reputation as a popularity contest.\n\n### Safety & scope\nUse only official program channels. Do not scrape private data or bypass platform access controls.\n\n### Knowledge check\nQ: Who sets the final severity of a submitted report?\nA: Triage and the asset owner, using the program's matrix."
+  },
+  {
+    "id": "bug-bounty-03",
+    "topic": "bug-bounty",
+    "number": 3,
+    "title": "VDP vs Bounty Programs",
+    "level": "Beginner",
+    "minutes": 25,
+    "summary": "Distinguish vulnerability disclosure policies from paid bounty programs and set correct expectations.",
+    "objectives": [
+      "define a VDP",
+      "compare VDPs and bounties",
+      "choose the right program type for a goal"
+    ],
+    "takeaways": [
+      "VDPs promise non-retaliation, not payment",
+      "bounties add rewards and triage",
+      "both require rule compliance"
+    ],
+    "practice": "Classify three public programs as VDP, bounty, or hybrid using only their policy pages.",
+    "sources": [],
+    "content": "## Core idea\nA Vulnerability Disclosure Policy (VDP) and a bug bounty program are related but distinct. A VDP is a published promise: the organization invites reports and pledges not to pursue legal action against good-faith researchers who follow the policy, but it typically offers no guaranteed payment. A bounty program adds a reward table and a triage/payment pipeline. Some programs are hybrids. Knowing the difference sets expectations about compensation, response time, and disclosure formalities. VDPs are often broader in scope because the organization wants maximum visibility; bounties are narrower and more tightly managed. Many companies start with a VDP and mature into a bounty. As a researcher, a VDP is an excellent place to build skills and reputation, but you should never assume a reward. Always confirm whether safe-harbor language exists and whether the policy permits public disclosure after a fix.\n\n### Method\nClassify every program into one of three buckets — VDP-only, bounty-only, or hybrid — and record the reward range, response SLA, and disclosure terms. Prioritize bounties for compensated work and VDPs for learning.\n\n```bash\n# Save a public VDP/bounty file for careful offline reading\ncurl -sS -L https://<LAB_HOST>/.well-known/security.txt -o security_txt_notes.txt\n# -L follows redirects; output is a note file, not a scanner\ncat security_txt_notes.txt\n```\n\n### Checklist\n- [ ] Program type classified\n- [ ] Reward terms recorded\n- [ ] Response SLA noted\n- [ ] Disclosure terms checked\n\n### Common mistakes\n- Expecting payment from a VDP.\n- Assuming disclosure is always allowed.\n- Ignoring the response SLA.\n\n### Safety & scope\nA VDP is still authorization with conditions. Never exceed its stated scope.\n\n### Knowledge check\nQ: Does a VDP guarantee a financial reward?\nA: No. It promises good-faith handling and often safe harbor, not payment."
+  },
+  {
+    "id": "bug-bounty-04",
+    "topic": "bug-bounty",
+    "number": 4,
+    "title": "Ethics and Authorization",
+    "level": "Beginner",
+    "minutes": 30,
+    "summary": "Establish the ethical baseline that separates authorized research from unlawful activity.",
+    "objectives": [
+      "define authorization",
+      "apply data minimization",
+      "recognize ethical boundaries"
+    ],
+    "takeaways": [
+      "permission must be explicit and documented",
+      "minimum-necessary interaction is the norm",
+      "reputation depends on ethics"
+    ],
+    "practice": "Write an authorization ledger entry for a lab target before touching it.",
+    "sources": [],
+    "content": "## Core idea\nEthics is the boundary that separates security research from crime. Authorization means you have explicit, documented permission to test a specific asset under specific conditions. A public program page is an invitation, but it is also a contract: testing outside its scope, using stolen credentials, or touching production user data breaks that contract instantly. The professional norm is \"minimum necessary\" — interact with a system only as much as needed to demonstrate a flaw. Treat every target as if a real person's data is behind it, because often there is. Ethical researchers avoid social engineering employees, avoid denial-of-service, avoid modifying or deleting data, and stop immediately when they suspect they have crossed a line. They also disclose responsibly through the official channel rather than threatening publicity. Reputation in this field is everything; one unethical act can end a career.\n\n### Method\nBefore any test, write down: who authorized it, which hosts are named, what techniques are banned, and what data you will avoid. If any answer is unclear, pause and ask the program owner.\n\n```bash\n# Keep an authorization ledger entry before touching a target\ncat >> engagement_notes.md <<'NOTE'\nTarget: <LAB_HOST>\nAuthorization: published program dated YYYY-MM-DD\nIn-scope: listed hosts only\nAvoid: user data, DoS, social engineering\nNOTE\n```\n\n### Checklist\n- [ ] Authorization source recorded\n- [ ] Named hosts listed\n- [ ] Banned techniques noted\n- [ ] Data avoidance stated\n\n### Common mistakes\n- Treating an invitation as unlimited permission.\n- \"Just looking\" at out-of-scope data.\n- Using real credentials found online.\n\n### Safety & scope\nWhen in doubt, do not test. Ask the program owner for clarification instead.\n\n### Knowledge check\nQ: What is the correct response when a test touches real user data?\nA: Stop immediately and report the situation through the official channel."
+  },
+  {
+    "id": "bug-bounty-05",
+    "topic": "bug-bounty",
+    "number": 5,
+    "title": "Safe Harbor and Legal Boundaries",
+    "level": "Beginner",
+    "minutes": 35,
+    "summary": "Understand what safe harbor protects and where computer misuse and data laws still apply.",
+    "objectives": [
+      "define safe harbor",
+      "identify legal limits",
+      "apply data-protection care"
+    ],
+    "takeaways": [
+      "safe harbor is contractual, not absolute",
+      "jurisdiction still matters",
+      "personal data is off-limits"
+    ],
+    "practice": "Quote and annotate the safe-harbor clause of a lab program policy.",
+    "sources": [],
+    "content": "## Core idea\nSafe harbor is a legal commitment by an organization that it will not sue or press charges against researchers who conduct good-faith security research within the program's rules. It does not make any action legal by itself — laws such as the U.S. Computer Fraud and Abuse Act, the UK Computer Misuse Act, and EU cybercrime rules still define what is permitted. Safe harbor works as a contract: if you follow scope and rules, the owner promises restraint. If you exceed them, protection evaporates. Researchers should understand the difference between civil and criminal exposure and recognize that jurisdiction matters. Many programs publish safe-harbor language on their policy page; some rely on platform-wide terms. When in doubt, assume nothing is protected and stay strictly inside scope. Data protection law also matters: never download or expose real personal data.\n\n### Method\nLocate and quote the safe-harbor clause in your notes. Note its exact conditions (good faith, no data exfiltration, timely reporting). If absent, treat the engagement as higher risk.\n\n```bash\n# Extract safe-harbor wording from a local copy of a policy\ngrep -i -n \"safe harbor\\|good faith\\|will not.*prosecute\" policy_notes.txt\n# -i case-insensitive; -n shows line numbers for citation\n```\n\n### Checklist\n- [ ] Safe-harbor clause located\n- [ ] Conditions recorded\n- [ ] Jurisdiction noted\n- [ ] Data limits understood\n\n### Common mistakes\n- Believing safe harbor covers any action.\n- Ignoring data-protection obligations.\n- Testing before confirming the clause.\n\n### Safety & scope\nSafe harbor is conditional. Stay inside scope to keep the protection intact.\n\n### Knowledge check\nQ: Does safe harbor override computer misuse law?\nA: No. It is a promise of restraint by the owner, not a legal shield."
+  },
+  {
+    "id": "bug-bounty-06",
+    "topic": "bug-bounty",
+    "number": 6,
+    "title": "Program Rules and Codes of Conduct",
+    "level": "Beginner",
+    "minutes": 30,
+    "summary": "Treat published program rules as the precise contract that defines your authorization.",
+    "objectives": [
+      "extract key rules",
+      "apply banned-technique lists",
+      "maintain a rules digest"
+    ],
+    "takeaways": [
+      "rules convert invitations into precise authorization",
+      "re-read them every session",
+      "violations have real consequences"
+    ],
+    "practice": "Create a one-page rules digest for a lab program from its public policy.",
+    "sources": [],
+    "content": "## Core idea\nEvery program publishes rules — sometimes called a policy, terms, or code of conduct. These convert a vague invitation into a precise authorization. Rules typically define in-scope assets, prohibited techniques (DoS, social engineering, physical attacks, automated mass scanning), disclosure expectations, and reward eligibility. They may also set a \"one root cause per report\" rule and define duplicates. Reading rules is not a formality: it is the single most important step before testing. Rules change over time, so re-read them at the start of every session. Violating a rule can get you banned from the platform, forfeit a reward, or expose you legally. A disciplined researcher keeps a timestamped local copy.\n\n### Method\nCreate a rules digest: scope, banned techniques, rate limits, disclosure terms, reward rules, and contact. Check each technique you plan against the banned list before using it.\n\n```bash\n# Snapshot the rules page with a timestamp for your records\ncurl -sS -L https://<LAB_HOST>/policy -o \"policy_$(date +%F).html\"\n# Store locally; do not redistribute private program rules\n```\n\n### Checklist\n- [ ] Scope captured\n- [ ] Banned techniques listed\n- [ ] Rate limits noted\n- [ ] Disclosure terms saved\n\n### Common mistakes\n- Reading rules once and never again.\n- Skimming the banned-technique list.\n- Assuming verbal permission is enough.\n\n### Safety & scope\nIf the rules are silent on a technique, ask before acting rather than assuming it is allowed.\n\n### Knowledge check\nQ: Why must rules be re-read at each session?\nA: Because they change, and authorization depends on the current version."
+  },
+  {
+    "id": "bug-bounty-07",
+    "topic": "bug-bounty",
+    "number": 7,
+    "title": "Program Selection Strategy",
+    "level": "Beginner",
+    "minutes": 30,
+    "summary": "Choose programs strategically by scoring scope, fit, triage speed, rewards, and competition.",
+    "objectives": [
+      "score candidate programs",
+      "match targets to skills",
+      "avoid wasted effort"
+    ],
+    "takeaways": [
+      "selection is a strategic decision",
+      "competition and triage speed matter",
+      "rotate targets to avoid burnout"
+    ],
+    "practice": "Build a scored shortlist of three lab programs using a 1-5 matrix.",
+    "sources": [],
+    "content": "## Core idea\nNot all programs reward effort equally. Selecting the right program is a strategic decision based on your skills, time budget, and goals. Beginners often do better on programs with broad scope, fast triage, and lower competition; specialists may target programs whose tech stack matches their expertise. Consider the reward table (are low-severity bugs paid?), the program's age (new programs have more low-hanging fruit), the response SLA, and the duplicate rate. Public programs are open to everyone, so common bugs are often already found. Private invitations reduce competition. A smart selection process tracks a shortlist and rotates targets to avoid burnout. Remember that every hour spent on an out-of-scope or stale program is an hour not spent learning.\n\n### Method\nScore each candidate program 1-5 on: scope breadth, fit with your skills, triage speed, reward clarity, and competition level. Pick the highest scorer you can access.\n\n```bash\n# Maintain a simple selection matrix in a CSV\ncat >> programs.csv <<'CSV'\n<LAB_HOST>,scope:4,skill_fit:5,triage:3,reward:4,competition:2\nCSV\n```\n\n### Checklist\n- [ ] Scope breadth scored\n- [ ] Skill fit scored\n- [ ] Triage speed scored\n- [ ] Competition estimated\n\n### Common mistakes\n- Chasing only the largest bounties.\n- Ignoring the duplicate rate.\n- Sticking with one stale program.\n\n### Safety & scope\nA high score never overrides scope rules; eligibility comes first.\n\nPublic disclosure of a private program's rules is a policy breach; keep your notes local and share only what the policy permits.\n\n### Knowledge check\nQ: Which factor most reduces duplicate risk?\nA: Lower competition, e.g., a private or lightly tested program."
+  },
+  {
+    "id": "bug-bounty-08",
+    "topic": "bug-bounty",
+    "number": 8,
+    "title": "Reading Scope Statements",
+    "level": "Intermediate",
+    "minutes": 35,
+    "summary": "Parse scope tables precisely so you test only authorized hosts and assets.",
+    "objectives": [
+      "interpret wildcards",
+      "build allowlists and denylists",
+      "verify ownership"
+    ],
+    "takeaways": [
+      "scope is authoritative",
+      "wildcards have strict meanings",
+      "third parties are usually excluded"
+    ],
+    "practice": "Convert a lab program's scope table into allowlist and denylist files.",
+    "sources": [],
+    "content": "## Core idea\nThe scope statement is the authoritative list of what you may test. It usually appears as a table of domains, IP ranges, applications, or mobile apps, each labeled with eligibility. Some assets are \"in scope\" (eligible for bounty), \"in scope but bounty excluded\" (you may test but will not be paid), or \"out of scope.\" Wildcards matter: `*.example.com` covers subdomains but not the apex or unrelated domains. Third-party services (CDNs, payment processors) are almost always excluded because the owner cannot authorize testing them. Static assets and marketing sites often carry lower priority. Reading scope carefully prevents the most common failure — testing a host that looks related but is not authorized.\n\n### Method\nParse the scope into an allowlist and denylist before testing. Resolve each in-scope hostname to confirm it is live and owned by the program, then record it in your inventory.\n\n```bash\n# Resolve an in-scope host to confirm ownership before testing\ndig +short A <LAB_HOST>\ndig +short CNAME <LAB_HOST>\n# Compare against the scope table; stop if it does not match\n```\n\n### Checklist\n- [ ] Allowlist written\n- [ ] Denylist written\n- [ ] Wildcards interpreted\n- [ ] Hostnames resolved\n\n### Common mistakes\n- Treating `*.domain` as covering the apex domain.\n- Testing a CDN or third-party host.\n- Assuming \"related\" means \"in scope.\"\n\n### Safety & scope\nIf a hostname does not appear explicitly in scope, do not test it.\n\n### Knowledge check\nQ: Does `*.example.com` include `example.com`?\nA: No. Wildcard subdomain entries exclude the bare apex domain."
+  },
+  {
+    "id": "bug-bounty-09",
+    "topic": "bug-bounty",
+    "number": 9,
+    "title": "Rules of Engagement in Practice",
+    "level": "Intermediate",
+    "minutes": 35,
+    "summary": "Translate scope and policy into operational constraints that protect availability and data.",
+    "objectives": [
+      "build a RoE checklist",
+      "respect rate limits",
+      "define stop conditions"
+    ],
+    "takeaways": [
+      "RoE governs how you test",
+      "availability and data are the key concerns",
+      "silence means ask first"
+    ],
+    "practice": "Write a RoE checklist for a lab target including rate limits and stop conditions.",
+    "sources": [],
+    "content": "## Core idea\nRules of Engagement (RoE) translate scope into operational constraints: which techniques are allowed, what windows apply, which accounts to use, and how to avoid disruption. A RoE may permit automated scanning on staging but forbid it on production. It may require test accounts, forbid certain HTTP methods, or cap request rates. The RoE exists to protect availability and data — the two things program owners fear most. Ignoring it can turn a valid finding into a policy violation. Researchers should internalize the RoE as a checklist applied at every step, not a document read once. When the RoE is silent on a technique, ask before acting.\n\n### Method\nReduce the RoE to a per-target checklist: allowed techniques, forbidden techniques, rate limits, test-account rules, and stop conditions. Validate every planned tool against it.\n\n```bash\n# Example: respectful, rate-limited check within permitted scope\nffuf -u https://<LAB_HOST>/FUZZ -w words.txt -rate 5 -recursion 0\n# -rate caps requests/second; -recursion 0 avoids runaway crawling\n```\n\n### Checklist\n- [ ] Allowed techniques listed\n- [ ] Forbidden techniques listed\n- [ ] Rate limits set\n- [ ] Stop conditions defined\n\n### Common mistakes\n- Using default tool speeds on production.\n- Enabling aggressive recursion or scripts.\n- Assuming staging rules apply to production.\n\n### Safety & scope\nStop at the first sign of service degradation, regardless of what the RoE permits.\n\n### Knowledge check\nQ: What should you do when the RoE does not mention a technique?\nA: Ask the program owner before using it."
+  },
+  {
+    "id": "bug-bounty-10",
+    "topic": "bug-bounty",
+    "number": 10,
+    "title": "Out-of-Scope Assets and Exclusions",
+    "level": "Intermediate",
+    "minutes": 30,
+    "summary": "Enforce the denylist that keeps every engagement legal, safe, and within authorization.",
+    "objectives": [
+      "identify common exclusions",
+      "handle redirects and gray zones",
+      "enforce the denylist"
+    ],
+    "takeaways": [
+      "the denylist is as important as the allowlist",
+      "third parties and user data are excluded",
+      "stop when boundaries blur"
+    ],
+    "practice": "Build an allowlist/denylist/gray-zone table for a lab program.",
+    "sources": [],
+    "content": "## Core idea\nOut-of-scope assets are the boundaries that keep a bounty legal and safe. Common exclusions include third-party services, partner-owned subdomains, production data, physical premises, social engineering of staff, and denial-of-service testing. Some programs exclude entire categories like DoS, spam, or brute force. These exclusions are not suggestions. They exist because the owner cannot authorize what it does not control, or because the harm risk outweighs the learning value. A disciplined researcher treats the denylist as more important than the allowlist. Before each test, check the target against the denylist. If an in-scope host redirects to an out-of-scope one, stop. If a parameter returns real user data, stop and report through the proper channel.\n\n### Method\nBuild a two-column boundary table: allowlist from scope, denylist from exclusions. Add a \"gray zone\" column for ambiguous assets and resolve each with the program owner.\n\n```bash\n# Follow redirects only to verify they stay inside scope, then stop\ncurl -sS -I -L https://<LAB_HOST>/ | grep -i '^location:'\n# -I headers only; review each hop against the scope table\n```\n\n### Checklist\n- [ ] Denylist recorded\n- [ ] Redirects checked\n- [ ] Gray zones flagged\n- [ ] Third parties identified\n\n### Common mistakes\n- Following a redirect into a third-party host.\n- Testing excluded vulnerability categories.\n- Assuming exclusions are optional.\n\n### Safety & scope\nWhen an asset's status is unclear, treat it as out of scope until confirmed.\n\n### Knowledge check\nQ: An in-scope host redirects to a partner domain. What now?\nA: Stop — the destination is outside your authorization."
+  },
+  {
+    "id": "bug-bounty-11",
+    "topic": "bug-bounty",
+    "number": 11,
+    "title": "Bounty Tables and Reward Logic",
+    "level": "Intermediate",
+    "minutes": 30,
+    "summary": "Read severity-to-reward tables to prioritize effort where impact and payment align.",
+    "objectives": [
+      "interpret severity tiers",
+      "spot non-eligible categories",
+      "align effort with reward"
+    ],
+    "takeaways": [
+      "tables map impact to payment",
+      "final severity is set by triage",
+      "use the table for planning only"
+    ],
+    "practice": "Transcribe a lab program's bounty table and tag three hypothetical findings with tiers.",
+    "sources": [],
+    "content": "## Core idea\nA bounty table maps vulnerability severity to reward. Most programs use tiers such as low, medium, high, and critical, sometimes with an \"informational\" or \"none\" row. Severity is usually driven by impact and exploitability, not by how clever the bug is. Understanding the table helps you prioritize: a critical RCE may pay many times a low-severity header issue. Tables often include bonuses, for example extra for a novel technique or a chain. They may also list \"not eligible\" categories such as self-XSS or missing security headers. Read the table before testing so you invest effort where it counts. Remember that the table is the owner's policy, not a guarantee — final severity is set by triage. Use it as a planning tool, not a promise.\n\n### Method\nFor each program, copy the bounty table into your notes with severity criteria. Tag each candidate finding with an expected tier before writing the report.\n\n```bash\n# Store a local copy of reward-table text for reference\ncurl -sS https://<LAB_HOST>/bounties | sed -n '1,80p' > reward_table_notes.txt\n# Review tiers and \"not eligible\" rows before prioritizing\n```\n\n### Checklist\n- [ ] Tiers recorded\n- [ ] Criteria captured\n- [ ] Non-eligible categories noted\n- [ ] Bonuses noted\n\n### Common mistakes\n- Chasing informational issues for pay.\n- Assuming the table guarantees a reward.\n- Ignoring the \"not eligible\" list.\n\n### Safety & scope\nReward expectations never justify exceeding scope; eligibility always comes first.\n\n### Knowledge check\nQ: What primarily drives a severity tier?\nA: Impact and exploitability, as defined by the program's criteria."
+  },
+  {
+    "id": "bug-bounty-12",
+    "topic": "bug-bounty",
+    "number": 12,
+    "title": "Duplicates, Program State, and Triage Queues",
+    "level": "Intermediate",
+    "minutes": 30,
+    "summary": "Understand duplicates, program states, and queues so you avoid wasted effort and collisions.",
+    "objectives": [
+      "define duplicates",
+      "read program state",
+      "use disclosed reports"
+    ],
+    "takeaways": [
+      "duplicates are normal and usually unpaid",
+      "program state controls eligibility",
+      "disclosed reports reveal tested ground"
+    ],
+    "practice": "Review the public hacktivity of a lab program and list already-fixed issue types.",
+    "sources": [],
+    "content": "## Core idea\nA duplicate is a report describing a vulnerability already reported by someone else. Duplicates are normal in mature programs and usually pay nothing, though some platforms give a small bonus. Program state refers to whether a program is accepting reports, paused, or only taking specific issue types. Triage queues are the operational reality: reports wait in line, and response time varies. Understanding these dynamics prevents wasted effort. Check recent activity and known fixes before hunting; many platforms show which report types have already been addressed. Focus on novel vectors, deeper chains, and less-explored assets to avoid collisions. If you discover a duplicate, respond professionally, seek the original report link where allowed, and move on.\n\n### Method\nBefore testing, scan the program's disclosed reports and recent fixes. Maintain a personal \"already reported\" list per target to avoid rework.\n\n```bash\n# Read publicly disclosed reports to learn what has been found\ncurl -sS https://hackerone.com/<LAB_HOST>/hacktivity | grep -i 'disclosed\\|resolved' | head -20\n# Informational only; never rely on scraped data as authoritative\n```\n\n### Checklist\n- [ ] Program state checked\n- [ ] Recent fixes reviewed\n- [ ] Duplicate policy noted\n- [ ] Personal \"already reported\" list started\n\n### Common mistakes\n- Ignoring a paused program's state.\n- Retesting widely known issues.\n- Complaining about a duplicate publicly.\n\n### Safety & scope\nDisclosed reports are guidance; always verify current scope yourself.\n\n### Knowledge check\nQ: Why do duplicates happen even to careful researchers?\nA: Many researchers test the same in-scope assets at the same time."
+  },
+  {
+    "id": "bug-bounty-13",
+    "topic": "bug-bounty",
+    "number": 13,
+    "title": "Passive Reconnaissance Fundamentals",
+    "level": "Intermediate",
+    "minutes": 40,
+    "summary": "Build an attack-surface map from public data without sending traffic to the target.",
+    "objectives": [
+      "define passive recon",
+      "use third-party sources",
+      "record findings in an inventory"
+    ],
+    "takeaways": [
+      "passive recon leaves no direct footprint",
+      "it is the safest starting point",
+      "it narrows later active work"
+    ],
+    "practice": "Perform a passive-only enumeration of a lab domain and list every artifact found.",
+    "sources": [],
+    "content": "## Core idea\nPassive reconnaissance gathers information without sending traffic to the target. It uses third-party data sources — search engines, certificate logs, DNS caches, archives, and code repositories — so the target cannot easily detect you. Passive recon is the safest starting point for any authorized engagement because it carries virtually no risk of disruption and leaves no direct footprint. The goal is to enumerate the attack surface: hostnames, IP ranges, technologies, employee names, and leaked secrets. Everything you learn passively narrows the active testing that follows. Think of it as building a map before entering the building. Because it uses public data, passive recon is a low-risk first step — but still follow the program's rules about what you may collect and retain.\n\n### Method\nRun a passive-only enumeration pass and record every artifact in a structured inventory. Correlate hostnames, IPs, and technologies; flag anything interesting for active validation.\n\n```bash\n# Passive subdomain enumeration with a public data source\nsubfinder -d <LAB_HOST> -silent -o passive_subs.txt\n# -silent reduces noise; output feeds your inventory\nwc -l passive_subs.txt\n```\n\n### Checklist\n- [ ] Data sources chosen\n- [ ] Artifacts captured\n- [ ] Inventory updated\n- [ ] Leads flagged\n\n### Common mistakes\n- Treating passive data as verified fact.\n- Collecting more data than needed.\n- Skipping scope checks on discovered names.\n\n### Safety & scope\nPassive data may include out-of-scope assets; filter before any active step.\n\n### Knowledge check\nQ: Why start with passive recon?\nA: It maps the surface safely, without touching the target or risking disruption."
+  },
+  {
+    "id": "bug-bounty-14",
+    "topic": "bug-bounty",
+    "number": 14,
+    "title": "Certificate Transparency Logs",
+    "level": "Intermediate",
+    "minutes": 35,
+    "summary": "Mine public certificate logs to discover forgotten subdomains and hidden entry points.",
+    "objectives": [
+      "explain CT logs",
+      "query log aggregators",
+      "validate discovered names"
+    ],
+    "takeaways": [
+      "CT logs record every public certificate",
+      "SANs reveal many hostnames",
+      "results are noisy and need validation"
+    ],
+    "practice": "Query CT logs for a lab domain and deduplicate the hostnames found.",
+    "sources": [],
+    "content": "## Core idea\nCertificate Transparency (CT) logs are public ledgers of TLS certificates issued by certificate authorities. Because every publicly trusted certificate must be logged, CT logs are a goldmine for discovering subdomains — including internal or forgotten hosts that were never meant to be public. Querying CT logs is passive and safe. Tools like crt.sh or certspotter aggregate this data. A single certificate can reveal dozens of hostnames via Subject Alternative Names (SANs). The catch is that CT data is noisy: it contains expired, parked, and third-party domains. Always validate findings against the scope before testing. CT recon often surfaces dev, staging, and VPN endpoints that become high-value targets. Treat each discovered name as a lead, not a verified asset.\n\n### Method\nQuery CT logs for your authorized domain, extract unique hostnames, and deduplicate. Cross-check each against the scope table; discard out-of-scope names.\n\n```bash\n# Query a public CT log aggregator for hostnames\ncurl -sS \"https://crt.sh/?q=%.<LAB_HOST>&output=json\" | jq -r '.[].name_value' | sort -u\n# %.<LAB_HOST> matches subdomains; jq extracts names; sort -u dedupes\n```\n\n### Checklist\n- [ ] CT query run\n- [ ] SANs extracted\n- [ ] Duplicates removed\n- [ ] Scope checked per name\n\n### Common mistakes\n- Testing every CT result without validation.\n- Ignoring expired or parked entries.\n- Forgetting third-party hosts in SANs.\n\n### Safety & scope\nA hostname in a certificate is not proof of ownership or scope; verify it.\n\n### Knowledge check\nQ: What makes CT logs valuable for recon?\nA: They publicly record certificates, exposing subdomains through SAN fields."
+  },
+  {
+    "id": "bug-bounty-15",
+    "topic": "bug-bounty",
+    "number": 15,
+    "title": "DNS Reconnaissance",
+    "level": "Intermediate",
+    "minutes": 35,
+    "summary": "Enumerate DNS record types to map infrastructure and identify in-scope assets.",
+    "objectives": [
+      "interpret common record types",
+      "trace CNAME chains",
+      "use DNS history safely"
+    ],
+    "takeaways": [
+      "records reveal ownership and services",
+      "CNAMEs often expose third parties",
+      "avoid unauthorized zone transfers"
+    ],
+    "practice": "Collect A, CNAME, MX, NS, and TXT records for a lab domain.",
+    "sources": [],
+    "content": "## Core idea\nDNS reconnaissance maps names to addresses and reveals infrastructure relationships. Record types tell different stories: A records map hostnames to IPv4, AAAA to IPv6, CNAME to aliases (often exposing third-party services), MX to mail servers, NS to name servers, and TXT to verification tokens and SPF policies. DNS is a low-risk source when queried against public resolvers. Zone transfers (AXFR) are a special case — they can dump an entire zone but are almost always restricted and, if attempted without permission, may violate policy. Stick to standard lookups. DNS history services can reveal old IPs that still serve content. The output feeds your inventory and helps identify which subdomains are alive.\n\n### Method\nCollect multiple record types for each host, resolve CNAME chains, and note third-party dependencies (which may be out of scope). Use DNS history to find stale-but-live assets.\n\n```bash\n# Enumerate common DNS records for an in-scope domain\nfor t in A AAAA CNAME MX NS TXT; do echo \"--- $t\"; dig +short $t <LAB_HOST>; done\n# +short gives concise answers for note-taking\n```\n\n### Checklist\n- [ ] A/AAAA collected\n- [ ] CNAME chains traced\n- [ ] MX/NS/TXT noted\n- [ ] Third parties flagged\n\n### Common mistakes\n- Attempting zone transfers without permission.\n- Ignoring CNAME targets that are out of scope.\n- Trusting stale DNS history blindly.\n\n### Safety & scope\nStandard lookups are fine; never attempt unauthorized zone transfers.\n\n### Knowledge check\nQ: What does a CNAME record often reveal?\nA: An alias to another host, frequently a third-party service that may be out of scope."
+  },
+  {
+    "id": "bug-bounty-16",
+    "topic": "bug-bounty",
+    "number": 16,
+    "title": "Search Engine Dorking",
+    "level": "Intermediate",
+    "minutes": 30,
+    "summary": "Use advanced search operators to surface indexed pages, files, and exposed interfaces.",
+    "objectives": [
+      "apply search operators",
+      "generate hypotheses",
+      "avoid over-scanning"
+    ],
+    "takeaways": [
+      "dorking is passive and public",
+      "it produces leads, not proof",
+      "most results are false positives"
+    ],
+    "practice": "Build a dork library for a lab domain covering panels, files, and parameters.",
+    "sources": [],
+    "content": "## Core idea\nSearch engine dorking uses advanced query syntax to surface indexed pages, files, and misconfigurations that are publicly visible but hard to find by browsing. Operators like `site:`, `inurl:`, `filetype:`, `intitle:`, and `ext:` let you filter results precisely. Dorking is passive and can reveal admin panels, exposed documents, directory listings, parameter-heavy URLs, and subdomains. Because search engines crawl continuously, they may have indexed content removed from navigation. The technique is powerful but noisy; most results are false positives. Use dorking to generate hypotheses for active validation, not as proof of a vulnerability. Respect the search engine's terms and avoid automated scraping that violates them.\n\n### Method\nBuild a dork library grouped by goal — panels, files, params, subdomains — and run them against your authorized domain. Save candidate URLs for manual review.\n\n```bash\n# Example dorks (run manually in a browser); kept as text for notes\n# site:<LAB_HOST> inurl:admin\n# site:<LAB_HOST> ext:pdf OR ext:xlsx\n# site:<LAB_HOST> inurl:\"?id=\"\necho \"Dorks prepared for manual search on <LAB_HOST>\"\n```\n\n### Checklist\n- [ ] Dork library written\n- [ ] Panels searched\n- [ ] Files searched\n- [ ] Candidates saved\n\n### Common mistakes\n- Treating a dork result as a confirmed bug.\n- Automated scraping that breaks terms of service.\n- Forgetting to check scope on each URL.\n\n### Safety & scope\nDork results may point to out-of-scope or third-party hosts; verify before visiting.\n\n### Knowledge check\nQ: What is the role of a dork result?\nA: A lead or hypothesis that must be validated, not proof of a flaw."
+  },
+  {
+    "id": "bug-bounty-17",
+    "topic": "bug-bounty",
+    "number": 17,
+    "title": "GitHub and Code Search Reconnaissance",
+    "level": "Intermediate",
+    "minutes": 35,
+    "summary": "Find exposed secrets, hostnames, and configuration details in public code repositories.",
+    "objectives": [
+      "search public code safely",
+      "triage leaked secrets",
+      "report exposures without using them"
+    ],
+    "takeaways": [
+      "public repos often leak credentials",
+      "never use found secrets against production",
+      "redact and minimize captured data"
+    ],
+    "practice": "Search public code for a lab domain and document one exposure without using the credential.",
+    "sources": [],
+    "content": "## Core idea\nPublic code repositories and code-search engines frequently expose secrets, internal hostnames, API keys, and configuration details related to an authorized target. Developers accidentally commit credentials, `.env` files, or CI/CD configs. GitHub search and alternatives let you query for strings like the target domain, API tokens, or distinctive project names. This is passive recon: you are reading public data. However, if you find live credentials, do not use them against production — that would exceed authorization and access data you are not permitted to touch. Instead, report the exposure through the program channel. Data minimization is critical: capture only enough to prove the leak, redact secrets in your notes, and never exfiltrate repository contents.\n\n### Method\nSearch for the target's domain and known project names in public code; look for config and key files. Triage results by relevance and report exposures without using the credentials.\n\n```bash\n# Search public code via a CLI helper (read-only)\ngh api search/code -f q='\"in-scope-label\" <LAB_HOST>' --jq '.items[].html_url' | head -20\n# Review URLs manually; do not clone or download private data\n```\n\n### Checklist\n- [ ] Domain searched\n- [ ] Config files reviewed\n- [ ] Exposures logged\n- [ ] Secrets redacted\n\n### Common mistakes\n- Using a leaked key to \"verify\" it.\n- Downloading entire repositories.\n- Including real secrets in notes.\n\n### Safety & scope\nNever authenticate with found credentials; reporting the exposure is the authorized action.\n\n### Knowledge check\nQ: What should you do with a live API key found in public code?\nA: Redact it and report the exposure through the official program channel."
+  },
+  {
+    "id": "bug-bounty-18",
+    "topic": "bug-bounty",
+    "number": 18,
+    "title": "Active Discovery and Probing",
+    "level": "Intermediate",
+    "minutes": 35,
+    "summary": "Confirm which discovered hosts are live using gentle, authorized, low-volume requests.",
+    "objectives": [
+      "validate passive inventory",
+      "probe respectfully",
+      "record responses"
+    ],
+    "takeaways": [
+      "active probing leaves logs on the target",
+      "keep volume low",
+      "stop on scope violations"
+    ],
+    "practice": "Probe a small list of lab hostnames and record status codes and titles.",
+    "sources": [],
+    "content": "## Core idea\nActive discovery involves sending traffic to the target to confirm what is live. Unlike passive recon, it leaves logs on the target, so it must be authorized and carefully controlled. The goal is to validate the passive inventory: which hostnames resolve, which respond over HTTP/HTTPS, and which are truly in scope. Active probing should be gentle — normal requests, low concurrency, no fuzzing yet. Rate limits matter: a flood of requests can resemble an attack and disrupt service. Use HEAD or GET requests to check status codes and titles. Record responses in your inventory. Stop immediately if you touch an out-of-scope host or see signs of production data. Active discovery bridges the map and the test; it should be deliberate, not automated chaos.\n\n### Method\nTake your passive hostname list and probe each with a single lightweight request. Record status code, title, and redirect target; mark live/dead and in/out of scope.\n\n```bash\n# Gentle liveness check across a small host list\nwhile read -r h; do\n  code=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 5 \"https://$h\" 2>/dev/null)\n  echo \"$h $code\"\ndone < passive_subs.txt\n# One request per host; adjust only within RoE rate limits\n```\n\n### Checklist\n- [ ] Host list loaded\n- [ ] One request per host\n- [ ] Status codes recorded\n- [ ] Out-of-scope removed\n\n### Common mistakes\n- Running parallel mass requests.\n- Fuzzing during the discovery phase.\n- Ignoring redirect destinations.\n\n### Safety & scope\nKeep concurrency at one and respect rate limits; stop if service seems affected.\n\n### Knowledge check\nQ: Why is active probing riskier than passive recon?\nA: It sends traffic to the target and leaves detectable logs."
+  },
+  {
+    "id": "bug-bounty-19",
+    "topic": "bug-bounty",
+    "number": 19,
+    "title": "Subdomain Validation",
+    "level": "Intermediate",
+    "minutes": 35,
+    "summary": "Confirm that discovered subdomains are real, live, and authorized before testing them.",
+    "objectives": [
+      "filter false positives",
+      "combine validation signals",
+      "enforce scope"
+    ],
+    "takeaways": [
+      "enumeration lists are noisy",
+      "validate with multiple signals",
+      "wildcards can mislead"
+    ],
+    "practice": "Validate a list of lab subdomains and keep only confirmed in-scope hosts.",
+    "sources": [],
+    "content": "## Core idea\nSubdomain validation is the discipline of confirming that a discovered name is real, live, and authorized before you test it. Subdomain enumeration tools produce many false positives: dangling CNAMEs, expired domains, and parked pages. Validation separates genuine assets from noise. Techniques include DNS resolution, HTTP status checks, TLS certificate inspection, and content fingerprinting. A subdomain that resolves but returns a default hosting page may be out of scope or third-party. Wildcard DNS can make every query resolve, so verify with content, not just an IP. Validation protects you from accidentally testing infrastructure you do not own. It also improves efficiency: you focus on assets that actually respond.\n\n### Method\nFor each candidate subdomain, record: resolves? HTTP status? title/server? matches scope? Combine signals to accept or reject.\n\n```bash\n# Validate a list of subdomains with httpx-style probing\nhttpx -l passive_subs.txt -status-code -title -server -o validated.txt\n# Review validated.txt; keep only rows that match the scope table\n```\n\n### Checklist\n- [ ] DNS resolution checked\n- [ ] HTTP status recorded\n- [ ] Content fingerprinted\n- [ ] Scope matched\n\n### Common mistakes\n- Trusting a resolving name as \"live.\"\n- Falling for wildcard DNS.\n- Ignoring default hosting pages.\n\n### Safety & scope\nA validated but out-of-scope host stays out of scope; never test it.\n\nRevalidate periodically: a host that is dead today may be repointed tomorrow, so refresh your list before each session.\n\n### Knowledge check\nQ: Why check content and not just DNS resolution?\nA: Wildcard DNS and parked domains can resolve without hosting a real service."
+  },
+  {
+    "id": "bug-bounty-20",
+    "topic": "bug-bounty",
+    "number": 20,
+    "title": "Port Scanning and Service Discovery",
+    "level": "Intermediate",
+    "minutes": 40,
+    "summary": "Discover exposed services only where the RoE permits, with minimal, controlled scans.",
+    "objectives": [
+      "confirm scanning permission",
+      "scan gently",
+      "interpret service banners"
+    ],
+    "takeaways": [
+      "most bounty value is on web ports",
+      "scanning is often restricted",
+      "a single open port can be high value"
+    ],
+    "practice": "Run one gentle, limited scan against a lab host and record open ports and banners.",
+    "sources": [],
+    "content": "## Core idea\nPort scanning identifies which services are exposed on a host. For bug bounty, the vast majority of findings come from web services on ports 80/443, so heavy scanning is rarely necessary and often prohibited. Many programs explicitly ban port scanning or limit it to in-scope IPs. When permitted, keep it minimal: scan only in-scope hosts, use low intensity, avoid aggressive scripts that can crash services. The value is in discovering forgotten services — admin panels, APIs, dev servers — that may be vulnerable. Service discovery adds version and banner information to prioritize. Always cross-check against the RoE before scanning; if the program forbids it, rely on passive data instead. A single unexpected open port can be high-value, but an outage caused by aggressive scanning can end your engagement.\n\n### Method\nConfirm scanning is permitted, then run a limited connect scan on in-scope hosts only. Capture open ports and banners, and stop at the first sign of disruption.\n\n```bash\n# Lab/authorized-only: gentle service scan of a single in-scope host\nnmap -sT -Pn --top-ports 20 --open <LAB_HOST>\n# -sT connect scan; --top-ports limits load; expand only if RoE allows\n```\n\n### Checklist\n- [ ] RoE permission confirmed\n- [ ] Only in-scope IPs targeted\n- [ ] Low intensity used\n- [ ] Banners recorded\n\n### Common mistakes\n- Running default intense scans on production.\n- Using aggressive NSE scripts without permission.\n- Scanning out-of-scope IPs \"just in case.\"\n\n### Safety & scope\nIf scanning is not explicitly allowed, do not scan; use passive sources only.\n\n### Knowledge check\nQ: What is the safest default for port scanning in bounty?\nA: Do not scan unless the RoE explicitly permits it; keep it minimal if allowed."
+  },
+  {
+    "id": "bug-bounty-21",
+    "topic": "bug-bounty",
+    "number": 21,
+    "title": "Technology Fingerprinting",
+    "level": "Intermediate",
+    "minutes": 35,
+    "summary": "Identify frameworks, servers, and libraries to choose relevant, efficient test cases.",
+    "objectives": [
+      "collect fingerprint signals",
+      "verify automated guesses",
+      "map tech to tests"
+    ],
+    "takeaways": [
+      "headers and HTML reveal the stack",
+      "manual confirmation beats blind tool trust",
+      "versions can be reportable"
+    ],
+    "practice": "Fingerprint a lab target and list three relevant test classes for its stack.",
+    "sources": [],
+    "content": "## Core idea\nTechnology fingerprinting identifies the frameworks, servers, and libraries behind an application. Knowing that a site runs a particular CMS, framework, or CDN helps you select relevant tests — a WordPress site invites plugin checks, while a React single-page app invites API-focused testing. Fingerprints come from response headers, cookies, HTML patterns, file extensions, error pages, and JavaScript bundles. Tools automate signature matching, but manual observation is often more accurate. Fingerprinting is low-risk when done through normal requests. The output is a technology profile per host that guides your testing playbook. Be careful not to over-trust automated guesses; verify against multiple signals. Publicly exposed technology versions can themselves be reportable if severely outdated.\n\n### Method\nCollect headers and page source for each live host, run a fingerprinting tool, and confirm results manually. Map each technology to a short list of relevant tests.\n\n```bash\n# Fingerprint a lab target from headers and HTML\nwhatweb https://<LAB_HOST> --color=never\n# Correlate with: curl -sS -I https://<LAB_HOST>\n```\n\n### Checklist\n- [ ] Headers collected\n- [ ] Tool fingerprint run\n- [ ] Results manually confirmed\n- [ ] Tests mapped to stack\n\n### Common mistakes\n- Trusting a single tool's guess.\n- Ignoring version-bearing headers.\n- Testing irrelevant bug classes.\n\n### Safety & scope\nFingerprinting through normal requests is fine; never use intrusive probes outside RoE.\n\nRecord the evidence behind each fingerprint so you can defend it later if triage questions your test selection.\n\n### Knowledge check\nQ: Why verify fingerprinting results manually?\nA: Automated signatures can misidentify or miss customized stacks."
+  },
+  {
+    "id": "bug-bounty-22",
+    "topic": "bug-bounty",
+    "number": 22,
+    "title": "Endpoint and Parameter Mining",
+    "level": "Intermediate",
+    "minutes": 45,
+    "summary": "Discover the URLs, API routes, and input parameters that form the real test surface.",
+    "objectives": [
+      "crawl and extract routes",
+      "mine JavaScript and archives",
+      "build an endpoint inventory"
+    ],
+    "takeaways": [
+      "endpoints and parameters are the test surface",
+      "JS bundles hide many routes",
+      "deduplicate and group by function"
+    ],
+    "practice": "Extract historical URLs for a lab domain and build a route/parameter table.",
+    "sources": [],
+    "content": "## Core idea\nEndpoint and parameter mining discovers the URLs, API routes, and input parameters that an application exposes. These are the actual test surfaces. Sources include crawling the site, reading JavaScript bundles, extracting links from archives, and observing traffic in a proxy. Each parameter is a potential injection point; each endpoint is a potential access-control boundary. Mining should be exhaustive but respectful: crawl at modest depth and rate. Deduplicate routes and group them by function (auth, search, upload, admin). Parameters hidden in JS or POST bodies are often missed by shallow crawls. The output is a structured endpoint and parameter inventory that feeds systematic testing.\n\n### Method\nCombine passive URL sources with a gentle crawl, then extract parameters from each request. Store a table of method, path, parameters, and notes.\n\n```bash\n# Collect historical URLs for a lab target\necho \"<LAB_HOST>\" | waybackurls | sort -u > urls.txt\n# Review; feed interesting paths to manual testing, not mass fuzzing\n```\n\n### Checklist\n- [ ] Archive URLs collected\n- [ ] Routes deduplicated\n- [ ] Parameters extracted\n- [ ] Grouped by function\n\n### Common mistakes\n- Crawling too aggressively.\n- Ignoring POST-body parameters.\n- Fuzzing every URL without triage.\n\n### Safety & scope\nOnly mine assets that appear in the allowlist; exclude third-party routes.\n\nGroup routes by privilege level as well, since elevated endpoints deserve deeper and more careful testing.\n\n### Knowledge check\nQ: Why read JavaScript bundles during mining?\nA: They often reference API routes and parameters not visible in the HTML."
+  },
+  {
+    "id": "bug-bounty-23",
+    "topic": "bug-bounty",
+    "number": 23,
+    "title": "Attack Surface Mapping",
+    "level": "Intermediate",
+    "minutes": 40,
+    "summary": "Consolidate recon into a layered map that reveals entry points and coverage gaps.",
+    "objectives": [
+      "build a layered map",
+      "identify trust boundaries",
+      "spot untested areas"
+    ],
+    "takeaways": [
+      "a map integrates all recon",
+      "diagrams reveal relationships",
+      "every node must be in scope"
+    ],
+    "practice": "Draw a four-layer attack surface map for a lab application.",
+    "sources": [],
+    "content": "## Core idea\nAttack surface mapping consolidates everything you have learned into a coherent picture of the target: hosts, endpoints, parameters, technologies, and trust boundaries. It answers \"where can I attack?\" A good map highlights entry points — login forms, file uploads, API gates, webhooks — and the data flows between them. Visual maps often reveal relationships that lists hide. The map is a living document updated as you discover new assets. It also exposes gaps: areas you have not examined. In bug bounty, a complete map is a competitive advantage because most researchers test only the obvious paths. Keep the map scoped: every node should be justified by the scope table.\n\n### Method\nBuild a map with four layers: network (hosts/ports), application (routes/params), identity (auth flows), and data (stores/flows). Annotate each node with in/out-of-scope status.\n\n```bash\n# Generate a simple text map skeleton from your inventory files\ncat hosts.txt endpoints.txt params.txt | sort -u > attack_surface.txt\n# Review and organize into the four layers manually\n```\n\n### Checklist\n- [ ] Network layer mapped\n- [ ] Application layer mapped\n- [ ] Identity layer mapped\n- [ ] Data layer mapped\n\n### Common mistakes\n- Mapping only the main website.\n- Ignoring data flows between components.\n- Letting out-of-scope nodes creep in.\n\n### Safety & scope\nOnly nodes justified by the scope table belong in the map.\n\nUpdate the map whenever a new asset is confirmed so it stays a reliable picture of the target.\n\n### Knowledge check\nQ: What does the identity layer capture?\nA: Authentication and session flows, including login, logout, and reset."
+  },
+  {
+    "id": "bug-bounty-24",
+    "topic": "bug-bounty",
+    "number": 24,
+    "title": "Asset Inventory and Data Models",
+    "level": "Intermediate",
+    "minutes": 35,
+    "summary": "Maintain a structured, queryable inventory that tracks coverage and prevents retesting.",
+    "objectives": [
+      "define an inventory schema",
+      "normalize observations",
+      "keep raw data separate from interpretation"
+    ],
+    "takeaways": [
+      "structured records beat ad-hoc notes",
+      "unique IDs and timestamps help",
+      "the inventory drives planning"
+    ],
+    "practice": "Create a CSV inventory with at least five lab assets and standardized fields.",
+    "sources": [],
+    "content": "## Core idea\nAn asset inventory is a structured, queryable record of every in-scope asset and what you know about it. Ad-hoc notes fail at scale; a disciplined inventory lets you avoid retesting, track coverage, and spot patterns. Useful fields include hostname, IP, status, technology, endpoints, owner, scope status, and findings. Data models help: keep raw observations separate from interpretations so you can revisit evidence. A simple CSV or spreadsheet is enough. The inventory becomes the backbone of your workflow — every tool's output should land in it. Good inventory hygiene is what separates professionals from hobbyists.\n\n### Method\nDefine a schema, then append normalized records from each recon step. Use unique IDs and timestamps. Review the inventory before each session to plan next steps.\n\n```bash\n# Append a normalized asset record\ncat >> inventory.csv <<'CSV'\nid,host,ip,status,tech,scope,notes\nA001,<LAB_HOST>,192.0.2.10,live,nginx,in,candidate-admin\nCSV\n```\n\n### Checklist\n- [ ] Schema defined\n- [ ] Unique IDs used\n- [ ] Raw vs interpreted separated\n- [ ] Coverage reviewed\n\n### Common mistakes\n- Dumping raw tool output with no structure.\n- Losing track of tested assets.\n- Mixing guesses with facts.\n\n### Safety & scope\nMark scope status for every record so out-of-scope assets are never tested.\n\nReview the inventory before closing a session so nothing is left unrecorded. A stale inventory is worse than none, because it creates false confidence about what has already been covered. Schedule a short cleanup at the end of every engagement.\n\n### Knowledge check\nQ: Why keep raw observations separate from interpretations?\nA: So you can re-examine evidence without bias from earlier conclusions."
+  },
+  {
+    "id": "bug-bounty-25",
+    "topic": "bug-bounty",
+    "number": 25,
+    "title": "Note-Taking Systems",
+    "level": "Intermediate",
+    "minutes": 30,
+    "summary": "Build a searchable, template-driven note system that preserves evidence and decisions.",
+    "objectives": [
+      "design a note structure",
+      "capture commands and outputs",
+      "separate facts from guesses"
+    ],
+    "takeaways": [
+      "write things down immediately",
+      "link evidence to conclusions",
+      "timestamps create a timeline"
+    ],
+    "practice": "Set up a three-tier note structure for a lab engagement using templates.",
+    "sources": [],
+    "content": "## Core idea\nNote-taking is the memory of your engagement. A good system captures observations, commands, outputs, hypotheses, and decisions so you can search them later. Many researchers use a wiki-style tool with a consistent template per target and per finding. The key principles are: write things down immediately, keep evidence linked to conclusions, and separate facts from guesses. Timestamped entries create a timeline that helps with reporting and with proving authorized behavior. Notes also support knowledge checks — revisiting why a hypothesis failed reinforces learning. Avoid dumping raw tool output without commentary; annotate what mattered.\n\n### Method\nAdopt a three-tier note structure: target page, asset inventory, and finding drafts. Use templates so every important question gets answered.\n\n```bash\n# Create a dated session note from a template\ncp templates/session.md \"notes/$(date +%F)-<LAB_HOST>.md\"\n# Fill in: goals, commands run, observations, next steps\n```\n\n### Checklist\n- [ ] Target template exists\n- [ ] Inventory linked\n- [ ] Finding drafts created\n- [ ] Entries timestamped\n\n### Common mistakes\n- Relying on memory instead of notes.\n- Logging output with no commentary.\n- Blending facts with assumptions.\n\n### Safety & scope\nNotes may contain sensitive output; redact secrets before sharing or publishing.\n\nGood notes also make it easy to hand an engagement to a teammate or resume after a long break. Write for a reader who has never seen the target, and include the reasoning behind each decision. Future you will thank you.\n\n### Knowledge check\nQ: Why annotate tool output in notes?\nA: Unannotated output loses meaning and cannot support a later report."
+  },
+  {
+    "id": "bug-bounty-26",
+    "topic": "bug-bounty",
+    "number": 26,
+    "title": "Prioritization Frameworks",
+    "level": "Intermediate",
+    "minutes": 35,
+    "summary": "Rank mapped assets by likely payoff so limited time goes to the highest-value targets.",
+    "objectives": [
+      "score impact and exploitability",
+      "weigh novelty and effort",
+      "update scores dynamically"
+    ],
+    "takeaways": [
+      "prioritization converts data into a test order",
+      "novelty can beat obvious targets",
+      "scores are revisable"
+    ],
+    "practice": "Score five lab assets on impact, exploitability, novelty, and effort.",
+    "sources": [],
+    "content": "## Core idea\nPrioritization decides what to test first. With limited time, you need a framework that ranks targets by likely payoff. A common approach scores each asset on impact (what a bug would affect), exploitability (how easy to find), likelihood (how likely a bug exists), and effort (time cost). Multiply or weight these to get a priority score. CVSS concepts can be borrowed but are for reporting, not triaging your own time. Another lens is novelty: unexplored assets may hide bigger bugs than well-tested ones. Prioritization is dynamic — update scores as you learn. The goal is to avoid spending hours on low-value targets while high-value ones go untouched.\n\n### Method\nScore every mapped asset 1-5 on impact, exploitability, and novelty; divide by effort. Test in descending order, revisiting scores weekly.\n\n```bash\n# Compute a simple priority score for a target row\n# score = (impact * exploitability * novelty) / effort\necho \"Target <LAB_HOST>: (5*3*4)/2 = 30\"\n```\n\n### Checklist\n- [ ] Impact scored\n- [ ] Exploitability scored\n- [ ] Novelty scored\n- [ ] Effort estimated\n\n### Common mistakes\n- Testing in discovery order rather than priority order.\n- Ignoring how hard a target is to test.\n- Never revisiting scores.\n\n### Safety & scope\nA high-priority score never overrides scope; filter by authorization first.\n\nRecalculate priority after each new discovery rather than clinging to the first score you assigned.\n\n### Knowledge check\nQ: Why include novelty in prioritization?\nA: Less-tested assets often hide bugs that others have not found."
+  },
+  {
+    "id": "bug-bounty-27",
+    "topic": "bug-bounty",
+    "number": 27,
+    "title": "Target Selection and Time Budgeting",
+    "level": "Intermediate",
+    "minutes": 30,
+    "summary": "Convert strategy into a schedule with timeboxes, deliverables, and stop conditions.",
+    "objectives": [
+      "timebox sessions",
+      "set stop conditions",
+      "track time accurately"
+    ],
+    "takeaways": [
+      "time is the scarce resource",
+      "every block should produce a note",
+      "reporting is part of the budget"
+    ],
+    "practice": "Plan a 60-minute lab session with three timeboxed blocks and deliverables.",
+    "sources": [],
+    "content": "## Core idea\nTime is your scarcest resource. Target selection and time budgeting convert strategy into a schedule. Allocate fixed blocks to recon, testing, and reporting; avoid endless exploration without outputs. Many researchers use timeboxing: for example, 30 minutes of passive recon, 60 minutes of focused testing on the top target, and 20 minutes documenting. Set a stop condition for each block — either a finding, a clear dead end, or time expiry. Rotate targets to prevent fatigue. Track actual time spent per program to calibrate future estimates. Remember that reporting is part of the job; a finding not written is worthless.\n\n### Method\nPlan a session with explicit timeboxes and deliverables. Use a timer, and end each block by writing a note — even if it is \"no finding.\"\n\n```bash\n# Start a simple timebox note for a 45-minute block\ndate +\"Start %H:%M\" > session_timer.txt\necho \"Target: <LAB_HOST> | Goal: test auth flows | Stop: 45 min\" >> session_timer.txt\n```\n\n### Checklist\n- [ ] Blocks planned\n- [ ] Deliverables defined\n- [ ] Stop conditions set\n- [ ] Reporting time reserved\n\n### Common mistakes\n- Endless recon with no testing.\n- Skipping documentation.\n- Overrunning blocks without review.\n\n### Safety & scope\nDo not let time pressure justify unsafe tests; scope always wins.\n\nProtect this reserved reporting time from being consumed by extra recon; the finding is not finished until it is written.\n\n### Knowledge check\nQ: What is a stop condition?\nA: A predefined trigger — finding, dead end, or time expiry — that ends a work block."
+  },
+  {
+    "id": "bug-bounty-28",
+    "topic": "bug-bounty",
+    "number": 28,
+    "title": "Risk and Impact Assessment",
+    "level": "Intermediate",
+    "minutes": 35,
+    "summary": "Estimate severity through confidentiality, integrity, and availability to guide testing and reports.",
+    "objectives": [
+      "apply the CIA triad",
+      "assess affected scope",
+      "map to bounty tiers"
+    ],
+    "takeaways": [
+      "impact is judged from the owner's view",
+      "chains can amplify severity",
+      "real data is off-limits during validation"
+    ],
+    "practice": "Write an impact statement for a hypothetical lab finding using CIA terms.",
+    "sources": [],
+    "content": "## Core idea\nRisk and impact assessment estimates how serious a vulnerability would be and what harm it could cause. Impact considers confidentiality, integrity, and availability: does the flaw expose data, allow modification, or cause downtime? Risk also weighs likelihood and exposure. In bug bounty, this assessment guides both prioritization and final severity reporting. A bug affecting many users is higher impact than one affecting a single account. Chains of low-severity issues can produce high impact. Practicing impact assessment sharpens your ability to write compelling reports. Always assess from the owner's perspective, not your own excitement. And remember: real user data is off-limits during validation, so assess impact through safe demonstration.\n\n### Method\nFor each candidate finding, describe the worst plausible outcome using CIA terms and estimate affected scope. Map to a severity tier from the bounty table.\n\n```bash\n# Record an impact statement scaffold\ncat >> finding_draft.md <<'NOTE'\nFinding: <short>\nConfidentiality: what data could be exposed\nIntegrity: what could be changed\nAvailability: what could be disrupted\nScope: single user / many / all\nNOTE\n```\n\n### Checklist\n- [ ] CIA effects described\n- [ ] Affected scope estimated\n- [ ] Chain potential noted\n- [ ] Tier mapped\n\n### Common mistakes\n- Inflating impact without evidence.\n- Ignoring the affected user scope.\n- Using real data to \"prove\" impact.\n\n### Safety & scope\nDemonstrate impact safely; never access real user records to strengthen a claim.\n\n### Knowledge check\nQ: What does the CIA triad stand for?\nA: Confidentiality, Integrity, and Availability."
+  },
+  {
+    "id": "bug-bounty-29",
+    "topic": "bug-bounty",
+    "number": 29,
+    "title": "The Manual Testing Loop",
+    "level": "Intermediate",
+    "minutes": 45,
+    "summary": "Master the observe-hypothesize-test-evaluate-document rhythm that finds logic and authz bugs.",
+    "objectives": [
+      "form testable hypotheses",
+      "test one variable at a time",
+      "log every outcome"
+    ],
+    "takeaways": [
+      "deliberate iteration beats random fuzzing",
+      "manual testing finds logic flaws",
+      "dead ends should be documented"
+    ],
+    "practice": "Run three manual hypothesis cycles against a lab endpoint and log each outcome.",
+    "sources": [],
+    "content": "## Core idea\nThe manual testing loop is the core rhythm of bug bounty: observe, hypothesize, test, evaluate, document, repeat. You start from a mapped attack surface, pick a target endpoint, form a hypothesis about a weakness, send a controlled request, analyze the response, and either confirm, refute, or refine. Each iteration should be deliberate — random fuzzing is inefficient and can violate rate limits. Manual testing beats automated scanning for logic and authorization flaws because it requires understanding intent. Keep requests minimal and reversible. Record each hypothesis and outcome so you do not repeat work. The loop ends when you have a reproducible finding or a well-documented dead end.\n\n### Method\nFor each endpoint, list plausible vulnerability classes based on context, then test one hypothesis at a time with a proxy. Log each request/response pair with a conclusion.\n\n```bash\n# Replay a single controlled request with curl for careful study\ncurl -sS -i 'https://<LAB_HOST>/api/item?id=1' -H 'Accept: application/json'\n# -i shows headers; vary one parameter at a time\n```\n\n### Checklist\n- [ ] Hypothesis written\n- [ ] One variable changed\n- [ ] Response analyzed\n- [ ] Outcome logged\n\n### Common mistakes\n- Changing many variables at once.\n- Repeating tests already ruled out.\n- Failing to document dead ends.\n\n### Safety & scope\nKeep requests minimal and within rate limits; stop if anything looks disruptive.\n\n### Knowledge check\nQ: Why vary only one variable at a time?\nA: So the response clearly confirms or refutes a single hypothesis."
+  },
+  {
+    "id": "bug-bounty-30",
+    "topic": "bug-bounty",
+    "number": 30,
+    "title": "HTTP Fundamentals for Testers",
+    "level": "Intermediate",
+    "minutes": 35,
+    "summary": "Build fluency in methods, status codes, headers, and parameters for precise testing.",
+    "objectives": [
+      "read raw requests and responses",
+      "interpret status codes",
+      "craft minimal requests"
+    ],
+    "takeaways": [
+      "HTTP is the foundation of web testing",
+      "parameters live in many places",
+      "precision reduces noise"
+    ],
+    "practice": "Inspect the raw request/response of a lab endpoint and annotate every component.",
+    "sources": [],
+    "content": "## Core idea\nHTTP fluency is the foundation of web testing. You must understand methods (GET, POST, PUT, DELETE), status codes (2xx success, 3xx redirect, 4xx client error, 5xx server error), headers (Authorization, Content-Type, Cookie), and request/response structure. Parameters can appear in the query string, path, body, or headers. Cookies and tokens maintain state. Understanding how browsers and servers exchange data lets you craft precise tests and interpret responses correctly. Many bugs are simply a matter of sending the right method or content type. Mastery of HTTP also helps you stay respectful: you can craft minimal requests instead of blasting payloads.\n\n### Method\nPractice reading raw requests and responses until you can predict status codes. Learn to vary one element at a time and observe how the server reacts.\n\n```bash\n# Inspect full request/response for a lab endpoint\ncurl -sS -v https://<LAB_HOST>/ >/dev/null\n# -v prints request and response headers for study\n```\n\n### Checklist\n- [ ] Methods understood\n- [ ] Status codes recognized\n- [ ] Headers identified\n- [ ] Parameter locations noted\n\n### Common mistakes\n- Confusing 4xx and 5xx causes.\n- Ignoring Content-Type semantics.\n- Overlooking header-based parameters.\n\n### Safety & scope\nUse only lab endpoints; never send malformed requests that could disrupt service.\n\nA precise request also produces cleaner evidence, because the response is far easier to interpret. Practising with curl and a proxy builds the intuition needed to spot subtle server behavior quickly. Revisit the basics whenever a result surprises you.\n\n### Knowledge check\nQ: What does HTTP 403 indicate?\nA: The server understood the request but refused authorization."
+  },
+  {
+    "id": "bug-bounty-31",
+    "topic": "bug-bounty",
+    "number": 31,
+    "title": "Burp Suite Workflows",
+    "level": "Intermediate",
+    "minutes": 50,
+    "summary": "Use Burp scope, Proxy, Target, and Repeater for disciplined manual web testing.",
+    "objectives": [
+      "configure a tight scope",
+      "map via the site map",
+      "replay with Repeater"
+    ],
+    "takeaways": [
+      "precision beats volume",
+      "Repeater is the main test tool",
+      "scope prevents accidental out-of-scope traffic"
+    ],
+    "practice": "Configure Burp scope for a lab target and replay three requests in Repeater.",
+    "sources": [],
+    "content": "## Core idea\nBurp Suite is the central workspace for manual web testing. Its Proxy lets you intercept and modify traffic; Target defines scope; Repeater lets you replay and tweak individual requests; Intruder automates controlled parameter variation; Scanner checks for common issues. A disciplined Burp workflow starts with a tight scope (to avoid intercepting out-of-scope traffic), then maps the site via the site map, then moves interesting requests into Repeater for manual hypothesis testing. Use Repeater far more than Intruder — precision beats volume. Configure scope carefully so you never accidentally send requests to excluded hosts. Burp's history becomes a record of your testing, which supports evidence and reporting.\n\n### Method\nSet Burp's target scope to your allowlist, browse the app to populate the site map, then send candidate requests to Repeater. Test one variable at a time.\n\n```bash\n# Document Burp's configured scope (conceptual)\n# In Burp: Target > Scope > include <LAB_HOST>; exclude all others\necho \"Scope configured for <LAB_HOST> only\" >> engagement_notes.md\n```\n\n### Checklist\n- [ ] Scope allowlist set\n- [ ] Exclusions added\n- [ ] Site map reviewed\n- [ ] Requests sent to Repeater\n\n### Common mistakes\n- Leaving scope wide open.\n- Overusing Intruder at high speed.\n- Ignoring intercepted out-of-scope traffic.\n\n### Safety & scope\nA broad Burp scope can send traffic to excluded hosts; lock it down first.\n\nReview Burp's history periodically to confirm nothing out of scope was hit during an intercept session.\n\n### Knowledge check\nQ: Why prefer Repeater over Intruder?\nA: Repeater supports careful, one-variable-at-a-time manual testing."
+  },
+  {
+    "id": "bug-bounty-32",
+    "topic": "bug-bounty",
+    "number": 32,
+    "title": "Authentication Testing",
+    "level": "Intermediate",
+    "minutes": 45,
+    "summary": "Test login, session, reset, and MFA flows using only accounts you control.",
+    "objectives": [
+      "map the auth flow",
+      "test reset and session logic",
+      "avoid real accounts"
+    ],
+    "takeaways": [
+      "use lab-provided accounts",
+      "focus on logic flaws",
+      "never lock out or access real users"
+    ],
+    "practice": "Map and test the login and password-reset flow of a lab application with your own account.",
+    "sources": [],
+    "content": "## Core idea\nAuthentication verifies identity. Testing it means checking whether the login process can be bypassed or weakened: weak passwords, credential stuffing (usually prohibited), session fixation, predictable tokens, missing rate limits, and flaws in password reset or multi-factor authentication. Because authentication systems guard real accounts, testing must use accounts you own and avoid lockouts of real users. Many programs provide test accounts. Focus on logic: can you reset another account's password by manipulating a token? Does the session invalidate on logout? Are tokens predictable? Always stay within authorized accounts. Authentication flaws are high impact, so they are rewarded well, but the testing must be careful to avoid disrupting service.\n\n### Method\nWith a test account, map the full auth flow: login, session handling, logout, password reset, and MFA. Test each step for logic flaws using only your own account.\n\n```bash\n# Observe a login response for session/token behavior\ncurl -sS -i -X POST https://<LAB_HOST>/login \\\n  -d 'user=labuser&pass=labpass' | head -30\n# Use only lab-provided credentials\n```\n\n### Checklist\n- [ ] Own test account used\n- [ ] Login flow mapped\n- [ ] Reset flow tested\n- [ ] Session invalidation checked\n\n### Common mistakes\n- Testing against real user accounts.\n- Brute-forcing passwords.\n- Triggering account lockouts.\n\n### Safety & scope\nNever use credentials found elsewhere; only program-issued test accounts.\n\nDocument which test account was used for each authentication check so results remain reproducible.\n\n### Knowledge check\nQ: Which account should you use for auth testing?\nA: Only an account you own or one explicitly provided by the program."
+  },
+  {
+    "id": "bug-bounty-33",
+    "topic": "bug-bounty",
+    "number": 33,
+    "title": "Authorization Testing and IDOR",
+    "level": "Advanced",
+    "minutes": 50,
+    "summary": "Detect access-control flaws by comparing access between two accounts you own.",
+    "objectives": [
+      "identify object references",
+      "test cross-account access",
+      "handle data carefully"
+    ],
+    "takeaways": [
+      "IDOR is common and high impact",
+      "use two owned accounts",
+      "never exfiltrate real records"
+    ],
+    "practice": "Create two lab accounts and safely test object-ID access between them.",
+    "sources": [],
+    "content": "## Core idea\nAuthorization (authz) ensures users can access only what they are permitted to. Insecure Direct Object References (IDOR) occur when an application exposes internal identifiers — numeric IDs, UUIDs, filenames — without verifying the requester's rights. Testing authz means checking whether a low-privilege account can access another user's data by changing an identifier. This is one of the most common and high-impact bug classes. Because it involves accessing other users' data, authorization testing is sensitive: use two accounts you control, and never exfiltrate real user records. Demonstrate access with a minimal, redacted response. Many programs specifically invite authz testing. Always stay in scope and stop if you encounter real personal data.\n\n### Method\nCreate two test accounts, capture a request that references an object ID, change the ID to the other account's value, and compare responses. Use only your own objects.\n\n```bash\n# Compare access to two lab-owned object IDs\nfor id in 1001 1002; do\n  echo \"--- id=$id\"\n  curl -sS -H \"Authorization: Bearer $LAB_TOKEN\" \"https://<LAB_HOST>/api/order/$id\" | head -5\ndone\n# $LAB_TOKEN and IDs belong to your test accounts only\n```\n\n### Checklist\n- [ ] Two owned accounts ready\n- [ ] Object ID located\n- [ ] Cross-access compared\n- [ ] Real data avoided\n\n### Common mistakes\n- Using IDs of other real users.\n- Downloading full records as \"proof.\"\n- Assuming a UUID cannot be an IDOR.\n\n### Safety & scope\nStop if the response contains real personal data; redact heavily and report minimally.\n\n### Knowledge check\nQ: What is the safest way to demonstrate an IDOR?\nA: Use a second account you own and show a minimal, redacted response."
+  },
+  {
+    "id": "bug-bounty-34",
+    "topic": "bug-bounty",
+    "number": 34,
+    "title": "Business Logic Flaws",
+    "level": "Advanced",
+    "minutes": 50,
+    "summary": "Find design-level bugs by reasoning about intended rules and deviating safely.",
+    "objectives": [
+      "document intended workflows",
+      "brainstorm deviations",
+      "test without fraud"
+    ],
+    "takeaways": [
+      "logic flaws evade scanners",
+      "understand the business rule first",
+      "test only in lab environments"
+    ],
+    "practice": "In a lab store, test negative quantities and coupon replay against a cart workflow.",
+    "sources": [],
+    "content": "## Core idea\nBusiness logic flaws are design-level bugs that let an application be used in ways developers never intended — bypassing controls that make sense on paper. Examples include negative quantities to get refunds, replaying a coupon, skipping payment steps, or escalating privileges by manipulating a workflow. They are hard to find with scanners because they require understanding the business rules. For bounty hunters, logic flaws are often high-value and low-competition. Testing means thinking like a malicious user: \"how do I make the app do something the rules forbid?\" Use only your own accounts and test data. Never complete fraudulent transactions against real systems; simulate in a lab or use program-provided test environments.\n\n### Method\nDocument the intended workflow, then brainstorm deviations: reorder steps, repeat actions, alter hidden fields, and mix roles. Test each deviation safely.\n\n```bash\n# Replay a cart request with altered quantity in a lab store\ncurl -sS -X POST https://<LAB_HOST>/api/cart \\\n  -H \"Authorization: Bearer $LAB_TOKEN\" \\\n  -d '{\"item\":\"lab-sku\",\"qty\":-1}'\n# Observe whether the app rejects negative values\n```\n\n### Checklist\n- [ ] Intended workflow written\n- [ ] Deviations brainstormed\n- [ ] Hidden fields inspected\n- [ ] Lab data only used\n\n### Common mistakes\n- Testing logic on real transactions.\n- Skipping understanding of intended rules.\n- Assuming validation happens server-side.\n\n### Safety & scope\nNever actually complete a fraudulent purchase or transfer; use lab environments only.\n\n### Knowledge check\nQ: Why do scanners miss business logic flaws?\nA: They do not understand intended rules or workflow semantics."
+  },
+  {
+    "id": "bug-bounty-35",
+    "topic": "bug-bounty",
+    "number": 35,
+    "title": "Evidence Capture and Screenshots",
+    "level": "Intermediate",
+    "minutes": 35,
+    "summary": "Capture clean, authentic evidence that lets triage understand and reproduce a finding.",
+    "objectives": [
+      "save raw exchanges",
+      "annotate screenshots",
+      "redact sensitive data"
+    ],
+    "takeaways": [
+      "evidence proves and reproduces",
+      "authenticity is mandatory",
+      "organize per finding"
+    ],
+    "practice": "Build an evidence folder for a lab finding with request/response and an annotated screenshot.",
+    "sources": [],
+    "content": "## Core idea\nEvidence is what turns a claim into a report. Good evidence proves the vulnerability exists, shows impact, and lets triage reproduce it. Capture raw request/response pairs, screenshots with timestamps, and a concise narrative. Redact sensitive data (tokens, personal info) from shared artifacts. Screenshots should show the relevant UI state with the URL visible. Keep evidence organized per finding in folders. Avoid over-capturing: you do not need gigabytes of traffic. Evidence must be authentic — never fabricate or alter output. Many platforms provide a submission form with fields for steps, impact, and attachments. Prepare evidence before writing the report so you can be precise.\n\n### Method\nFor each finding, save: (1) a minimal request/response, (2) an annotated screenshot, (3) reproduction steps, and (4) an impact note. Redact secrets.\n\n```bash\n# Save a clean HTTP exchange to a finding folder\nmkdir -p findings/F001\ncurl -sS -i 'https://<LAB_HOST>/api/item?id=1' > findings/F001/request_response.txt\n# Review and redact any tokens before attaching\n```\n\n### Checklist\n- [ ] Raw exchange saved\n- [ ] Screenshot annotated\n- [ ] Steps written\n- [ ] Secrets redacted\n\n### Common mistakes\n- Attaching huge unfiltered traffic logs.\n- Leaving tokens in screenshots.\n- Altering evidence to look stronger.\n\n### Safety & scope\nNever attach real user data; redact before any share or submission.\n\nOrganize folders with consistent IDs so you can assemble a report quickly. Keep the original, unedited capture and a separate redacted copy for submission. Label all timestamps in a single timezone.\n\n### Knowledge check\nQ: Why redact evidence?\nA: To avoid exposing secrets or personal data while still proving the issue."
+  },
+  {
+    "id": "bug-bounty-36",
+    "topic": "bug-bounty",
+    "number": 36,
+    "title": "Safe Validation Techniques",
+    "level": "Intermediate",
+    "minutes": 40,
+    "summary": "Prove vulnerabilities with minimal, reversible demonstrations that cause no harm.",
+    "objectives": [
+      "choose harmless payloads",
+      "avoid destructive effects",
+      "know when to stop"
+    ],
+    "takeaways": [
+      "demonstrate without damaging",
+      "use your own accounts",
+      "stop if real systems are affected"
+    ],
+    "practice": "Use a harmless marker to test for reflected input on a lab endpoint.",
+    "sources": [],
+    "content": "## Core idea\nValidation proves a bug is real while minimizing harm. The key principle: demonstrate impact without causing damage or accessing data you are not authorized to see. For injection flaws, use harmless markers rather than destructive payloads. For authorization flaws, use your own second account. For DoS-style issues, avoid actually taking services down — reason about impact instead or use rate-limited proof. Many programs forbid exploitation that modifies or destroys data. Validation should be just enough to convince triage. If a test starts affecting real users or systems, stop immediately and report what you observed. Think of validation as a controlled experiment, not an attack.\n\n### Method\nBefore running a payload, ask: could this modify data, expose someone else's data, or disrupt service? If yes, choose a safer demonstration or skip it.\n\n```bash\n# Harmless marker for a suspected reflected injection (lab target)\ncurl -sS 'https://<LAB_HOST>/search?q=AEGIS_MARKER_123' | grep -o 'AEGIS_MARKER_123'\n# If reflected unencoded, investigate safely; no destructive payloads\n```\n\n### Checklist\n- [ ] Harmless marker chosen\n- [ ] No destructive payloads\n- [ ] Own accounts used\n- [ ] Stop condition ready\n\n### Common mistakes\n- Using destructive SQL or file payloads.\n- Testing DoS by actually crashing a service.\n- Escalating after harm begins.\n\n### Safety & scope\nStop immediately if a test affects real users or systems, and report what happened.\n\nA safe validation is still a valid finding when the evidence is clear, so do not over-exploit just to make it dramatic.\n\n### Knowledge check\nQ: What is a harmless marker used for?\nA: To observe reflection or processing without causing damage."
+  },
+  {
+    "id": "bug-bounty-37",
+    "topic": "bug-bounty",
+    "number": 37,
+    "title": "Common Vulnerability Classes",
+    "level": "Intermediate",
+    "minutes": 45,
+    "summary": "Recognize major web bug classes and match safe tests to their input contexts.",
+    "objectives": [
+      "list key classes",
+      "match tests to context",
+      "avoid payload throwing"
+    ],
+    "takeaways": [
+      "classes have characteristic contexts",
+      "focus on stack-relevant bugs",
+      "know low-value informational issues"
+    ],
+    "practice": "Build a personal matrix mapping three vulnerability classes to safe tests and impacts.",
+    "sources": [],
+    "content": "## Core idea\nA working knowledge of common vulnerability classes lets you recognize patterns quickly. Web staples include SQL injection, cross-site scripting (XSS), cross-site request forgery (CSRF), server-side request forgery (SSRF), insecure deserialization, file upload flaws, path traversal, and XML external entity (XXE) injection. Each has characteristic input contexts and telltale responses. Knowing the class helps you pick a test payload and an impact narrative. But avoid \"payload throwing\" without understanding context. Focus on classes relevant to the technology you fingerprinted. Also know the informational categories that rarely pay — missing headers, version disclosure — so you do not waste time.\n\n### Method\nBuild a personal matrix mapping each class to: where it appears, a safe test, and an impact statement. Reference it during testing.\n\n```bash\n# Quick check for reflected input handling\ncurl -sS 'https://<LAB_HOST>/?q=%3Ctest%3E' | grep -i '<test>'\n# URL-encoded <test>; reflection unencoded warrants safe follow-up\n```\n\n### Checklist\n- [ ] Class list recorded\n- [ ] Input contexts noted\n- [ ] Safe tests listed\n- [ ] Informational issues deprioritized\n\n### Common mistakes\n- Throwing payloads without context.\n- Chasing missing-header reports.\n- Ignoring stack-specific classes.\n\n### Safety & scope\nUse harmless tests on lab targets; never run destructive payloads.\n\nKeep a short glossary of each class's telltale signs — response codes, error text, and reflection behavior. Revisiting it before a session primes your mind to notice relevant patterns. Depth in a few classes beats shallow knowledge of all of them.\n\n### Knowledge check\nQ: Why avoid blind payload throwing?\nA: Without context, results are meaningless and may cause unintended effects."
+  },
+  {
+    "id": "bug-bounty-38",
+    "topic": "bug-bounty",
+    "number": 38,
+    "title": "Rate Limits, WAFs, and Noise",
+    "level": "Intermediate",
+    "minutes": 35,
+    "summary": "Respect rate limits and WAFs as protective signals, not obstacles to defeat.",
+    "objectives": [
+      "respond to limits safely",
+      "reduce request volume",
+      "document blocks"
+    ],
+    "takeaways": [
+      "limits protect availability",
+      "evasion may violate RoE",
+      "low noise preserves access"
+    ],
+    "practice": "Run a low-volume test loop against a lab endpoint with deliberate pauses.",
+    "sources": [],
+    "content": "## Core idea\nRate limits and Web Application Firewalls (WAFs) protect applications — and they are signals you should respect, not obstacles to defeat. If you hit a rate limit, slow down; the limit exists to protect availability. Aggressive bypass attempts can violate the RoE. WAF blocks may indicate your request looked malicious; refine your test to be precise rather than louder. Noise — excessive scanning — annoys defenders and can get you banned. Professional researchers minimize noise: low request volume, clear user agents, and pauses. If a WAF blocks you, document it; do not try to evade it through prohibited means. Staying quiet and respectful preserves your access and your reputation.\n\n### Method\nWhen you encounter a limit or block, record it, reduce request rate, and simplify the request. Never attempt evasion techniques the RoE forbids.\n\n```bash\n# Respectful pause between requests (lab target)\nfor p in a b c; do\n  curl -sS \"https://<LAB_HOST>/x?q=$p\" -o /dev/null\n  sleep 2\ndone\n# sleep keeps volume low; adjust only within RoE\n```\n\n### Checklist\n- [ ] Limits recorded\n- [ ] Volume reduced\n- [ ] User agent identified\n- [ ] Blocks documented\n\n### Common mistakes\n- Trying to bypass WAF aggressively.\n- Ignoring 429 responses.\n- Running high-volume fuzzing.\n\n### Safety & scope\nDo not attempt evasion techniques forbidden by the RoE; slow down instead.\n\nTreat a WAF block as feedback to refine the test, never as a challenge to defeat the defense.\n\n### Knowledge check\nQ: What is the right response to an HTTP 429?\nA: Slow down or stop; the application is protecting availability."
+  },
+  {
+    "id": "bug-bounty-39",
+    "topic": "bug-bounty",
+    "number": 39,
+    "title": "Report Anatomy",
+    "level": "Intermediate",
+    "minutes": 40,
+    "summary": "Write clear, reproducible reports with the sections triage expects.",
+    "objectives": [
+      "structure a report",
+      "write reproduction steps",
+      "state impact and remediation"
+    ],
+    "takeaways": [
+      "clarity beats cleverness",
+      "steps must be reproducible",
+      "write while details are fresh"
+    ],
+    "practice": "Draft a full report skeleton for a validated lab finding.",
+    "sources": [],
+    "content": "## Core idea\nA great report is clear, concise, and reproducible. Standard sections include: title, summary, affected asset, severity, steps to reproduce, proof of concept, impact, and remediation advice. The title should be specific, e.g., \"IDOR on /api/order/{id} exposes other users' orders.\" Steps must be numbered and detailed enough for a stranger to follow. Include exact URLs, parameters, and account setup. Impact explains why it matters to the business. Remediation suggests a fix, which shows professionalism. Avoid filler, arrogance, and demands. Keep sensitive data redacted. Many platforms score report quality, which affects reputation. Write the report as soon as the finding is validated, while details are fresh.\n\n### Method\nDraft from a template immediately after validation. Read it as if you were the triage analyst: can you reproduce it from the steps alone?\n\n```bash\n# Create a report skeleton\ncat > findings/F001/report.md <<'MD'\n# IDOR on /api/order/{id}\n## Summary\n## Affected asset: <LAB_HOST>\n## Steps\n1.\n## PoC\n## Impact\n## Remediation\nMD\n```\n\n### Checklist\n- [ ] Specific title\n- [ ] Numbered steps\n- [ ] PoC included\n- [ ] Impact and remediation written\n\n### Common mistakes\n- Vague titles like \"Found a bug.\"\n- Skipping reproduction details.\n- Including real user data.\n\n### Safety & scope\nRedact secrets and personal data from every report artifact.\n\nInclude the exact tool version or browser step if it materially affects whether another person can reproduce the issue.\n\n### Knowledge check\nQ: Which section lets triage confirm the issue themselves?\nA: The numbered steps to reproduce, supported by a PoC."
+  },
+  {
+    "id": "bug-bounty-40",
+    "topic": "bug-bounty",
+    "number": 40,
+    "title": "CVSS Scoring",
+    "level": "Intermediate",
+    "minutes": 40,
+    "summary": "Express severity consistently with CVSS base metrics and vector strings.",
+    "objectives": [
+      "compute base scores",
+      "write vector strings",
+      "argue severity credibly"
+    ],
+    "takeaways": [
+      "CVSS is standardized 0-10 scoring",
+      "accuracy beats inflation",
+      "use with the program's table"
+    ],
+    "practice": "Compute a CVSS base score and vector for a lab IDOR finding.",
+    "sources": [],
+    "content": "## Core idea\nCVSS (Common Vulnerability Scoring System) is a standardized way to express severity with a 0.0-10.0 score. Base metrics cover attack vector, complexity, privileges required, user interaction, scope, and the CIA impacts. Temporal and environmental metrics refine the score with context. In bug bounty, the platform often assigns the final CVSS, but understanding it lets you argue severity credibly and prioritize. A bug requiring no privileges and no user interaction over the network with high CIA impact scores near critical. Self-XSS or issues requiring extensive user interaction score lower. Do not inflate scores; accuracy builds trust. Use CVSS alongside the program's bounty table, which may weigh business context differently.\n\n### Method\nCompute a base score for each finding using a CVSS calculator, then adjust with the program's criteria. Record the vector string in your report.\n\n```bash\n# Document a CVSS vector string for a finding\necho \"CVSS:3.1/AV:N/AC:L/PR:L/UI:N/S:U/C:H/I:N/A:N\" >> findings/F001/report.md\n# Translate: network, low complexity, low privileges, no UI, high confidentiality\n```\n\n### Checklist\n- [ ] Base metrics chosen\n- [ ] Score computed\n- [ ] Vector recorded\n- [ ] Table cross-checked\n\n### Common mistakes\n- Inflating scores to raise payouts.\n- Ignoring required privileges or user interaction.\n- Treating CVSS as the final bounty decision.\n\n### Safety & scope\nSeverity never changes scope; a high score does not authorize unsafe validation.\n\nKeep the vector string in your notes even if the platform ultimately recalculates the score itself.\n\n### Knowledge check\nQ: What does \"PR:L\" mean in a CVSS vector?\nA: Low privileges are required to exploit the vulnerability."
+  },
+  {
+    "id": "bug-bounty-41",
+    "topic": "bug-bounty",
+    "number": 41,
+    "title": "CWE and Vulnerability Taxonomy",
+    "level": "Intermediate",
+    "minutes": 30,
+    "summary": "Use CWE identifiers to label weaknesses consistently and study related patterns.",
+    "objectives": [
+      "map findings to CWEs",
+      "distinguish CWE from CVE",
+      "use taxonomy for learning"
+    ],
+    "takeaways": [
+      "CWE names weakness types",
+      "CVE names specific instances",
+      "taxonomy improves communication"
+    ],
+    "practice": "Map three lab findings to their correct CWE IDs and record them.",
+    "sources": [],
+    "content": "## Core idea\nCWE (Common Weakness Enumeration) is a catalog of software weakness types, while CVE identifies specific instances of a vulnerability. Mapping a finding to a CWE — for example, CWE-639 for IDOR or CWE-79 for XSS — gives triage a standardized label and helps you study related patterns. Taxonomies improve communication: \"CWE-89 SQL injection\" is unambiguous. Many report forms ask for a CWE. Understanding the taxonomy also reveals gaps in your knowledge — browse CWE categories you have never tested. Use CWE as a supplement to, not a replacement for, a clear impact narrative. A correct label speeds triage, but the business impact still sells the report.\n\n### Method\nAfter validating a finding, look up the matching CWE and include its ID in your notes. Keep a personal mapping of bug class to CWE.\n\n```bash\n# Note the CWE for an IDOR finding\necho \"CWE-639: Authorization Bypass Through User-Controlled Key\" >> findings/F001/report.md\n```\n\n### Checklist\n- [ ] CWE identified\n- [ ] ID recorded in report\n- [ ] Personal mapping updated\n- [ ] Narrative still included\n\n### Common mistakes\n- Confusing CWE with CVE.\n- Using a vague or wrong ID.\n- Letting the label replace impact explanation.\n\n### Safety & scope\nTaxonomy is descriptive; it does not change scope or severity rules.\n\nCross-check the chosen CWE against the report's impact statement so the two tell a consistent story.\n\n### Knowledge check\nQ: What is the difference between CWE and CVE?\nA: CWE is a weakness type; CVE is a specific vulnerability instance."
+  },
+  {
+    "id": "bug-bounty-42",
+    "topic": "bug-bounty",
+    "number": 42,
+    "title": "PoC Hygiene and Reproduction",
+    "level": "Intermediate",
+    "minutes": 35,
+    "summary": "Build minimal, safe, reproducible proofs of concept that triage can run cleanly.",
+    "objectives": [
+      "minimize PoC steps",
+      "remove sensitive data",
+      "verify from a clean state"
+    ],
+    "takeaways": [
+      "smaller PoCs reproduce better",
+      "use only test accounts",
+      "strip real secrets"
+    ],
+    "practice": "Reduce a lab finding to a one-command PoC and test it twice from fresh state.",
+    "sources": [],
+    "content": "## Core idea\nA proof of concept (PoC) is the smallest artifact that reliably demonstrates a bug. Good PoC hygiene means it is: minimal, self-contained, reproducible, and safe. Remove unnecessary steps and dependencies. Use your own test accounts and data. Redact secrets. Provide the PoC as clear steps or a short script, not a giant blob. Ensure it works from a clean state so triage can reproduce it. Avoid destructive actions. A clean PoC speeds triage and increases trust. If your PoC requires complex setup, document that setup precisely so the analyst can replicate it.\n\n### Method\nReduce your reproduction to the shortest sequence that works from a fresh session. Test it twice. Strip sensitive values and replace with placeholders.\n\n```bash\n# Minimal PoC script skeleton\ncat > findings/F001/poc.sh <<'SH'\n#!/bin/sh\n# Replace TOKEN with a lab test token; do not commit real secrets\ncurl -sS -H \"Authorization: Bearer $LAB_TOKEN\" \\\n  \"https://<LAB_HOST>/api/order/1002\"\nSH\n```\n\n### Checklist\n- [ ] Steps minimized\n- [ ] Clean-state test passed\n- [ ] Secrets replaced\n- [ ] Setup documented\n\n### Common mistakes\n- Including real tokens in the PoC.\n- Depending on a dirty session state.\n- Adding destructive steps.\n\n### Safety & scope\nA PoC must never damage data or expose real users; keep it safe and minimal.\n\nA PoC that depends on hidden setup is not truly minimal; either document that setup clearly or simplify further.\n\n### Knowledge check\nQ: What makes a PoC \"minimal\"?\nA: It contains only the steps needed to reproduce the bug from a clean state."
+  },
+  {
+    "id": "bug-bounty-43",
+    "topic": "bug-bounty",
+    "number": 43,
+    "title": "Triage Communication",
+    "level": "Intermediate",
+    "minutes": 35,
+    "summary": "Handle analyst questions, severity debates, and status updates professionally.",
+    "objectives": [
+      "respond with evidence",
+      "handle disputes calmly",
+      "keep records on-platform"
+    ],
+    "takeaways": [
+      "prompt, polite answers help",
+      "use official channels",
+      "good dialogue can change outcomes"
+    ],
+    "practice": "Draft a respectful response to a triage request for more reproduction detail.",
+    "sources": [],
+    "content": "## Core idea\nTriage communication is the professional dialogue between researcher and analyst. Expect questions requesting clarification, severity debates, and status updates. Respond promptly, politely, and with evidence. If triage cannot reproduce, offer more detail or a cleaner PoC. If they downgrade severity, ask for their reasoning and present impact respectfully. Avoid adversarial language. Keep all communication on the official platform channel so there is a record. Understand that triage handles many reports and may take time. Good communication can turn a borderline report into an accepted one and builds a long-term reputation.\n\n### Method\nFor every triage message, acknowledge, answer with specifics, and attach evidence. Track status changes in your notes.\n\n```bash\n# Log a triage exchange in your finding folder\ncat >> findings/F001/log.md <<'NOTE'\n2026-.. Triage asked for reproduction steps with fresh session\nResponse: provided minimal PoC, redacted token\nNOTE\n```\n\n### Checklist\n- [ ] Acknowledged promptly\n- [ ] Evidence attached\n- [ ] Tone professional\n- [ ] Status logged\n\n### Common mistakes\n- Demanding immediate resolution.\n- Arguing without evidence.\n- Moving the discussion off-platform.\n\n### Safety & scope\nNever share private program details in public forums during triage.\n\nKeep a calm, factual tone even when you disagree; analysts are allies, not adversaries. Summarize each exchange in your log with the date, the question asked, and your answer. If a report is closed, ask for feedback and apply it to the next one. Professional conduct during disagreement is remembered far longer than any single report.\n\n### Knowledge check\nQ: How should you handle a severity downgrade?\nA: Ask for reasoning and present impact evidence respectfully."
+  },
+  {
+    "id": "bug-bounty-44",
+    "topic": "bug-bounty",
+    "number": 44,
+    "title": "Duplicates, Disclosure, and Program Etiquette",
+    "level": "Intermediate",
+    "minutes": 35,
+    "summary": "Handle duplicates gracefully and respect disclosure embargoes and program norms.",
+    "objectives": [
+      "learn from duplicates",
+      "follow disclosure rules",
+      "maintain etiquette"
+    ],
+    "takeaways": [
+      "duplicates mean the bug was real",
+      "never disclose early",
+      "professionalism earns invitations"
+    ],
+    "practice": "Write a duplicate-lesson note and check a lab program's disclosure policy.",
+    "sources": [],
+    "content": "## Core idea\nWhen a report is marked duplicate, accept it gracefully — it means the bug was real and already known. Ask for the original if the platform permits, learn what you missed, and move on. Disclosure is governed by the program's policy: some allow public disclosure after a fix, others require permanent confidentiality. Never disclose before the agreed embargo. Program etiquette includes respecting response times, not spamming triage, and not publicly complaining about a program. Building a reputation for professionalism pays off with private invitations and long-term trust. A single careless public post can damage years of good standing.\n\n### Method\nOn duplicate, record the root cause in your notes to avoid repeats. Before any public write-up, verify the disclosure policy and confirm the fix is live.\n\n```bash\n# Record a duplicate lesson\necho \"Duplicate: check disclosed reports for this endpoint pattern\" >> lessons.md\n```\n\n### Checklist\n- [ ] Duplicate accepted calmly\n- [ ] Lesson recorded\n- [ ] Disclosure policy checked\n- [ ] Fix confirmed before publishing\n\n### Common mistakes\n- Publicly venting about a duplicate.\n- Disclosing before the embargo ends.\n- Sharing private program details.\n\n### Safety & scope\nDisclosure without permission can breach policy and law; always verify first.\n\nEtiquette also means giving the program reasonable time to respond before following up. Repeated pings and public pressure damage trust and can affect future invitations.\n\n### Knowledge check\nQ: Before publishing a write-up, what must you confirm?\nA: The program's disclosure policy allows it and the fix is deployed."
+  },
+  {
+    "id": "bug-bounty-45",
+    "topic": "bug-bounty",
+    "number": 45,
+    "title": "Workflow Automation",
+    "level": "Advanced",
+    "minutes": 45,
+    "summary": "Automate repetitive, low-risk recon with scope guards and rate limits.",
+    "objectives": [
+      "choose good automation targets",
+      "add scope guards",
+      "avoid irresponsible volume"
+    ],
+    "takeaways": [
+      "automate enumeration, not judgment",
+      "scripts must obey RoE",
+      "guardrails prevent scope drift"
+    ],
+    "practice": "Write a guarded, rate-limited recon wrapper for a lab-only host list.",
+    "sources": [],
+    "content": "## Core idea\nAutomation scales repetitive, low-risk tasks so you can focus on creative testing. Good candidates: enumerating subdomains, resolving hosts, capturing screenshots, and organizing outputs. Poor candidates: complex exploit chains and anything that increases request volume irresponsibly. Build small, idempotent scripts with clear inputs and outputs, and cap their rate. Never let automation run unattended against production without guardrails. Respect the RoE: a script that violates scope is still your violation. Use configuration files for scope so the automation cannot wander. Version your scripts and review them before each run.\n\n### Method\nAutomate one repetitive step at a time. Wrap tools with rate limits and scope checks; log every target touched.\n\n```bash\n# A guarded, rate-limited recon wrapper (lab scope only)\nwhile read -r h; do\n  case \"$h\" in\n    *.example.lab) curl -sS --max-time 5 \"https://$h\" -o /dev/null ;;\n    *) echo \"SKIP out-of-scope: $h\" ;;\n  esac\n  sleep 1\ndone < hosts.txt\n```\n\n### Checklist\n- [ ] Repetitive task identified\n- [ ] Scope guard added\n- [ ] Rate capped\n- [ ] Targets logged\n\n### Common mistakes\n- Automating destructive actions.\n- Letting scripts run without guardrails.\n- Forgetting to cap request rate.\n\n### Safety & scope\nA script must enforce scope itself; never rely on manual oversight alone.\n\nReview each script's output manually; automation proposes, it does not decide. Keep a changelog so you can reproduce exactly what ran during an engagement.\n\n### Knowledge check\nQ: What is a scope guard in automation?\nA: Logic that blocks any target not on the allowlist before a request is sent."
+  },
+  {
+    "id": "bug-bounty-46",
+    "topic": "bug-bounty",
+    "number": 46,
+    "title": "Metrics and Measurement",
+    "level": "Advanced",
+    "minutes": 35,
+    "summary": "Track outcomes to convert experience into measurable, directed improvement.",
+    "objectives": [
+      "define useful metrics",
+      "log report outcomes",
+      "review trends monthly"
+    ],
+    "takeaways": [
+      "metrics reveal where to focus",
+      "avoid vanity numbers",
+      "consistency drives growth"
+    ],
+    "practice": "Create a metrics log and record a hypothetical lab report outcome.",
+    "sources": [],
+    "content": "## Core idea\nMetrics turn experience into improvement. Track: hours spent, programs worked, reports submitted, acceptance rate, duplicate rate, severity distribution, and time to triage. These numbers reveal where to focus — a high duplicate rate suggests deeper recon or novel vectors; a low acceptance rate suggests report quality issues. Metrics also support career conversations and demonstrate value. Keep data honest and consistent. Avoid vanity metrics like raw subdomain counts. Review monthly and set one improvement goal. Over time, trends show which habits pay off and which waste effort.\n\n### Method\nMaintain a simple spreadsheet updated after every report. Review trends monthly and set one improvement goal.\n\n```bash\n# Append a report outcome to a metrics log\ncat >> metrics.csv <<'CSV'\ndate,program,hours,severity,status,days_to_triage\n2026-..,<LAB_HOST>,6,medium,resolved,4\nCSV\n```\n\n### Checklist\n- [ ] Core metrics defined\n- [ ] Log updated per report\n- [ ] Monthly review scheduled\n- [ ] One goal set\n\n### Common mistakes\n- Tracking raw counts instead of outcomes.\n- Inconsistent or dishonest logging.\n- Never acting on the data.\n\n### Safety & scope\nMetrics contain program names; keep them private where required.\n\nUse the metrics to compare quarters, not days, since bounty outcomes are noisy. A spike in duplicates may mean you are hunting in well-tested areas rather than failing. Pair the numbers with short qualitative notes about what you learned. Share progress with a mentor to stay accountable, and celebrate small, consistent improvements.\n\n### Knowledge check\nQ: Which metric best signals a report-quality problem?\nA: A low acceptance rate relative to reports submitted."
+  },
+  {
+    "id": "bug-bounty-47",
+    "topic": "bug-bounty",
+    "number": 47,
+    "title": "Collaboration and Community",
+    "level": "Advanced",
+    "minutes": 35,
+    "summary": "Learn faster through communities, shared write-ups, and clearly scoped team engagements.",
+    "objectives": [
+      "join communities",
+      "share sanitized knowledge",
+      "split scope in teams"
+    ],
+    "takeaways": [
+      "community accelerates learning",
+      "confidentiality still applies",
+      "define ownership to avoid collisions"
+    ],
+    "practice": "Sanitize a lab write-up for community sharing and define a two-person scope split.",
+    "sources": [],
+    "content": "## Core idea\nBug bounty is often solitary, but community accelerates growth. Forums, chat servers, local meetups, and write-ups let you learn techniques and get feedback. Collaboration tools include shared note templates, severity calibration discussions, and mock engagements. When working in teams, define scope ownership to avoid duplicates among teammates. Respect confidentiality: never share private program details. Give credit generously. Mentoring others reinforces your own knowledge. A supportive network often leads to private invitations and long-term opportunities.\n\n### Method\nJoin one reputable community, contribute a write-up from a lab exercise, and participate in a mock or team engagement with clear scope splits.\n\n```bash\n# Share a sanitized lab write-up (no private program data)\ngrep -v 'TOKEN\\|SECRET' findings/F001/report.md > writeup_public.md\n```\n\n### Checklist\n- [ ] Community chosen\n- [ ] Write-up sanitized\n- [ ] Scope split defined\n- [ ] Credit given\n\n### Common mistakes\n- Sharing private program details.\n- Overlapping scope with teammates.\n- Copying others' work without credit.\n\n### Safety & scope\nPublic material must contain only lab or authorized data; redact everything else.\n\nWhen mentoring, explain not just what you did but why you chose each step. Participate in mock engagements to practise scope negotiation and report writing as a team. Rotate who leads so every member practises communication. Credit collaborators openly in write-ups. A strong network turns isolated effort into shared growth and makes the work sustainable.\n\n### Knowledge check\nQ: Why define scope ownership in a team?\nA: To prevent teammates from duplicating each other's work and reports."
+  },
+  {
+    "id": "bug-bounty-48",
+    "topic": "bug-bounty",
+    "number": 48,
+    "title": "Career Development in Bug Bounty",
+    "level": "Intermediate",
+    "minutes": 35,
+    "summary": "Turn bounty work into a professional portfolio and sustainable career path.",
+    "objectives": [
+      "build a portfolio",
+      "track reputation",
+      "set development goals"
+    ],
+    "takeaways": [
+      "skills transfer to AppSec roles",
+      "consistency beats occasional wins",
+      "professionalism opens doors"
+    ],
+    "practice": "Create a sanitized portfolio case study from a lab finding.",
+    "sources": [],
+    "content": "## Core idea\nBug bounty can be a side pursuit, a career springboard, or a full-time profession. Skills translate to security engineering, penetration testing, and AppSec roles. Building a reputation through valid reports and public write-ups opens private invitations and jobs. Treat it professionally: maintain a portfolio, a record of achievements, and ethical standards. Income is variable, so diversify. Networking and continuous learning matter. Understand that consistency beats occasional big wins. A steady record of careful, well-documented work is more valuable than a single lucky find.\n\n### Method\nBuild a portfolio with sanitized case studies, track your reputation scores, and set quarterly goals for skills and submissions.\n\n```bash\n# Start a sanitized portfolio entry\ncat >> portfolio.md <<'MD'\n## Case study: IDOR in lab application\n- Class: CWE-639\n- Skill demonstrated: authz testing\n- Link: (sanitized write-up)\nMD\n```\n\n### Checklist\n- [ ] Portfolio started\n- [ ] Reputation tracked\n- [ ] Quarterly goals set\n- [ ] Ethics maintained\n\n### Common mistakes\n- Publishing unsanitized reports.\n- Expecting steady income immediately.\n- Neglecting documentation of wins.\n\n### Safety & scope\nNever use private program findings as public portfolio pieces without permission.\n\nTreat every public interaction as part of your professional record. Keep a concise bio, link to sanitized write-ups, and be clear about your ethics and scope discipline. Income from bounties is variable, so consider complementary security work while building your reputation. Set realistic milestones and review them quarterly rather than chasing trends.\n\n### Knowledge check\nQ: What makes a good portfolio case study?\nA: A sanitized, well-documented finding that demonstrates a clear skill."
+  },
+  {
+    "id": "bug-bounty-49",
+    "topic": "bug-bounty",
+    "number": 49,
+    "title": "Continuous Learning and Skill Growth",
+    "level": "Intermediate",
+    "minutes": 35,
+    "summary": "Build a sustainable study loop of learning, lab practice, testing, and teaching.",
+    "objectives": [
+      "use deliberate practice",
+      "close knowledge gaps",
+      "teach to reinforce learning"
+    ],
+    "takeaways": [
+      "labs provide safe practice",
+      "write-ups sharpen judgment",
+      "gaps should drive study"
+    ],
+    "practice": "Add one new topic to a learning backlog and schedule a lab practice block.",
+    "sources": [],
+    "content": "## Core idea\nThe field changes constantly; continuous learning is mandatory. Build a study loop: learn a concept, practice in a lab, test on authorized targets, document, and teach. Use intentionally vulnerable labs to practice without risk. Track knowledge gaps from your engagements and close them deliberately. Read write-ups critically — ask why a technique worked, not just what it did. Celebrate small improvements. A structured loop turns random curiosity into reliable skill growth. Without it, techniques fade and progress stalls.\n\n### Method\nMaintain a learning backlog of topics and lab exercises. Schedule weekly practice blocks and record what you learned.\n\n```bash\n# Add a topic to your learning backlog\necho \"Practice: SSRF via lab.docker\" >> learning_backlog.md\n```\n\n### Checklist\n- [ ] Backlog maintained\n- [ ] Weekly practice scheduled\n- [ ] Gaps identified\n- [ ] Notes from practice written\n\n### Common mistakes\n- Only reading, never practicing.\n- Practicing outside authorized labs.\n- Ignoring gaps revealed by failures.\n\n### Safety & scope\nKeep all practice inside owned targets, labs, or explicitly in-scope programs.\n\nAlternate study sources: one write-up, one lab, and one conversation with a peer each week. Record what surprised you, since surprises mark the edge of your knowledge. Revisit old labs and solve them without notes to test real retention. Track gaps that appear in your own engagements and turn each into a practice goal. Mastery is the compound result of many small, deliberate sessions.\n\n### Knowledge check\nQ: Why include teaching in the learning loop?\nA: Explaining a concept exposes gaps and reinforces understanding."
+  },
+  {
+    "id": "bug-bounty-50",
+    "topic": "bug-bounty",
+    "number": 50,
+    "title": "Capstone Mock Engagement",
+    "level": "Advanced",
+    "minutes": 60,
+    "summary": "Integrate the full workflow in one authorized mock engagement from charter to report.",
+    "objectives": [
+      "define scope and RoE",
+      "execute full recon and testing",
+      "deliver a portfolio-ready report"
+    ],
+    "takeaways": [
+      "the process is the deliverable",
+      "every phase must be documented",
+      "the package proves mastery"
+    ],
+    "practice": "Run a complete mock engagement on an owned target or lab and produce the full report package.",
+    "sources": [],
+    "content": "## Core idea\nThe capstone integrates the entire workflow in a single mock engagement on a target you own or a dedicated lab. You will define scope, write a RoE, perform passive and active recon, map the attack surface, prioritize, test manually, capture evidence, and produce a full report with CVSS and CWE. This mirrors a real bounty from start to finish. The deliverable is a portfolio-ready package. Work deliberately and document every step, because the process is the point. A polished capstone demonstrates readiness for real programs and reveals any remaining gaps in your method.\n\n### Method\nFollow the phases: (1) charter and scope, (2) recon and inventory, (3) mapping and prioritization, (4) manual testing, (5) evidence, (6) report, (7) retrospective. Timebox each.\n\n```bash\n# Final deliverable structure\nmkdir -p capstone/{scope,recon,inventory,findings,report}\n# Populate each folder as you progress; keep everything local to the lab\n```\n\n### Checklist\n- [ ] Scope and RoE written\n- [ ] Recon and inventory complete\n- [ ] Testing documented\n- [ ] Final report delivered\n\n### Common mistakes\n- Skipping the retrospective.\n- Testing outside the owned/lab target.\n- Submitting an unorganized package.\n\n### Safety & scope\nUse only an owned target or dedicated lab; never run a capstone against a third party.\n\nArchive the package with timestamps so you can show how it evolved. Re-read your scope and RoE one last time against everything you actually touched. Use the retrospective to name one strength and one gap to carry forward.\n\n### Knowledge check\nQ: Why is the retrospective important?\nA: It captures lessons and turns the exercise into lasting skill."
+  }
+]
