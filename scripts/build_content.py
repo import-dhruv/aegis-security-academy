@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import math
 import re
 import sys
 from pathlib import Path
@@ -392,7 +393,9 @@ def main() -> None:
             "description": meta["desc"],
             "difficulty": meta["difficulty"],
             "level": meta["level"],
-            "minutes": meta["minutes"],
+            # Keep the curated hands-on allowance, but never understate the
+            # reading time of a chapter that has since been expanded.
+            "minutes": max(meta["minutes"], math.ceil(words / 220)),
             "words": words,
             "sections": sections,
             "schoolIds": meta["schools"],

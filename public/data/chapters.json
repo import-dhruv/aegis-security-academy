@@ -109,7 +109,7 @@
     "difficulty": "Beginner",
     "level": 1,
     "minutes": 70,
-    "words": 2397,
+    "words": 7758,
     "sections": [
       {
         "id": "2-1-why-first-principles-matter",
@@ -192,6 +192,156 @@
         "level": 2
       },
       {
+        "id": "2-17-mastery-deep-dive-number-systems-and-bit-level-reasoning",
+        "title": "2.17 Mastery Deep Dive: Number Systems and Bit-Level Reasoning",
+        "level": 2
+      },
+      {
+        "id": "2-17-1-positional-notation-and-worked-conversions",
+        "title": "2.17.1 Positional Notation and Worked Conversions",
+        "level": 3
+      },
+      {
+        "id": "2-17-2-signed-numbers-sign-extension-and-overflow-detection",
+        "title": "2.17.2 Signed Numbers, Sign Extension, and Overflow Detection",
+        "level": 3
+      },
+      {
+        "id": "2-17-3-endianness-reading-bytes-the-way-the-machine-does",
+        "title": "2.17.3 Endianness: Reading Bytes the Way the Machine Does",
+        "level": 3
+      },
+      {
+        "id": "2-17-4-bitwise-operations-as-a-security-primitive",
+        "title": "2.17.4 Bitwise Operations as a Security Primitive",
+        "level": 3
+      },
+      {
+        "id": "2-17-5-what-mastery-looks-like-number-systems",
+        "title": "2.17.5 What Mastery Looks Like: Number Systems",
+        "level": 3
+      },
+      {
+        "id": "2-18-mastery-deep-dive-cpu-architecture-caches-and-virtual-memory",
+        "title": "2.18 Mastery Deep Dive: CPU Architecture, Caches, and Virtual Memory",
+        "level": 2
+      },
+      {
+        "id": "2-18-1-the-instruction-cycle-pipelining-and-speculation",
+        "title": "2.18.1 The Instruction Cycle, Pipelining, and Speculation",
+        "level": 3
+      },
+      {
+        "id": "2-18-2-registers-the-abi-and-a-worked-stack-frame",
+        "title": "2.18.2 Registers, the ABI, and a Worked Stack Frame",
+        "level": 3
+      },
+      {
+        "id": "2-18-3-cache-behavior-and-the-memory-hierarchy",
+        "title": "2.18.3 Cache Behavior and the Memory Hierarchy",
+        "level": 3
+      },
+      {
+        "id": "2-18-4-virtual-memory-and-address-translation-worked-walkthrough",
+        "title": "2.18.4 Virtual Memory and Address Translation — Worked Walkthrough",
+        "level": 3
+      },
+      {
+        "id": "2-18-5-what-mastery-looks-like-cpu-and-memory",
+        "title": "2.18.5 What Mastery Looks Like: CPU and Memory",
+        "level": 3
+      },
+      {
+        "id": "2-19-mastery-deep-dive-processes-threads-and-concurrency-mechanics",
+        "title": "2.19 Mastery Deep Dive: Processes, Threads, and Concurrency Mechanics",
+        "level": 2
+      },
+      {
+        "id": "2-19-1-process-lifecycle-and-fork-exec",
+        "title": "2.19.1 Process Lifecycle and fork/exec",
+        "level": 3
+      },
+      {
+        "id": "2-19-2-threads-context-switching-and-what-is-shared",
+        "title": "2.19.2 Threads, Context Switching, and What Is Shared",
+        "level": 3
+      },
+      {
+        "id": "2-19-3-race-conditions-and-toctou-worked",
+        "title": "2.19.3 Race Conditions and TOCTOU, Worked",
+        "level": 3
+      },
+      {
+        "id": "2-19-4-scheduler-resource-limits-and-denial-of-service",
+        "title": "2.19.4 Scheduler, Resource Limits, and Denial of Service",
+        "level": 3
+      },
+      {
+        "id": "2-19-5-what-mastery-looks-like-concurrency",
+        "title": "2.19.5 What Mastery Looks Like: Concurrency",
+        "level": 3
+      },
+      {
+        "id": "2-20-mastery-deep-dive-representation-algorithms-and-discrete-math",
+        "title": "2.20 Mastery Deep Dive: Representation, Algorithms, and Discrete Math",
+        "level": 2
+      },
+      {
+        "id": "2-20-1-strings-encoding-and-off-by-one-errors",
+        "title": "2.20.1 Strings, Encoding, and Off-by-One Errors",
+        "level": 3
+      },
+      {
+        "id": "2-20-2-inodes-and-filesystem-representation",
+        "title": "2.20.2 Inodes and Filesystem Representation",
+        "level": 3
+      },
+      {
+        "id": "2-20-3-complexity-as-a-security-property",
+        "title": "2.20.3 Complexity as a Security Property",
+        "level": 3
+      },
+      {
+        "id": "2-20-4-discrete-math-you-will-actually-use",
+        "title": "2.20.4 Discrete Math You Will Actually Use",
+        "level": 3
+      },
+      {
+        "id": "2-20-5-what-mastery-looks-like-representation-and-math",
+        "title": "2.20.5 What Mastery Looks Like: Representation and Math",
+        "level": 3
+      },
+      {
+        "id": "2-21-mastery-deep-dive-verification-detection-and-practice",
+        "title": "2.21 Mastery Deep Dive: Verification, Detection, and Practice",
+        "level": 2
+      },
+      {
+        "id": "2-21-1-integrated-lab-sequence-own-vm-own-host-only",
+        "title": "2.21.1 Integrated Lab Sequence (Own VM / Own Host Only)",
+        "level": 3
+      },
+      {
+        "id": "2-21-2-detection-and-defense-checklists",
+        "title": "2.21.2 Detection and Defense Checklists",
+        "level": 3
+      },
+      {
+        "id": "2-21-3-common-mistakes-and-their-fixes",
+        "title": "2.21.3 Common Mistakes and Their Fixes",
+        "level": 3
+      },
+      {
+        "id": "2-21-4-knowledge-checks-answers-included",
+        "title": "2.21.4 Knowledge Checks (Answers Included)",
+        "level": 3
+      },
+      {
+        "id": "2-21-5-final-mastery-checklist",
+        "title": "2.21.5 Final Mastery Checklist",
+        "level": 3
+      },
+      {
         "id": "2-15-key-takeaways",
         "title": "2.15 Key Takeaways",
         "level": 2
@@ -228,7 +378,7 @@
     "difficulty": "Beginner",
     "level": 2,
     "minutes": 75,
-    "words": 1788,
+    "words": 6777,
     "sections": [
       {
         "id": "3-1-why-linux-matters",
@@ -301,6 +451,161 @@
         "level": 2
       },
       {
+        "id": "3-17-mastery-deep-dive-the-linux-permission-model",
+        "title": "3.17 Mastery Deep Dive: The Linux Permission Model",
+        "level": 2
+      },
+      {
+        "id": "3-17-1-mode-bits-and-umask-worked",
+        "title": "3.17.1 Mode Bits and umask, Worked",
+        "level": 3
+      },
+      {
+        "id": "3-17-2-special-bits-setuid-setgid-and-sticky",
+        "title": "3.17.2 Special Bits: setuid, setgid, and Sticky",
+        "level": 3
+      },
+      {
+        "id": "3-17-3-posix-capabilities-root-without-being-root",
+        "title": "3.17.3 POSIX Capabilities: Root Without Being Root",
+        "level": 3
+      },
+      {
+        "id": "3-17-4-acls-ownership-and-the-effective-permission-algorithm",
+        "title": "3.17.4 ACLs, Ownership, and the Effective Permission Algorithm",
+        "level": 3
+      },
+      {
+        "id": "3-17-5-verification-checklist-for-permissions",
+        "title": "3.17.5 Verification Checklist for Permissions",
+        "level": 3
+      },
+      {
+        "id": "3-18-mastery-deep-dive-identity-pam-sudo-and-ssh",
+        "title": "3.18 Mastery Deep Dive: Identity, PAM, sudo, and SSH",
+        "level": 2
+      },
+      {
+        "id": "3-18-1-the-account-databases-field-by-field",
+        "title": "3.18.1 The Account Databases, Field by Field",
+        "level": 3
+      },
+      {
+        "id": "3-18-2-pam-the-authentication-stack",
+        "title": "3.18.2 PAM: The Authentication Stack",
+        "level": 3
+      },
+      {
+        "id": "3-18-3-sudo-policy-and-the-privilege-boundary",
+        "title": "3.18.3 sudo Policy and the Privilege Boundary",
+        "level": 3
+      },
+      {
+        "id": "3-18-4-ssh-hardening-with-a-concrete-config",
+        "title": "3.18.4 SSH Hardening with a Concrete Config",
+        "level": 3
+      },
+      {
+        "id": "3-19-mastery-deep-dive-processes-systemd-and-logging",
+        "title": "3.19 Mastery Deep Dive: Processes, systemd, and Logging",
+        "level": 2
+      },
+      {
+        "id": "3-19-1-signals-and-process-control",
+        "title": "3.19.1 Signals and Process Control",
+        "level": 3
+      },
+      {
+        "id": "3-19-2-systemd-units-and-timers",
+        "title": "3.19.2 systemd Units and Timers",
+        "level": 3
+      },
+      {
+        "id": "3-19-3-journald-and-auditd-two-complementary-logs",
+        "title": "3.19.3 journald and auditd: Two Complementary Logs",
+        "level": 3
+      },
+      {
+        "id": "3-20-mastery-deep-dive-linux-hardening-and-mandatory-access-control",
+        "title": "3.20 Mastery Deep Dive: Linux Hardening and Mandatory Access Control",
+        "level": 2
+      },
+      {
+        "id": "3-20-1-apparmor-and-selinux-basics",
+        "title": "3.20.1 AppArmor and SELinux Basics",
+        "level": 3
+      },
+      {
+        "id": "3-20-2-namespaces-cgroups-and-seccomp",
+        "title": "3.20.2 Namespaces, cgroups, and seccomp",
+        "level": 3
+      },
+      {
+        "id": "3-20-3-hardening-checklist-with-verification-commands",
+        "title": "3.20.3 Hardening Checklist with Verification Commands",
+        "level": 3
+      },
+      {
+        "id": "3-21-mastery-deep-dive-windows-security-architecture-for-researchers",
+        "title": "3.21 Mastery Deep Dive: Windows Security Architecture for Researchers",
+        "level": 2
+      },
+      {
+        "id": "3-21-1-sids-access-tokens-and-integrity-levels",
+        "title": "3.21.1 SIDs, Access Tokens, and Integrity Levels",
+        "level": 3
+      },
+      {
+        "id": "3-21-2-uac-and-the-split-token",
+        "title": "3.21.2 UAC and the Split Token",
+        "level": 3
+      },
+      {
+        "id": "3-21-3-ntfs-acls-the-registry-services-and-tasks",
+        "title": "3.21.3 NTFS ACLs, the Registry, Services, and Tasks",
+        "level": 3
+      },
+      {
+        "id": "3-21-4-powershell-event-logs-and-sysmon",
+        "title": "3.21.4 PowerShell, Event Logs, and Sysmon",
+        "level": 3
+      },
+      {
+        "id": "3-21-5-defender-and-asr-hardening",
+        "title": "3.21.5 Defender and ASR Hardening",
+        "level": 3
+      },
+      {
+        "id": "3-22-mastery-deep-dive-cross-os-comparison-practice-and-knowledge-checks",
+        "title": "3.22 Mastery Deep Dive: Cross-OS Comparison, Practice, and Knowledge Checks",
+        "level": 2
+      },
+      {
+        "id": "3-22-1-linux-vs-windows-same-idea-different-mechanism",
+        "title": "3.22.1 Linux vs Windows: Same Idea, Different Mechanism",
+        "level": 3
+      },
+      {
+        "id": "3-22-2-integrated-lab-sequence-own-vm-only",
+        "title": "3.22.2 Integrated Lab Sequence (Own VM Only)",
+        "level": 3
+      },
+      {
+        "id": "3-22-3-detection-and-defense-checklists",
+        "title": "3.22.3 Detection and Defense Checklists",
+        "level": 3
+      },
+      {
+        "id": "3-22-4-knowledge-checks-answers-included",
+        "title": "3.22.4 Knowledge Checks (Answers Included)",
+        "level": 3
+      },
+      {
+        "id": "3-22-5-final-mastery-checklist",
+        "title": "3.22.5 Final Mastery Checklist",
+        "level": 3
+      },
+      {
         "id": "3-15-key-takeaways",
         "title": "3.15 Key Takeaways",
         "level": 2
@@ -337,7 +642,7 @@
     "difficulty": "Beginner",
     "level": 2,
     "minutes": 85,
-    "words": 2111,
+    "words": 6778,
     "sections": [
       {
         "id": "4-1-networking-from-absolute-zero",
@@ -398,6 +703,176 @@
         "id": "4-12-exercises",
         "title": "4.12 Exercises",
         "level": 2
+      },
+      {
+        "id": "4-15-mastery-deep-dive-encapsulation-and-the-link-layer",
+        "title": "4.15 Mastery Deep Dive: Encapsulation and the Link Layer",
+        "level": 2
+      },
+      {
+        "id": "4-15-1-walk-a-frame-byte-by-byte",
+        "title": "4.15.1 Walk a Frame Byte by Byte",
+        "level": 3
+      },
+      {
+        "id": "4-15-2-ethernet-switching-mac-learning-and-vlans",
+        "title": "4.15.2 Ethernet Switching, MAC Learning, and VLANs",
+        "level": 3
+      },
+      {
+        "id": "4-15-3-arp-and-dhcp-the-trust-problem-at-layer-2",
+        "title": "4.15.3 ARP and DHCP: The Trust Problem at Layer 2",
+        "level": 3
+      },
+      {
+        "id": "4-15-4-link-layer-defense-checklist",
+        "title": "4.15.4 Link-Layer Defense Checklist",
+        "level": 3
+      },
+      {
+        "id": "4-16-mastery-deep-dive-ipv4-addressing-and-subnetting-worked",
+        "title": "4.16 Mastery Deep Dive: IPv4 Addressing and Subnetting, Worked",
+        "level": 2
+      },
+      {
+        "id": "4-16-1-binary-and-prefix-lengths-and-worked-examples",
+        "title": "4.16.1 Binary AND, Prefix Lengths, and Worked Examples",
+        "level": 3
+      },
+      {
+        "id": "4-16-2-vlsm-allocation-worked",
+        "title": "4.16.2 VLSM Allocation, Worked",
+        "level": 3
+      },
+      {
+        "id": "4-16-3-subnetting-decision-tree",
+        "title": "4.16.3 Subnetting Decision Tree",
+        "level": 3
+      },
+      {
+        "id": "4-16-4-practice-problems-with-answers",
+        "title": "4.16.4 Practice Problems with Answers",
+        "level": 3
+      },
+      {
+        "id": "4-16-5-security-relevance-of-addressing",
+        "title": "4.16.5 Security Relevance of Addressing",
+        "level": 3
+      },
+      {
+        "id": "4-17-mastery-deep-dive-ipv6-nat-and-routing",
+        "title": "4.17 Mastery Deep Dive: IPv6, NAT, and Routing",
+        "level": 2
+      },
+      {
+        "id": "4-17-1-ipv6-essentials",
+        "title": "4.17.1 IPv6 Essentials",
+        "level": 3
+      },
+      {
+        "id": "4-17-2-nat-and-its-security-implications",
+        "title": "4.17.2 NAT and Its Security Implications",
+        "level": 3
+      },
+      {
+        "id": "4-17-3-routing-and-the-path-a-packet-takes",
+        "title": "4.17.3 Routing and the Path a Packet Takes",
+        "level": 3
+      },
+      {
+        "id": "4-18-mastery-deep-dive-transport-layer-mechanics",
+        "title": "4.18 Mastery Deep Dive: Transport Layer Mechanics",
+        "level": 2
+      },
+      {
+        "id": "4-18-1-tcp-header-fields-and-the-handshake-worked",
+        "title": "4.18.1 TCP Header Fields and the Handshake, Worked",
+        "level": 3
+      },
+      {
+        "id": "4-18-2-reliability-flow-control-and-congestion-control",
+        "title": "4.18.2 Reliability, Flow Control, and Congestion Control",
+        "level": 3
+      },
+      {
+        "id": "4-18-3-udp-and-sockets",
+        "title": "4.18.3 UDP and Sockets",
+        "level": 3
+      },
+      {
+        "id": "4-19-mastery-deep-dive-dns-and-application-layer-traffic-at-packet-level",
+        "title": "4.19 Mastery Deep Dive: DNS and Application-Layer Traffic at Packet Level",
+        "level": 2
+      },
+      {
+        "id": "4-19-1-dns-records-and-a-recursive-resolution-walkthrough",
+        "title": "4.19.1 DNS Records and a Recursive Resolution Walkthrough",
+        "level": 3
+      },
+      {
+        "id": "4-19-2-dnssec-and-cache-poisoning-concepts",
+        "title": "4.19.2 DNSSEC and Cache Poisoning Concepts",
+        "level": 3
+      },
+      {
+        "id": "4-19-3-http-and-tls-at-the-packet-level",
+        "title": "4.19.3 HTTP and TLS at the Packet Level",
+        "level": 3
+      },
+      {
+        "id": "4-20-mastery-deep-dive-traffic-capture-lab-with-tcpdump-and-wireshark",
+        "title": "4.20 Mastery Deep Dive: Traffic Capture Lab with tcpdump and Wireshark",
+        "level": 2
+      },
+      {
+        "id": "4-20-1-build-a-home-lab-for-traffic-analysis",
+        "title": "4.20.1 Build a Home Lab for Traffic Analysis",
+        "level": 3
+      },
+      {
+        "id": "4-20-2-tcpdump-bpf-syntax-real-examples",
+        "title": "4.20.2 tcpdump BPF Syntax, Real Examples",
+        "level": 3
+      },
+      {
+        "id": "4-20-3-wireshark-display-filters",
+        "title": "4.20.3 Wireshark Display Filters",
+        "level": 3
+      },
+      {
+        "id": "4-20-4-network-based-detection-mindset",
+        "title": "4.20.4 Network-Based Detection Mindset",
+        "level": 3
+      },
+      {
+        "id": "4-21-mastery-deep-dive-verification-practice-and-knowledge-checks",
+        "title": "4.21 Mastery Deep Dive: Verification, Practice, and Knowledge Checks",
+        "level": 2
+      },
+      {
+        "id": "4-21-1-integrated-lab-sequence",
+        "title": "4.21.1 Integrated Lab Sequence",
+        "level": 3
+      },
+      {
+        "id": "4-21-2-detection-and-defense-checklists",
+        "title": "4.21.2 Detection and Defense Checklists",
+        "level": 3
+      },
+      {
+        "id": "4-21-3-common-mistakes",
+        "title": "4.21.3 Common Mistakes",
+        "level": 3
+      },
+      {
+        "id": "4-21-4-knowledge-checks-answers-included",
+        "title": "4.21.4 Knowledge Checks (Answers Included)",
+        "level": 3
+      },
+      {
+        "id": "4-21-5-final-mastery-checklist",
+        "title": "4.21.5 Final Mastery Checklist",
+        "level": 3
       },
       {
         "id": "4-13-key-takeaways",
@@ -566,7 +1041,7 @@
     "difficulty": "Beginner",
     "level": 3,
     "minutes": 70,
-    "words": 1151,
+    "words": 5032,
     "sections": [
       {
         "id": "6-1-the-web-platform",
@@ -634,6 +1109,211 @@
         "level": 2
       },
       {
+        "id": "6-11-mastery-deep-dive-html-parsing-and-the-dom",
+        "title": "6.11 Mastery Deep Dive: HTML Parsing and the DOM",
+        "level": 2
+      },
+      {
+        "id": "6-11-1-the-tokenizer-and-tree-builder",
+        "title": "6.11.1 The tokenizer and tree builder",
+        "level": 3
+      },
+      {
+        "id": "6-11-2-quirks-mode-and-doctypes",
+        "title": "6.11.2 Quirks mode and doctypes",
+        "level": 3
+      },
+      {
+        "id": "6-11-3-parser-differentials-and-mutation-xss-mxss",
+        "title": "6.11.3 Parser differentials and mutation XSS (mXSS)",
+        "level": 3
+      },
+      {
+        "id": "6-11-4-dom-sinks-sources-and-taint-flow",
+        "title": "6.11.4 DOM sinks, sources, and taint flow",
+        "level": 3
+      },
+      {
+        "id": "6-11-5-events-propagation-delegation-and-hazards",
+        "title": "6.11.5 Events: propagation, delegation, and hazards",
+        "level": 3
+      },
+      {
+        "id": "6-12-mastery-deep-dive-javascript-execution-model",
+        "title": "6.12 Mastery Deep Dive: JavaScript Execution Model",
+        "level": 2
+      },
+      {
+        "id": "6-12-1-the-event-loop-precisely",
+        "title": "6.12.1 The event loop, precisely",
+        "level": 3
+      },
+      {
+        "id": "6-12-2-async-await-promises-and-toctou",
+        "title": "6.12.2 `async`/`await`, Promises, and TOCTOU",
+        "level": 3
+      },
+      {
+        "id": "6-12-3-prototypes-and-the-prototype-chain",
+        "title": "6.12.3 Prototypes and the prototype chain",
+        "level": 3
+      },
+      {
+        "id": "6-12-4-coercion-this-and-implicit-globals",
+        "title": "6.12.4 Coercion, `this`, and implicit globals",
+        "level": 3
+      },
+      {
+        "id": "6-12-5-modules-bundlers-and-source-maps",
+        "title": "6.12.5 Modules, bundlers, and source maps",
+        "level": 3
+      },
+      {
+        "id": "6-13-mastery-deep-dive-browser-security-model-in-depth",
+        "title": "6.13 Mastery Deep Dive: Browser Security Model in Depth",
+        "level": 2
+      },
+      {
+        "id": "6-13-1-origin-vs-site",
+        "title": "6.13.1 Origin vs. site",
+        "level": 3
+      },
+      {
+        "id": "6-13-2-sop-nuances",
+        "title": "6.13.2 SOP nuances",
+        "level": 3
+      },
+      {
+        "id": "6-13-3-cors-preflight-precisely",
+        "title": "6.13.3 CORS preflight, precisely",
+        "level": 3
+      },
+      {
+        "id": "6-13-4-cookie-attributes-in-detail",
+        "title": "6.13.4 Cookie attributes in detail",
+        "level": 3
+      },
+      {
+        "id": "6-13-5-csp-that-actually-resists-xss",
+        "title": "6.13.5 CSP that actually resists XSS",
+        "level": 3
+      },
+      {
+        "id": "6-13-6-postmessage-websockets-and-storage",
+        "title": "6.13.6 postMessage, WebSockets, and storage",
+        "level": 3
+      },
+      {
+        "id": "6-14-mastery-deep-dive-frameworks-ssr-and-the-client-trust-boundary",
+        "title": "6.14 Mastery Deep Dive: Frameworks, SSR, and the Client Trust Boundary",
+        "level": 2
+      },
+      {
+        "id": "6-14-1-framework-escaping-and-its-bypasses",
+        "title": "6.14.1 Framework escaping and its bypasses",
+        "level": 3
+      },
+      {
+        "id": "6-14-2-ssr-and-hydration",
+        "title": "6.14.2 SSR and hydration",
+        "level": 3
+      },
+      {
+        "id": "6-14-3-spa-authorization-is-not-authorization",
+        "title": "6.14.3 SPA authorization is not authorization",
+        "level": 3
+      },
+      {
+        "id": "6-14-4-devtools-methodology",
+        "title": "6.14.4 Devtools methodology",
+        "level": 3
+      },
+      {
+        "id": "6-14-5-the-client-side-trust-boundary",
+        "title": "6.14.5 The client-side trust boundary",
+        "level": 3
+      },
+      {
+        "id": "6-15-mastery-deep-dive-verification-and-practice",
+        "title": "6.15 Mastery Deep Dive: Verification and Practice",
+        "level": 2
+      },
+      {
+        "id": "6-15-1-what-mastery-looks-like-checklist",
+        "title": "6.15.1 What mastery looks like — checklist",
+        "level": 3
+      },
+      {
+        "id": "6-15-2-common-mistakes",
+        "title": "6.15.2 Common mistakes",
+        "level": 3
+      },
+      {
+        "id": "6-15-3-knowledge-checks-answers-below",
+        "title": "6.15.3 Knowledge checks (answers below)",
+        "level": 3
+      },
+      {
+        "id": "6-15-4-lab-exercises",
+        "title": "6.15.4 Lab exercises",
+        "level": 3
+      },
+      {
+        "id": "6-16-mastery-deep-dive-browser-surfaces-beyond-the-classics",
+        "title": "6.16 Mastery Deep Dive: Browser Surfaces Beyond the Classics",
+        "level": 2
+      },
+      {
+        "id": "6-16-1-websockets-at-the-frame-level",
+        "title": "6.16.1 WebSockets at the frame level",
+        "level": 3
+      },
+      {
+        "id": "6-16-2-service-worker-lifecycle-and-scope",
+        "title": "6.16.2 Service worker lifecycle and scope",
+        "level": 3
+      },
+      {
+        "id": "6-16-3-iframes-sandbox-and-isolation",
+        "title": "6.16.3 iframes, sandbox, and isolation",
+        "level": 3
+      },
+      {
+        "id": "6-16-4-xs-leaks-and-side-channels",
+        "title": "6.16.4 XS-Leaks and side channels",
+        "level": 3
+      },
+      {
+        "id": "6-16-5-css-injection-and-data-exfiltration",
+        "title": "6.16.5 CSS injection and data exfiltration",
+        "level": 3
+      },
+      {
+        "id": "6-17-mastery-deep-dive-building-a-client-side-research-methodology",
+        "title": "6.17 Mastery Deep Dive: Building a Client-Side Research Methodology",
+        "level": 2
+      },
+      {
+        "id": "6-17-1-mapping-the-application",
+        "title": "6.17.1 Mapping the application",
+        "level": 3
+      },
+      {
+        "id": "6-17-2-testing-ssr-and-hydration-state",
+        "title": "6.17.2 Testing SSR and hydration state",
+        "level": 3
+      },
+      {
+        "id": "6-17-3-fuzzing-client-sinks",
+        "title": "6.17.3 Fuzzing client sinks",
+        "level": 3
+      },
+      {
+        "id": "6-17-4-verification-discipline",
+        "title": "6.17.4 Verification discipline",
+        "level": 3
+      },
+      {
         "id": "6-9-key-takeaways",
         "title": "6.9 Key Takeaways",
         "level": 2
@@ -669,7 +1349,7 @@
     "difficulty": "Intermediate",
     "level": 3,
     "minutes": 80,
-    "words": 1230,
+    "words": 4293,
     "sections": [
       {
         "id": "7-1-backend-architecture",
@@ -732,6 +1412,186 @@
         "level": 2
       },
       {
+        "id": "7-12-mastery-deep-dive-the-full-request-lifecycle",
+        "title": "7.12 Mastery Deep Dive: The Full Request Lifecycle",
+        "level": 2
+      },
+      {
+        "id": "7-12-1-stages-and-the-decisions-they-make",
+        "title": "7.12.1 Stages and the decisions they make",
+        "level": 3
+      },
+      {
+        "id": "7-12-2-trust-boundaries-inside-one-process",
+        "title": "7.12.2 Trust boundaries inside one process",
+        "level": 3
+      },
+      {
+        "id": "7-12-3-statefulness-and-idempotency",
+        "title": "7.12.3 Statefulness and idempotency",
+        "level": 3
+      },
+      {
+        "id": "7-13-mastery-deep-dive-sql-and-nosql-query-mechanics",
+        "title": "7.13 Mastery Deep Dive: SQL and NoSQL Query Mechanics",
+        "level": 2
+      },
+      {
+        "id": "7-13-1-how-the-database-evaluates-your-input",
+        "title": "7.13.1 How the database evaluates your input",
+        "level": 3
+      },
+      {
+        "id": "7-13-2-injection-taxonomy-with-lab-safe-payload-patterns",
+        "title": "7.13.2 Injection taxonomy with lab-safe payload patterns",
+        "level": 3
+      },
+      {
+        "id": "7-13-3-nosql-operator-injection",
+        "title": "7.13.3 NoSQL operator injection",
+        "level": 3
+      },
+      {
+        "id": "7-13-4-orm-escape-hatches",
+        "title": "7.13.4 ORM escape hatches",
+        "level": 3
+      },
+      {
+        "id": "7-14-mastery-deep-dive-authentication-vs-authorization-architecture",
+        "title": "7.14 Mastery Deep Dive: Authentication vs. Authorization Architecture",
+        "level": 2
+      },
+      {
+        "id": "7-14-1-session-lifecycle-and-fixation",
+        "title": "7.14.1 Session lifecycle and fixation",
+        "level": 3
+      },
+      {
+        "id": "7-14-2-password-storage",
+        "title": "7.14.2 Password storage",
+        "level": 3
+      },
+      {
+        "id": "7-14-3-authorization-models-in-practice",
+        "title": "7.14.3 Authorization models in practice",
+        "level": 3
+      },
+      {
+        "id": "7-14-4-csrf-defenses-and-their-limits",
+        "title": "7.14.4 CSRF defenses and their limits",
+        "level": 3
+      },
+      {
+        "id": "7-14-5-rate-limiting-and-brute-force",
+        "title": "7.14.5 Rate limiting and brute force",
+        "level": 3
+      },
+      {
+        "id": "7-15-mastery-deep-dive-jwt-deep-dive",
+        "title": "7.15 Mastery Deep Dive: JWT Deep Dive",
+        "level": 2
+      },
+      {
+        "id": "7-15-1-structure-and-verification-checklist",
+        "title": "7.15.1 Structure and verification checklist",
+        "level": 3
+      },
+      {
+        "id": "7-15-2-algorithm-and-key-confusion-labs-only",
+        "title": "7.15.2 Algorithm and key confusion (labs only)",
+        "level": 3
+      },
+      {
+        "id": "7-15-3-detection-and-common-mistakes",
+        "title": "7.15.3 Detection and common mistakes",
+        "level": 3
+      },
+      {
+        "id": "7-16-mastery-deep-dive-oauth-2-0-and-oidc",
+        "title": "7.16 Mastery Deep Dive: OAuth 2.0 and OIDC",
+        "level": 2
+      },
+      {
+        "id": "7-16-1-flows-and-where-they-break",
+        "title": "7.16.1 Flows and where they break",
+        "level": 3
+      },
+      {
+        "id": "7-16-2-attack-patterns-and-defenses-labs-only",
+        "title": "7.16.2 Attack patterns and defenses (labs only)",
+        "level": 3
+      },
+      {
+        "id": "7-16-3-oidc-specifics",
+        "title": "7.16.3 OIDC specifics",
+        "level": 3
+      },
+      {
+        "id": "7-17-mastery-deep-dive-verification-and-practice",
+        "title": "7.17 Mastery Deep Dive: Verification and Practice",
+        "level": 2
+      },
+      {
+        "id": "7-17-1-what-mastery-looks-like-checklist",
+        "title": "7.17.1 What mastery looks like — checklist",
+        "level": 3
+      },
+      {
+        "id": "7-17-2-common-mistakes",
+        "title": "7.17.2 Common mistakes",
+        "level": 3
+      },
+      {
+        "id": "7-17-3-knowledge-checks-answers-below",
+        "title": "7.17.3 Knowledge checks (answers below)",
+        "level": 3
+      },
+      {
+        "id": "7-17-4-lab-exercises",
+        "title": "7.17.4 Lab exercises",
+        "level": 3
+      },
+      {
+        "id": "7-18-mastery-deep-dive-advanced-database-topics",
+        "title": "7.18 Mastery Deep Dive: Advanced Database Topics",
+        "level": 2
+      },
+      {
+        "id": "7-18-1-stored-procedures-and-second-order-injection",
+        "title": "7.18.1 Stored procedures and second-order injection",
+        "level": 3
+      },
+      {
+        "id": "7-18-2-database-privileges-and-isolation",
+        "title": "7.18.2 Database privileges and isolation",
+        "level": 3
+      },
+      {
+        "id": "7-18-3-out-of-band-and-advanced-extraction",
+        "title": "7.18.3 Out-of-band and advanced extraction",
+        "level": 3
+      },
+      {
+        "id": "7-19-mastery-deep-dive-session-and-token-architectures",
+        "title": "7.19 Mastery Deep Dive: Session and Token Architectures",
+        "level": 2
+      },
+      {
+        "id": "7-19-1-opaque-tokens-vs-jwts",
+        "title": "7.19.1 Opaque tokens vs. JWTs",
+        "level": 3
+      },
+      {
+        "id": "7-19-2-saml-and-federation-attacks-labs-only",
+        "title": "7.19.2 SAML and federation attacks (labs only)",
+        "level": 3
+      },
+      {
+        "id": "7-19-3-device-binding-and-step-up-authentication",
+        "title": "7.19.3 Device binding and step-up authentication",
+        "level": 3
+      },
+      {
         "id": "7-10-key-takeaways",
         "title": "7.10 Key Takeaways",
         "level": 2
@@ -769,7 +1629,7 @@
     "difficulty": "Intermediate",
     "level": 3,
     "minutes": 70,
-    "words": 1144,
+    "words": 4305,
     "sections": [
       {
         "id": "8-1-the-modern-web-stack",
@@ -817,6 +1677,211 @@
         "level": 2
       },
       {
+        "id": "8-12-mastery-deep-dive-http-semantics-in-depth",
+        "title": "8.12 Mastery Deep Dive: HTTP Semantics in Depth",
+        "level": 2
+      },
+      {
+        "id": "8-12-1-methods-and-their-security-consequences",
+        "title": "8.12.1 Methods and their security consequences",
+        "level": 3
+      },
+      {
+        "id": "8-12-2-status-codes-as-an-oracle",
+        "title": "8.12.2 Status codes as an oracle",
+        "level": 3
+      },
+      {
+        "id": "8-12-3-headers-of-security-interest",
+        "title": "8.12.3 Headers of security interest",
+        "level": 3
+      },
+      {
+        "id": "8-12-4-conditional-requests-and-etags",
+        "title": "8.12.4 Conditional requests and ETags",
+        "level": 3
+      },
+      {
+        "id": "8-12-5-caching-and-cache-keys",
+        "title": "8.12.5 Caching and cache keys",
+        "level": 3
+      },
+      {
+        "id": "8-13-mastery-deep-dive-proxies-cdns-and-load-balancers",
+        "title": "8.13 Mastery Deep Dive: Proxies, CDNs, and Load Balancers",
+        "level": 2
+      },
+      {
+        "id": "8-13-1-forwarded-headers-and-trust-chains",
+        "title": "8.13.1 Forwarded headers and trust chains",
+        "level": 3
+      },
+      {
+        "id": "8-13-2-host-routing-and-virtual-hosts",
+        "title": "8.13.2 Host routing and virtual hosts",
+        "level": 3
+      },
+      {
+        "id": "8-13-3-where-desync-is-born",
+        "title": "8.13.3 Where desync is born",
+        "level": 3
+      },
+      {
+        "id": "8-14-mastery-deep-dive-tls-and-transport-security",
+        "title": "8.14 Mastery Deep Dive: TLS and Transport Security",
+        "level": 2
+      },
+      {
+        "id": "8-14-1-the-tls-1-3-handshake",
+        "title": "8.14.1 The TLS 1.3 handshake",
+        "level": 3
+      },
+      {
+        "id": "8-14-2-certificate-validation",
+        "title": "8.14.2 Certificate validation",
+        "level": 3
+      },
+      {
+        "id": "8-14-3-hsts-and-downgrade-protection",
+        "title": "8.14.3 HSTS and downgrade protection",
+        "level": 3
+      },
+      {
+        "id": "8-14-4-tls-termination-implications",
+        "title": "8.14.4 TLS termination implications",
+        "level": 3
+      },
+      {
+        "id": "8-15-mastery-deep-dive-cookies-cors-and-csp-deep-dive",
+        "title": "8.15 Mastery Deep Dive: Cookies, CORS, and CSP Deep Dive",
+        "level": 2
+      },
+      {
+        "id": "8-15-1-cookie-parsing-quirks",
+        "title": "8.15.1 Cookie parsing quirks",
+        "level": 3
+      },
+      {
+        "id": "8-15-2-cors-the-full-decision-tree",
+        "title": "8.15.2 CORS: the full decision tree",
+        "level": 3
+      },
+      {
+        "id": "8-15-3-csp-directive-reference",
+        "title": "8.15.3 CSP directive reference",
+        "level": 3
+      },
+      {
+        "id": "8-16-mastery-deep-dive-http-2-and-http-3",
+        "title": "8.16 Mastery Deep Dive: HTTP/2 and HTTP/3",
+        "level": 2
+      },
+      {
+        "id": "8-16-1-what-changes-on-the-wire",
+        "title": "8.16.1 What changes on the wire",
+        "level": 3
+      },
+      {
+        "id": "8-16-2-security-implications",
+        "title": "8.16.2 Security implications",
+        "level": 3
+      },
+      {
+        "id": "8-16-3-practical-notes",
+        "title": "8.16.3 Practical notes",
+        "level": 3
+      },
+      {
+        "id": "8-17-mastery-deep-dive-header-parsing-inconsistencies",
+        "title": "8.17 Mastery Deep Dive: Header Parsing Inconsistencies",
+        "level": 2
+      },
+      {
+        "id": "8-18-mastery-deep-dive-verification-and-practice",
+        "title": "8.18 Mastery Deep Dive: Verification and Practice",
+        "level": 2
+      },
+      {
+        "id": "8-18-1-what-mastery-looks-like-checklist",
+        "title": "8.18.1 What mastery looks like — checklist",
+        "level": 3
+      },
+      {
+        "id": "8-18-2-common-mistakes",
+        "title": "8.18.2 Common mistakes",
+        "level": 3
+      },
+      {
+        "id": "8-18-3-knowledge-checks-answers-below",
+        "title": "8.18.3 Knowledge checks (answers below)",
+        "level": 3
+      },
+      {
+        "id": "8-18-4-lab-exercises",
+        "title": "8.18.4 Lab exercises",
+        "level": 3
+      },
+      {
+        "id": "8-19-mastery-deep-dive-caching-architectures-in-practice",
+        "title": "8.19 Mastery Deep Dive: Caching Architectures in Practice",
+        "level": 2
+      },
+      {
+        "id": "8-19-1-the-layers-of-caching",
+        "title": "8.19.1 The layers of caching",
+        "level": 3
+      },
+      {
+        "id": "8-19-2-determining-the-cache-key-experimentally",
+        "title": "8.19.2 Determining the cache key experimentally",
+        "level": 3
+      },
+      {
+        "id": "8-19-3-cache-deception-in-depth",
+        "title": "8.19.3 Cache deception in depth",
+        "level": 3
+      },
+      {
+        "id": "8-20-mastery-deep-dive-authentication-at-the-edge-and-header-trust",
+        "title": "8.20 Mastery Deep Dive: Authentication at the Edge and Header Trust",
+        "level": 2
+      },
+      {
+        "id": "8-20-1-the-proxy-protocol-and-ip-trust",
+        "title": "8.20.1 The PROXY protocol and IP trust",
+        "level": 3
+      },
+      {
+        "id": "8-20-2-origin-validation-at-the-edge",
+        "title": "8.20.2 Origin validation at the edge",
+        "level": 3
+      },
+      {
+        "id": "8-20-3-header-normalization-and-smuggling-boundaries",
+        "title": "8.20.3 Header normalization and smuggling boundaries",
+        "level": 3
+      },
+      {
+        "id": "8-21-mastery-deep-dive-practical-http-recon-and-verification",
+        "title": "8.21 Mastery Deep Dive: Practical HTTP Recon and Verification",
+        "level": 2
+      },
+      {
+        "id": "8-21-1-reading-responses-like-a-protocol-analyst",
+        "title": "8.21.1 Reading responses like a protocol analyst",
+        "level": 3
+      },
+      {
+        "id": "8-21-2-conditional-and-range-oracles",
+        "title": "8.21.2 Conditional and range oracles",
+        "level": 3
+      },
+      {
+        "id": "8-21-3-verification-checklist-for-transport-and-headers",
+        "title": "8.21.3 Verification checklist for transport and headers",
+        "level": 3
+      },
+      {
         "id": "8-10-key-takeaways",
         "title": "8.10 Key Takeaways",
         "level": 2
@@ -855,7 +1920,7 @@
     "difficulty": "Intermediate",
     "level": 4,
     "minutes": 130,
-    "words": 4493,
+    "words": 9505,
     "sections": [
       {
         "id": "9-1-the-owasp-top-10-2025",
@@ -958,6 +2023,271 @@
         "level": 2
       },
       {
+        "id": "9-23-mastery-deep-dive-a01-broken-access-control",
+        "title": "9.23 Mastery Deep Dive: A01 Broken Access Control",
+        "level": 2
+      },
+      {
+        "id": "9-23-1-root-cause-and-exact-mechanism",
+        "title": "9.23.1 Root cause and exact mechanism",
+        "level": 3
+      },
+      {
+        "id": "9-23-2-lab-safe-exploitation-methodology",
+        "title": "9.23.2 Lab-safe exploitation methodology",
+        "level": 3
+      },
+      {
+        "id": "9-23-3-detection-strategies",
+        "title": "9.23.3 Detection strategies",
+        "level": 3
+      },
+      {
+        "id": "9-23-4-defense-in-depth-and-verification",
+        "title": "9.23.4 Defense in depth and verification",
+        "level": 3
+      },
+      {
+        "id": "9-24-mastery-deep-dive-a05-injection",
+        "title": "9.24 Mastery Deep Dive: A05 Injection",
+        "level": 2
+      },
+      {
+        "id": "9-24-1-sql-injection-full-mechanics",
+        "title": "9.24.1 SQL injection — full mechanics",
+        "level": 3
+      },
+      {
+        "id": "9-24-2-nosql-command-and-xxe-injection",
+        "title": "9.24.2 NoSQL, command, and XXE injection",
+        "level": 3
+      },
+      {
+        "id": "9-24-3-defense-summary-and-verification",
+        "title": "9.24.3 Defense summary and verification",
+        "level": 3
+      },
+      {
+        "id": "9-25-mastery-deep-dive-a07-authentication-failures-and-a04-cryptographic-failures",
+        "title": "9.25 Mastery Deep Dive: A07 Authentication Failures and A04 Cryptographic Failures",
+        "level": 2
+      },
+      {
+        "id": "9-25-1-authentication-failures",
+        "title": "9.25.1 Authentication failures",
+        "level": 3
+      },
+      {
+        "id": "9-25-2-cryptographic-failures",
+        "title": "9.25.2 Cryptographic failures",
+        "level": 3
+      },
+      {
+        "id": "9-26-mastery-deep-dive-a02-misconfiguration-a03-supply-chain-a08-integrity",
+        "title": "9.26 Mastery Deep Dive: A02 Misconfiguration, A03 Supply Chain, A08 Integrity",
+        "level": 2
+      },
+      {
+        "id": "9-26-1-a02-security-misconfiguration",
+        "title": "9.26.1 A02 Security misconfiguration",
+        "level": 3
+      },
+      {
+        "id": "9-26-2-a03-software-supply-chain-failures",
+        "title": "9.26.2 A03 Software supply chain failures",
+        "level": 3
+      },
+      {
+        "id": "9-26-3-a08-software-and-data-integrity-failures",
+        "title": "9.26.3 A08 Software and data integrity failures",
+        "level": 3
+      },
+      {
+        "id": "9-27-mastery-deep-dive-a06-insecure-design-a09-logging-a10-exceptional-conditions",
+        "title": "9.27 Mastery Deep Dive: A06 Insecure Design, A09 Logging, A10 Exceptional Conditions",
+        "level": 2
+      },
+      {
+        "id": "9-27-1-a06-insecure-design",
+        "title": "9.27.1 A06 Insecure design",
+        "level": 3
+      },
+      {
+        "id": "9-27-2-a09-security-logging-and-alerting-failures",
+        "title": "9.27.2 A09 Security logging and alerting failures",
+        "level": 3
+      },
+      {
+        "id": "9-27-3-a10-mishandling-of-exceptional-conditions",
+        "title": "9.27.3 A10 Mishandling of exceptional conditions",
+        "level": 3
+      },
+      {
+        "id": "9-28-mastery-deep-dive-xss-csrf-ssrf-smuggling-and-cache-poisoning",
+        "title": "9.28 Mastery Deep Dive: XSS, CSRF, SSRF, Smuggling, and Cache Poisoning",
+        "level": 2
+      },
+      {
+        "id": "9-28-1-xss-contexts-and-verification",
+        "title": "9.28.1 XSS — contexts and verification",
+        "level": 3
+      },
+      {
+        "id": "9-28-2-csrf-mechanics-and-verification",
+        "title": "9.28.2 CSRF — mechanics and verification",
+        "level": 3
+      },
+      {
+        "id": "9-28-3-ssrf-mechanics-and-verification",
+        "title": "9.28.3 SSRF — mechanics and verification",
+        "level": 3
+      },
+      {
+        "id": "9-28-4-request-smuggling-and-cache-poisoning",
+        "title": "9.28.4 Request smuggling and cache poisoning",
+        "level": 3
+      },
+      {
+        "id": "9-29-mastery-deep-dive-detection-verification-and-false-positive-discipline",
+        "title": "9.29 Mastery Deep Dive: Detection, Verification, and False-Positive Discipline",
+        "level": 2
+      },
+      {
+        "id": "9-30-mastery-deep-dive-practice",
+        "title": "9.30 Mastery Deep Dive: Practice",
+        "level": 2
+      },
+      {
+        "id": "9-30-1-what-mastery-looks-like-checklist",
+        "title": "9.30.1 What mastery looks like — checklist",
+        "level": 3
+      },
+      {
+        "id": "9-30-2-common-mistakes",
+        "title": "9.30.2 Common mistakes",
+        "level": 3
+      },
+      {
+        "id": "9-30-3-knowledge-checks-answers-below",
+        "title": "9.30.3 Knowledge checks (answers below)",
+        "level": 3
+      },
+      {
+        "id": "9-30-4-lab-exercises",
+        "title": "9.30.4 Lab exercises",
+        "level": 3
+      },
+      {
+        "id": "9-31-mastery-deep-dive-a01-deep-idor-variants-and-multi-tenant-bola",
+        "title": "9.31 Mastery Deep Dive: A01 Deep — IDOR Variants and Multi-Tenant BOLA",
+        "level": 2
+      },
+      {
+        "id": "9-31-1-beyond-numeric-ids",
+        "title": "9.31.1 Beyond numeric IDs",
+        "level": 3
+      },
+      {
+        "id": "9-31-2-graphql-and-bulk-bola",
+        "title": "9.31.2 GraphQL and bulk BOLA",
+        "level": 3
+      },
+      {
+        "id": "9-31-3-multi-tenant-isolation-failures",
+        "title": "9.31.3 Multi-tenant isolation failures",
+        "level": 3
+      },
+      {
+        "id": "9-32-mastery-deep-dive-a05-deep-advanced-injection",
+        "title": "9.32 Mastery Deep Dive: A05 Deep — Advanced Injection",
+        "level": 2
+      },
+      {
+        "id": "9-32-1-second-order-and-stacked-injection",
+        "title": "9.32.1 Second-order and stacked injection",
+        "level": 3
+      },
+      {
+        "id": "9-32-2-other-injection-families",
+        "title": "9.32.2 Other injection families",
+        "level": 3
+      },
+      {
+        "id": "9-32-3-detection-and-verification-rigor",
+        "title": "9.32.3 Detection and verification rigor",
+        "level": 3
+      },
+      {
+        "id": "9-33-mastery-deep-dive-a02-a04-a08-deep-configuration-and-crypto-failures",
+        "title": "9.33 Mastery Deep Dive: A02/A04/A08 Deep — Configuration and Crypto Failures",
+        "level": 2
+      },
+      {
+        "id": "9-33-1-a-systematic-misconfiguration-inventory",
+        "title": "9.33.1 A systematic misconfiguration inventory",
+        "level": 3
+      },
+      {
+        "id": "9-33-2-cryptographic-implementation-failures",
+        "title": "9.33.2 Cryptographic implementation failures",
+        "level": 3
+      },
+      {
+        "id": "9-33-3-integrity-failures-in-pipelines",
+        "title": "9.33.3 Integrity failures in pipelines",
+        "level": 3
+      },
+      {
+        "id": "9-34-mastery-deep-dive-a06-a09-a10-deep-logic-abuse-and-detection-engineering",
+        "title": "9.34 Mastery Deep Dive: A06/A09/A10 Deep — Logic Abuse and Detection Engineering",
+        "level": 2
+      },
+      {
+        "id": "9-34-1-business-logic-abuse-patterns",
+        "title": "9.34.1 Business logic abuse patterns",
+        "level": 3
+      },
+      {
+        "id": "9-34-2-detection-engineering",
+        "title": "9.34.2 Detection engineering",
+        "level": 3
+      },
+      {
+        "id": "9-34-3-exceptional-conditions-and-fail-open-design",
+        "title": "9.34.3 Exceptional conditions and fail-open design",
+        "level": 3
+      },
+      {
+        "id": "9-35-mastery-deep-dive-file-upload-path-traversal-xxe-and-redirects",
+        "title": "9.35 Mastery Deep Dive: File Upload, Path Traversal, XXE, and Redirects",
+        "level": 2
+      },
+      {
+        "id": "9-35-1-file-upload-to-rce-full-chain-in-a-lab",
+        "title": "9.35.1 File upload to RCE — full chain in a lab",
+        "level": 3
+      },
+      {
+        "id": "9-35-2-path-traversal-and-lfi-rfi",
+        "title": "9.35.2 Path traversal and LFI/RFI",
+        "level": 3
+      },
+      {
+        "id": "9-35-3-xxe-beyond-the-basics",
+        "title": "9.35.3 XXE beyond the basics",
+        "level": 3
+      },
+      {
+        "id": "9-35-4-open-redirects-and-chaining",
+        "title": "9.35.4 Open redirects and chaining",
+        "level": 3
+      },
+      {
+        "id": "9-36-mastery-deep-dive-subdomain-takeover-and-asset-recon",
+        "title": "9.36 Mastery Deep Dive: Subdomain Takeover and Asset Recon",
+        "level": 2
+      },
+      {
         "id": "9-21-key-takeaways",
         "title": "9.21 Key Takeaways",
         "level": 2
@@ -995,7 +2325,7 @@
     "difficulty": "Advanced",
     "level": 6,
     "minutes": 120,
-    "words": 1376,
+    "words": 6412,
     "sections": [
       {
         "id": "10-1-thinking-in-chains",
@@ -1063,6 +2393,286 @@
         "level": 2
       },
       {
+        "id": "10-16-mastery-deep-dive-request-smuggling-mechanics",
+        "title": "10.16 Mastery Deep Dive: Request Smuggling Mechanics",
+        "level": 2
+      },
+      {
+        "id": "10-16-1-why-desync-happens",
+        "title": "10.16.1 Why desync happens",
+        "level": 3
+      },
+      {
+        "id": "10-16-2-cl-te-desync",
+        "title": "10.16.2 CL.TE desync",
+        "level": 3
+      },
+      {
+        "id": "10-16-3-te-cl-desync",
+        "title": "10.16.3 TE.CL desync",
+        "level": 3
+      },
+      {
+        "id": "10-16-4-te-te-desync",
+        "title": "10.16.4 TE.TE desync",
+        "level": 3
+      },
+      {
+        "id": "10-16-5-cl-0-http-2-downgrade-and-detection",
+        "title": "10.16.5 CL.0, HTTP/2 downgrade, and detection",
+        "level": 3
+      },
+      {
+        "id": "10-17-mastery-deep-dive-cache-poisoning-and-host-header-abuse",
+        "title": "10.17 Mastery Deep Dive: Cache Poisoning and Host Header Abuse",
+        "level": 2
+      },
+      {
+        "id": "10-17-1-cache-key-mechanics",
+        "title": "10.17.1 Cache key mechanics",
+        "level": 3
+      },
+      {
+        "id": "10-17-2-poisoning-patterns-labs-only",
+        "title": "10.17.2 Poisoning patterns (labs only)",
+        "level": 3
+      },
+      {
+        "id": "10-17-3-host-header-abuse",
+        "title": "10.17.3 Host header abuse",
+        "level": 3
+      },
+      {
+        "id": "10-18-mastery-deep-dive-cors-misconfigurations",
+        "title": "10.18 Mastery Deep Dive: CORS Misconfigurations",
+        "level": 2
+      },
+      {
+        "id": "10-18-1-the-dangerous-patterns",
+        "title": "10.18.1 The dangerous patterns",
+        "level": 3
+      },
+      {
+        "id": "10-18-2-lab-safe-exploitation-pattern",
+        "title": "10.18.2 Lab-safe exploitation pattern",
+        "level": 3
+      },
+      {
+        "id": "10-19-mastery-deep-dive-prototype-pollution-client-and-server",
+        "title": "10.19 Mastery Deep Dive: Prototype Pollution — Client and Server",
+        "level": 2
+      },
+      {
+        "id": "10-19-1-the-mechanism-precisely",
+        "title": "10.19.1 The mechanism, precisely",
+        "level": 3
+      },
+      {
+        "id": "10-19-2-sources-gadgets-and-sinks",
+        "title": "10.19.2 Sources, gadgets, and sinks",
+        "level": 3
+      },
+      {
+        "id": "10-19-3-defense-and-verification",
+        "title": "10.19.3 Defense and verification",
+        "level": 3
+      },
+      {
+        "id": "10-20-mastery-deep-dive-ssti-by-template-engine",
+        "title": "10.20 Mastery Deep Dive: SSTI by Template Engine",
+        "level": 2
+      },
+      {
+        "id": "10-20-1-root-cause-and-detection",
+        "title": "10.20.1 Root cause and detection",
+        "level": 3
+      },
+      {
+        "id": "10-20-2-engine-specific-patterns-lab-only",
+        "title": "10.20.2 Engine-specific patterns (lab only)",
+        "level": 3
+      },
+      {
+        "id": "10-20-3-defense-and-verification",
+        "title": "10.20.3 Defense and verification",
+        "level": 3
+      },
+      {
+        "id": "10-21-mastery-deep-dive-deserialization-gadgets",
+        "title": "10.21 Mastery Deep Dive: Deserialization Gadgets",
+        "level": 2
+      },
+      {
+        "id": "10-21-1-how-gadget-chains-work",
+        "title": "10.21.1 How gadget chains work",
+        "level": 3
+      },
+      {
+        "id": "10-21-2-defense-and-verification",
+        "title": "10.21.2 Defense and verification",
+        "level": 3
+      },
+      {
+        "id": "10-22-mastery-deep-dive-race-conditions-and-limit-overrun",
+        "title": "10.22 Mastery Deep Dive: Race Conditions and Limit Overrun",
+        "level": 2
+      },
+      {
+        "id": "10-22-1-the-check-use-gap",
+        "title": "10.22.1 The check-use gap",
+        "level": 3
+      },
+      {
+        "id": "10-22-2-defense-and-verification",
+        "title": "10.22.2 Defense and verification",
+        "level": 3
+      },
+      {
+        "id": "10-23-mastery-deep-dive-http-parameter-pollution-mass-assignment-and-bypass-patterns",
+        "title": "10.23 Mastery Deep Dive: HTTP Parameter Pollution, Mass Assignment, and Bypass Patterns",
+        "level": 2
+      },
+      {
+        "id": "10-23-1-http-parameter-pollution-hpp",
+        "title": "10.23.1 HTTP parameter pollution (HPP)",
+        "level": 3
+      },
+      {
+        "id": "10-23-2-mass-assignment-auto-binding",
+        "title": "10.23.2 Mass assignment / auto-binding",
+        "level": 3
+      },
+      {
+        "id": "10-23-3-bypass-patterns-cookbook",
+        "title": "10.23.3 Bypass patterns cookbook",
+        "level": 3
+      },
+      {
+        "id": "10-24-mastery-deep-dive-defense-verification-and-practice",
+        "title": "10.24 Mastery Deep Dive: Defense, Verification, and Practice",
+        "level": 2
+      },
+      {
+        "id": "10-24-1-defense-in-depth-summary",
+        "title": "10.24.1 Defense-in-depth summary",
+        "level": 3
+      },
+      {
+        "id": "10-24-2-what-mastery-looks-like-checklist",
+        "title": "10.24.2 What mastery looks like — checklist",
+        "level": 3
+      },
+      {
+        "id": "10-24-3-common-mistakes",
+        "title": "10.24.3 Common mistakes",
+        "level": 3
+      },
+      {
+        "id": "10-24-4-knowledge-checks-answers-below",
+        "title": "10.24.4 Knowledge checks (answers below)",
+        "level": 3
+      },
+      {
+        "id": "10-24-5-lab-exercises",
+        "title": "10.24.5 Lab exercises",
+        "level": 3
+      },
+      {
+        "id": "10-25-mastery-deep-dive-advanced-smuggling-variants",
+        "title": "10.25 Mastery Deep Dive: Advanced Smuggling Variants",
+        "level": 2
+      },
+      {
+        "id": "10-25-1-response-queue-poisoning",
+        "title": "10.25.1 Response queue poisoning",
+        "level": 3
+      },
+      {
+        "id": "10-25-2-http-2-downgrade-smuggling-in-detail",
+        "title": "10.25.2 HTTP/2 downgrade smuggling in detail",
+        "level": 3
+      },
+      {
+        "id": "10-25-3-cl-0-and-connection-state-attacks",
+        "title": "10.25.3 CL.0 and connection-state attacks",
+        "level": 3
+      },
+      {
+        "id": "10-26-mastery-deep-dive-advanced-cache-poisoning",
+        "title": "10.26 Mastery Deep Dive: Advanced Cache Poisoning",
+        "level": 2
+      },
+      {
+        "id": "10-26-1-finding-unkeyed-inputs",
+        "title": "10.26.1 Finding unkeyed inputs",
+        "level": 3
+      },
+      {
+        "id": "10-26-2-poisoning-impact-classes",
+        "title": "10.26.2 Poisoning impact classes",
+        "level": 3
+      },
+      {
+        "id": "10-27-mastery-deep-dive-advanced-deserialization-and-ssti-escalation",
+        "title": "10.27 Mastery Deep Dive: Advanced Deserialization and SSTI Escalation",
+        "level": 2
+      },
+      {
+        "id": "10-27-1-gadget-chains-in-practice",
+        "title": "10.27.1 Gadget chains in practice",
+        "level": 3
+      },
+      {
+        "id": "10-27-2-ssti-sandbox-escapes-by-engine",
+        "title": "10.27.2 SSTI sandbox escapes by engine",
+        "level": 3
+      },
+      {
+        "id": "10-28-mastery-deep-dive-chaining-and-parser-differential-bypasses",
+        "title": "10.28 Mastery Deep Dive: Chaining and Parser-Differential Bypasses",
+        "level": 2
+      },
+      {
+        "id": "10-28-1-designing-chains",
+        "title": "10.28.1 Designing chains",
+        "level": 3
+      },
+      {
+        "id": "10-28-2-parser-differential-fuzzing",
+        "title": "10.28.2 Parser-differential fuzzing",
+        "level": 3
+      },
+      {
+        "id": "10-28-3-verification-and-regression",
+        "title": "10.28.3 Verification and regression",
+        "level": 3
+      },
+      {
+        "id": "10-29-mastery-deep-dive-advanced-ssrf-websockets-graphql-and-tenancy",
+        "title": "10.29 Mastery Deep Dive: Advanced SSRF, WebSockets, GraphQL, and Tenancy",
+        "level": 2
+      },
+      {
+        "id": "10-29-1-ssrf-bypass-mechanics-in-depth",
+        "title": "10.29.1 SSRF bypass mechanics in depth",
+        "level": 3
+      },
+      {
+        "id": "10-29-2-cross-site-websocket-hijacking-cswsh",
+        "title": "10.29.2 Cross-site WebSocket hijacking (CSWSH)",
+        "level": 3
+      },
+      {
+        "id": "10-29-3-graphql-abuse-and-multi-tenant-failures",
+        "title": "10.29.3 GraphQL abuse and multi-tenant failures",
+        "level": 3
+      },
+      {
+        "id": "10-30-mastery-deep-dive-reporting-and-regression-for-complex-chains",
+        "title": "10.30 Mastery Deep Dive: Reporting and Regression for Complex Chains",
+        "level": 2
+      },
+      {
         "id": "10-14-key-takeaways",
         "title": "10.14 Key Takeaways",
         "level": 2
@@ -1097,7 +2707,7 @@
     "difficulty": "Beginner",
     "level": 4,
     "minutes": 55,
-    "words": 762,
+    "words": 5170,
     "sections": [
       {
         "id": "11-1-what-bug-bounty-programs-are",
@@ -1135,6 +2745,126 @@
         "level": 2
       },
       {
+        "id": "11-10-mastery-deep-dive-the-economics-of-bug-bounty",
+        "title": "11.10 Mastery Deep Dive: The Economics of Bug Bounty",
+        "level": 2
+      },
+      {
+        "id": "11-10-1-the-principal-agent-problem-behind-every-program",
+        "title": "11.10.1 The Principal-Agent Problem Behind Every Program",
+        "level": 3
+      },
+      {
+        "id": "11-10-2-a-program-maturity-model",
+        "title": "11.10.2 A Program Maturity Model",
+        "level": 3
+      },
+      {
+        "id": "11-10-3-expected-value-of-a-testing-session",
+        "title": "11.10.3 Expected Value of a Testing Session",
+        "level": 3
+      },
+      {
+        "id": "11-10-4-decision-tree-where-to-invest-time",
+        "title": "11.10.4 Decision Tree: Where to Invest Time",
+        "level": 3
+      },
+      {
+        "id": "11-10-5-transaction-costs-and-opportunity-cost",
+        "title": "11.10.5 Transaction Costs and Opportunity Cost",
+        "level": 3
+      },
+      {
+        "id": "11-11-mastery-deep-dive-disclosure-models-and-the-legal-framework",
+        "title": "11.11 Mastery Deep Dive: Disclosure Models and the Legal Framework",
+        "level": 2
+      },
+      {
+        "id": "11-11-1-a-disclosure-model-comparison-table",
+        "title": "11.11.1 A Disclosure Model Comparison Table",
+        "level": 3
+      },
+      {
+        "id": "11-11-2-anatomy-of-a-safe-harbor-clause",
+        "title": "11.11.2 Anatomy of a Safe Harbor Clause",
+        "level": 3
+      },
+      {
+        "id": "11-11-3-legal-landscape-you-must-be-aware-of",
+        "title": "11.11.3 Legal Landscape You Must Be Aware Of",
+        "level": 3
+      },
+      {
+        "id": "11-11-4-ethics-beyond-the-letter-of-the-policy",
+        "title": "11.11.4 Ethics Beyond the Letter of the Policy",
+        "level": 3
+      },
+      {
+        "id": "11-12-mastery-deep-dive-building-a-sustainable-research-practice",
+        "title": "11.12 Mastery Deep Dive: Building a Sustainable Research Practice",
+        "level": 2
+      },
+      {
+        "id": "11-12-1-deliberate-practice-not-repetition",
+        "title": "11.12.1 Deliberate Practice, Not Repetition",
+        "level": 3
+      },
+      {
+        "id": "11-12-2-the-research-journal-as-an-instrument",
+        "title": "11.12.2 The Research Journal as an Instrument",
+        "level": 3
+      },
+      {
+        "id": "11-12-3-time-allocation-and-focus",
+        "title": "11.12.3 Time Allocation and Focus",
+        "level": 3
+      },
+      {
+        "id": "11-12-4-rejection-burnout-and-the-psychological-game",
+        "title": "11.12.4 Rejection, Burnout, and the Psychological Game",
+        "level": 3
+      },
+      {
+        "id": "11-12-5-common-career-traps",
+        "title": "11.12.5 Common Career Traps",
+        "level": 3
+      },
+      {
+        "id": "11-12-6-a-90-day-development-plan",
+        "title": "11.12.6 A 90-Day Development Plan",
+        "level": 3
+      },
+      {
+        "id": "11-13-mastery-deep-dive-measuring-real-skill",
+        "title": "11.13 Mastery Deep Dive: Measuring Real Skill",
+        "level": 2
+      },
+      {
+        "id": "11-13-1-signal-metrics-vs-vanity-metrics",
+        "title": "11.13.1 Signal Metrics vs. Vanity Metrics",
+        "level": 3
+      },
+      {
+        "id": "11-13-2-a-competence-rubric-across-the-pipeline",
+        "title": "11.13.2 A Competence Rubric Across the Pipeline",
+        "level": 3
+      },
+      {
+        "id": "11-13-3-calibration-duplicates-informatives-and-retests",
+        "title": "11.13.3 Calibration: Duplicates, Informatives, and Retests",
+        "level": 3
+      },
+      {
+        "id": "11-13-4-knowledge-check",
+        "title": "11.13.4 Knowledge Check",
+        "level": 3
+      },
+      {
+        "id": "11-13-5-what-mastery-looks-like-a-final-checklist",
+        "title": "11.13.5 What Mastery Looks Like: A Final Checklist",
+        "level": 3
+      },
+      {
         "id": "11-8-key-takeaways",
         "title": "11.8 Key Takeaways",
         "level": 2
@@ -1168,7 +2898,7 @@
     "difficulty": "Beginner",
     "level": 4,
     "minutes": 45,
-    "words": 794,
+    "words": 4821,
     "sections": [
       {
         "id": "12-1-common-workflow-across-platforms",
@@ -1221,6 +2951,136 @@
         "level": 2
       },
       {
+        "id": "12-13-mastery-deep-dive-platform-mechanics-and-the-triage-pipeline",
+        "title": "12.13 Mastery Deep Dive: Platform Mechanics and the Triage Pipeline",
+        "level": 2
+      },
+      {
+        "id": "12-13-1-what-a-platform-actually-does",
+        "title": "12.13.1 What a Platform Actually Does",
+        "level": 3
+      },
+      {
+        "id": "12-13-2-onboarding-as-a-professional-step",
+        "title": "12.13.2 Onboarding as a Professional Step",
+        "level": 3
+      },
+      {
+        "id": "12-13-3-the-triage-pipeline-stage-by-stage",
+        "title": "12.13.3 The Triage Pipeline Stage by Stage",
+        "level": 3
+      },
+      {
+        "id": "12-13-4-aligning-with-triage-incentives",
+        "title": "12.13.4 Aligning With Triage Incentives",
+        "level": 3
+      },
+      {
+        "id": "12-13-5-state-decision-tree-for-researchers",
+        "title": "12.13.5 State Decision Tree for Researchers",
+        "level": 3
+      },
+      {
+        "id": "12-14-mastery-deep-dive-duplicates-rewards-and-reputation",
+        "title": "12.14 Mastery Deep Dive: Duplicates, Rewards, and Reputation",
+        "level": 2
+      },
+      {
+        "id": "12-14-1-duplicate-rules-in-depth",
+        "title": "12.14.1 Duplicate Rules in Depth",
+        "level": 3
+      },
+      {
+        "id": "12-14-2-reward-calculation-and-factors",
+        "title": "12.14.2 Reward Calculation and Factors",
+        "level": 3
+      },
+      {
+        "id": "12-14-3-reputation-and-private-invitations",
+        "title": "12.14.3 Reputation and Private Invitations",
+        "level": 3
+      },
+      {
+        "id": "12-14-4-vdps-vs-bounty-programs",
+        "title": "12.14.4 VDPs vs. Bounty Programs",
+        "level": 3
+      },
+      {
+        "id": "12-14-5-writing-program-notes",
+        "title": "12.14.5 Writing Program Notes",
+        "level": 3
+      },
+      {
+        "id": "12-15-mastery-deep-dive-platform-specific-ecologies",
+        "title": "12.15 Mastery Deep Dive: Platform-Specific Ecologies",
+        "level": 2
+      },
+      {
+        "id": "12-15-1-hackerone-mechanics",
+        "title": "12.15.1 HackerOne Mechanics",
+        "level": 3
+      },
+      {
+        "id": "12-15-2-bugcrowd-mechanics",
+        "title": "12.15.2 Bugcrowd Mechanics",
+        "level": 3
+      },
+      {
+        "id": "12-15-3-intigriti-and-yeswehack-mechanics",
+        "title": "12.15.3 Intigriti and YesWeHack Mechanics",
+        "level": 3
+      },
+      {
+        "id": "12-15-4-immunefi-and-web3-programs",
+        "title": "12.15.4 Immunefi and Web3 Programs",
+        "level": 3
+      },
+      {
+        "id": "12-15-5-vetted-networks-and-application-based-programs",
+        "title": "12.15.5 Vetted Networks and Application-Based Programs",
+        "level": 3
+      },
+      {
+        "id": "12-15-6-platform-comparison-at-a-glance",
+        "title": "12.15.6 Platform Comparison at a Glance",
+        "level": 3
+      },
+      {
+        "id": "12-16-mastery-deep-dive-choosing-where-to-invest",
+        "title": "12.16 Mastery Deep Dive: Choosing Where to Invest",
+        "level": 2
+      },
+      {
+        "id": "12-16-1-a-weighted-program-scoring-worksheet",
+        "title": "12.16.1 A Weighted Program Scoring Worksheet",
+        "level": 3
+      },
+      {
+        "id": "12-16-2-saturation-and-timing",
+        "title": "12.16.2 Saturation and Timing",
+        "level": 3
+      },
+      {
+        "id": "12-16-3-maintaining-a-program-database",
+        "title": "12.16.3 Maintaining a Program Database",
+        "level": 3
+      },
+      {
+        "id": "12-16-4-common-platform-mistakes",
+        "title": "12.16.4 Common Platform Mistakes",
+        "level": 3
+      },
+      {
+        "id": "12-16-5-what-mastery-looks-like",
+        "title": "12.16.5 What Mastery Looks Like",
+        "level": 3
+      },
+      {
+        "id": "12-16-6-knowledge-check",
+        "title": "12.16.6 Knowledge Check",
+        "level": 3
+      },
+      {
         "id": "12-11-key-takeaways",
         "title": "12.11 Key Takeaways",
         "level": 2
@@ -1255,7 +3115,7 @@
     "difficulty": "Intermediate",
     "level": 4,
     "minutes": 50,
-    "words": 1178,
+    "words": 4697,
     "sections": [
       {
         "id": "13-1-the-authorization-rule",
@@ -1328,6 +3188,126 @@
         "level": 2
       },
       {
+        "id": "13-14-mastery-deep-dive-policy-anatomy-and-scope-resolution",
+        "title": "13.14 Mastery Deep Dive: Policy Anatomy and Scope Resolution",
+        "level": 2
+      },
+      {
+        "id": "13-14-1-reading-a-policy-as-a-structured-document",
+        "title": "13.14.1 Reading a Policy as a Structured Document",
+        "level": 3
+      },
+      {
+        "id": "13-14-2-clause-by-clause-annotation-fictional-teaching-example",
+        "title": "13.14.2 Clause-by-Clause Annotation (Fictional Teaching Example)",
+        "level": 3
+      },
+      {
+        "id": "13-14-3-wildcard-scope-interpretation",
+        "title": "13.14.3 Wildcard Scope Interpretation",
+        "level": 3
+      },
+      {
+        "id": "13-14-4-a-taxonomy-of-out-of-scope-exclusions",
+        "title": "13.14.4 A Taxonomy of Out-of-Scope Exclusions",
+        "level": 3
+      },
+      {
+        "id": "13-14-5-the-ownership-verification-procedure",
+        "title": "13.14.5 The Ownership Verification Procedure",
+        "level": 3
+      },
+      {
+        "id": "13-15-mastery-deep-dive-restrictions-safe-harbor-and-disclosure",
+        "title": "13.15 Mastery Deep Dive: Restrictions, Safe Harbor, and Disclosure",
+        "level": 2
+      },
+      {
+        "id": "13-15-1-testing-restrictions-decoded-into-operational-rules",
+        "title": "13.15.1 Testing Restrictions Decoded Into Operational Rules",
+        "level": 3
+      },
+      {
+        "id": "13-15-2-a-data-handling-standard",
+        "title": "13.15.2 A Data-Handling Standard",
+        "level": 3
+      },
+      {
+        "id": "13-15-3-safe-harbor-and-legal-language",
+        "title": "13.15.3 Safe Harbor and Legal Language",
+        "level": 3
+      },
+      {
+        "id": "13-15-4-disclosure-and-embargo-rules",
+        "title": "13.15.4 Disclosure and Embargo Rules",
+        "level": 3
+      },
+      {
+        "id": "13-15-5-red-flags-in-a-program",
+        "title": "13.15.5 Red Flags in a Program",
+        "level": 3
+      },
+      {
+        "id": "13-16-mastery-deep-dive-scope-maps-questions-and-boundary-discipline",
+        "title": "13.16 Mastery Deep Dive: Scope Maps, Questions, and Boundary Discipline",
+        "level": 2
+      },
+      {
+        "id": "13-16-1-building-a-written-scope-map",
+        "title": "13.16.1 Building a Written Scope Map",
+        "level": 3
+      },
+      {
+        "id": "authorized",
+        "title": "Authorized",
+        "level": 2
+      },
+      {
+        "id": "not-authorized",
+        "title": "Not Authorized",
+        "level": 2
+      },
+      {
+        "id": "ambiguities-and-their-resolution",
+        "title": "Ambiguities and Their Resolution",
+        "level": 2
+      },
+      {
+        "id": "operational-constraints",
+        "title": "Operational Constraints",
+        "level": 2
+      },
+      {
+        "id": "decision-summary",
+        "title": "Decision Summary",
+        "level": 2
+      },
+      {
+        "id": "13-16-2-how-to-ask-scope-questions",
+        "title": "13.16.2 How to Ask Scope Questions",
+        "level": 3
+      },
+      {
+        "id": "13-16-3-ambiguous-asset-decision-tree",
+        "title": "13.16.3 Ambiguous-Asset Decision Tree",
+        "level": 3
+      },
+      {
+        "id": "13-16-4-common-boundary-mistakes-annotated",
+        "title": "13.16.4 Common Boundary Mistakes (Annotated)",
+        "level": 3
+      },
+      {
+        "id": "13-16-5-what-mastery-looks-like",
+        "title": "13.16.5 What Mastery Looks Like",
+        "level": 3
+      },
+      {
+        "id": "13-16-6-knowledge-check",
+        "title": "13.16.6 Knowledge Check",
+        "level": 3
+      },
+      {
         "id": "13-12-key-takeaways",
         "title": "13.12 Key Takeaways",
         "level": 2
@@ -1362,7 +3342,7 @@
     "difficulty": "Intermediate",
     "level": 5,
     "minutes": 110,
-    "words": 1155,
+    "words": 6476,
     "sections": [
       {
         "id": "14-1-the-recon-mindset",
@@ -1460,6 +3440,176 @@
         "level": 2
       },
       {
+        "id": "14-11-mastery-deep-dive-passive-first-reconnaissance",
+        "title": "14.11 Mastery Deep Dive: Passive-First Reconnaissance",
+        "level": 2
+      },
+      {
+        "id": "14-11-1-the-passive-first-doctrine",
+        "title": "14.11.1 The Passive-First Doctrine",
+        "level": 3
+      },
+      {
+        "id": "14-11-2-certificate-transparency-in-depth",
+        "title": "14.11.2 Certificate Transparency in Depth",
+        "level": 3
+      },
+      {
+        "id": "14-11-3-dns-asn-ip-whois-and-rdap-intelligence",
+        "title": "14.11.3 DNS, ASN/IP, WHOIS, and RDAP Intelligence",
+        "level": 3
+      },
+      {
+        "id": "14-11-4-search-engine-and-code-repository-dorking",
+        "title": "14.11.4 Search-Engine and Code-Repository Dorking",
+        "level": 3
+      },
+      {
+        "id": "14-11-5-provenance-table-for-the-passive-phase",
+        "title": "14.11.5 Provenance Table for the Passive Phase",
+        "level": 3
+      },
+      {
+        "id": "14-12-mastery-deep-dive-discovery-validation-and-fingerprinting",
+        "title": "14.12 Mastery Deep Dive: Discovery, Validation, and Fingerprinting",
+        "level": 2
+      },
+      {
+        "id": "14-12-1-subdomain-discovery-as-a-pipeline",
+        "title": "14.12.1 Subdomain Discovery as a Pipeline",
+        "level": 3
+      },
+      {
+        "id": "14-12-2-resolution-and-http-probing",
+        "title": "14.12.2 Resolution and HTTP Probing",
+        "level": 3
+      },
+      {
+        "id": "14-12-3-port-and-service-discovery-with-nmap-authorized-only",
+        "title": "14.12.3 Port and Service Discovery With Nmap (Authorized Only)",
+        "level": 3
+      },
+      {
+        "id": "14-12-4-technology-fingerprinting",
+        "title": "14.12.4 Technology Fingerprinting",
+        "level": 3
+      },
+      {
+        "id": "14-12-5-visual-recon-and-screenshotting",
+        "title": "14.12.5 Visual Recon and Screenshotting",
+        "level": 3
+      },
+      {
+        "id": "14-13-mastery-deep-dive-endpoints-parameters-and-templates",
+        "title": "14.13 Mastery Deep Dive: Endpoints, Parameters, and Templates",
+        "level": 2
+      },
+      {
+        "id": "14-13-1-layered-endpoint-discovery",
+        "title": "14.13.1 Layered Endpoint Discovery",
+        "level": 3
+      },
+      {
+        "id": "14-13-2-content-and-parameter-discovery-with-ffuf",
+        "title": "14.13.2 Content and Parameter Discovery With ffuf",
+        "level": 3
+      },
+      {
+        "id": "14-13-3-javascript-analysis-for-hidden-endpoints",
+        "title": "14.13.3 JavaScript Analysis for Hidden Endpoints",
+        "level": 3
+      },
+      {
+        "id": "14-13-4-nuclei-templates-safe-automation",
+        "title": "14.13.4 Nuclei Templates: Safe Automation",
+        "level": 3
+      },
+      {
+        "id": "14-13-5-api-and-graphql-discovery-notes",
+        "title": "14.13.5 API and GraphQL Discovery Notes",
+        "level": 3
+      },
+      {
+        "id": "14-14-mastery-deep-dive-prioritization-inventory-and-continuous-monitoring",
+        "title": "14.14 Mastery Deep Dive: Prioritization, Inventory, and Continuous Monitoring",
+        "level": 2
+      },
+      {
+        "id": "14-14-1-a-prioritization-scoring-model",
+        "title": "14.14.1 A Prioritization Scoring Model",
+        "level": 3
+      },
+      {
+        "id": "14-14-2-the-canonical-asset-inventory",
+        "title": "14.14.2 The Canonical Asset Inventory",
+        "level": 3
+      },
+      {
+        "id": "14-14-3-continuous-monitoring",
+        "title": "14.14.3 Continuous Monitoring",
+        "level": 3
+      },
+      {
+        "id": "14-14-4-false-positive-and-scope-re-verification-checklist",
+        "title": "14.14.4 False-Positive and Scope Re-Verification Checklist",
+        "level": 3
+      },
+      {
+        "id": "14-14-5-common-recon-mistakes",
+        "title": "14.14.5 Common Recon Mistakes",
+        "level": 3
+      },
+      {
+        "id": "14-15-mastery-deep-dive-lab-drills-documentation-and-assessment",
+        "title": "14.15 Mastery Deep Dive: Lab Drills, Documentation, and Assessment",
+        "level": 2
+      },
+      {
+        "id": "14-15-1-practice-environment",
+        "title": "14.15.1 Practice Environment",
+        "level": 3
+      },
+      {
+        "id": "14-15-2-lab-exercises-with-deliverables",
+        "title": "14.15.2 Lab Exercises With Deliverables",
+        "level": 3
+      },
+      {
+        "id": "14-15-3-documentation-templates",
+        "title": "14.15.3 Documentation Templates",
+        "level": 3
+      },
+      {
+        "id": "14-15-4-what-mastery-looks-like",
+        "title": "14.15.4 What Mastery Looks Like",
+        "level": 3
+      },
+      {
+        "id": "14-15-5-knowledge-check",
+        "title": "14.15.5 Knowledge Check",
+        "level": 3
+      },
+      {
+        "id": "14-16-mastery-deep-dive-the-recon-to-testing-handoff",
+        "title": "14.16 Mastery Deep Dive: The Recon-to-Testing Handoff",
+        "level": 2
+      },
+      {
+        "id": "14-16-1-turning-inventory-into-hypotheses",
+        "title": "14.16.1 Turning Inventory Into Hypotheses",
+        "level": 3
+      },
+      {
+        "id": "14-16-2-recon-quality-gates",
+        "title": "14.16.2 Recon Quality Gates",
+        "level": 3
+      },
+      {
+        "id": "14-16-3-knowledge-check-handoff",
+        "title": "14.16.3 Knowledge Check: Handoff",
+        "level": 3
+      },
+      {
         "id": "14-9-key-takeaways",
         "title": "14.9 Key Takeaways",
         "level": 2
@@ -1496,7 +3646,7 @@
     "difficulty": "Intermediate",
     "level": 5,
     "minutes": 95,
-    "words": 1079,
+    "words": 6293,
     "sections": [
       {
         "id": "15-1-the-professional-loop",
@@ -1562,6 +3712,186 @@
         "id": "15-13-building-a-personal-methodology",
         "title": "15.13 Building a Personal Methodology",
         "level": 2
+      },
+      {
+        "id": "15-16-mastery-deep-dive-the-repeatable-manual-testing-loop",
+        "title": "15.16 Mastery Deep Dive: The Repeatable Manual Testing Loop",
+        "level": 2
+      },
+      {
+        "id": "15-16-1-the-loop-as-a-state-machine",
+        "title": "15.16.1 The Loop as a State Machine",
+        "level": 3
+      },
+      {
+        "id": "15-16-2-threat-modeling-a-target",
+        "title": "15.16.2 Threat Modeling a Target",
+        "level": 3
+      },
+      {
+        "id": "15-16-3-trust-boundary-mapping",
+        "title": "15.16.3 Trust-Boundary Mapping",
+        "level": 3
+      },
+      {
+        "id": "15-16-4-the-hypothesis-ledger",
+        "title": "15.16.4 The Hypothesis Ledger",
+        "level": 3
+      },
+      {
+        "id": "15-16-5-timeboxing-and-when-to-move-on",
+        "title": "15.16.5 Timeboxing and When to Move On",
+        "level": 3
+      },
+      {
+        "id": "15-17-mastery-deep-dive-the-per-class-test-matrix",
+        "title": "15.17 Mastery Deep Dive: The Per-Class Test Matrix",
+        "level": 2
+      },
+      {
+        "id": "15-17-1-building-the-matrix",
+        "title": "15.17.1 Building the Matrix",
+        "level": 3
+      },
+      {
+        "id": "15-17-2-authentication-and-authorization-workflow",
+        "title": "15.17.2 Authentication and Authorization Workflow",
+        "level": 3
+      },
+      {
+        "id": "15-17-3-parameter-and-input-analysis",
+        "title": "15.17.3 Parameter and Input Analysis",
+        "level": 3
+      },
+      {
+        "id": "15-17-4-business-logic-testing",
+        "title": "15.17.4 Business-Logic Testing",
+        "level": 3
+      },
+      {
+        "id": "15-17-5-vulnerability-class-quick-matrix",
+        "title": "15.17.5 Vulnerability-Class Quick Matrix",
+        "level": 3
+      },
+      {
+        "id": "15-18-mastery-deep-dive-toolcraft-and-evidence-standards",
+        "title": "15.18 Mastery Deep Dive: Toolcraft and Evidence Standards",
+        "level": 2
+      },
+      {
+        "id": "15-18-1-burp-proxy-discipline",
+        "title": "15.18.1 Burp Proxy Discipline",
+        "level": 3
+      },
+      {
+        "id": "15-18-2-repeater-for-differential-testing",
+        "title": "15.18.2 Repeater for Differential Testing",
+        "level": 3
+      },
+      {
+        "id": "15-18-3-intruder-with-restraint",
+        "title": "15.18.3 Intruder With Restraint",
+        "level": 3
+      },
+      {
+        "id": "15-18-4-comparer-for-response-differences",
+        "title": "15.18.4 Comparer for Response Differences",
+        "level": 3
+      },
+      {
+        "id": "15-18-5-collaborator-for-out-of-interaction-detection",
+        "title": "15.18.5 Collaborator for Out-of-Interaction Detection",
+        "level": 3
+      },
+      {
+        "id": "15-18-6-evidence-capture-standards",
+        "title": "15.18.6 Evidence Capture Standards",
+        "level": 3
+      },
+      {
+        "id": "15-19-mastery-deep-dive-avoiding-false-positives-and-knowing-when-to-stop",
+        "title": "15.19 Mastery Deep Dive: Avoiding False Positives and Knowing When to Stop",
+        "level": 2
+      },
+      {
+        "id": "15-19-1-a-false-positive-taxonomy",
+        "title": "15.19.1 A False-Positive Taxonomy",
+        "level": 3
+      },
+      {
+        "id": "15-19-2-the-validation-ladder",
+        "title": "15.19.2 The Validation Ladder",
+        "level": 3
+      },
+      {
+        "id": "15-19-3-severity-calibration-in-business-context",
+        "title": "15.19.3 Severity Calibration in Business Context",
+        "level": 3
+      },
+      {
+        "id": "15-19-4-when-to-move-on",
+        "title": "15.19.4 When to Move On",
+        "level": 3
+      },
+      {
+        "id": "15-19-5-note-taking-during-engaged-testing",
+        "title": "15.19.5 Note-Taking During engaged Testing",
+        "level": 3
+      },
+      {
+        "id": "15-20-mastery-deep-dive-lab-drills-routines-and-assessment",
+        "title": "15.20 Mastery Deep Dive: Lab Drills, Routines, and Assessment",
+        "level": 2
+      },
+      {
+        "id": "15-20-1-lab-setup-and-drills",
+        "title": "15.20.1 Lab Setup and Drills",
+        "level": 3
+      },
+      {
+        "id": "15-20-2-a-weekly-practice-routine",
+        "title": "15.20.2 A Weekly Practice Routine",
+        "level": 3
+      },
+      {
+        "id": "15-20-3-what-mastery-looks-like",
+        "title": "15.20.3 What Mastery Looks Like",
+        "level": 3
+      },
+      {
+        "id": "15-20-4-knowledge-check",
+        "title": "15.20.4 Knowledge Check",
+        "level": 3
+      },
+      {
+        "id": "15-21-mastery-deep-dive-pitfalls-collaboration-and-continuous-improvement",
+        "title": "15.21 Mastery Deep Dive: Pitfalls, Collaboration, and Continuous Improvement",
+        "level": 2
+      },
+      {
+        "id": "15-21-1-cognitive-biases-in-manual-testing",
+        "title": "15.21.1 Cognitive Biases in Manual Testing",
+        "level": 3
+      },
+      {
+        "id": "15-21-2-collaboration-and-peer-review",
+        "title": "15.21.2 Collaboration and Peer Review",
+        "level": 3
+      },
+      {
+        "id": "15-21-3-the-continuous-improvement-loop",
+        "title": "15.21.3 The Continuous Improvement Loop",
+        "level": 3
+      },
+      {
+        "id": "15-21-4-integrating-the-full-pipeline",
+        "title": "15.21.4 Integrating the Full Pipeline",
+        "level": 3
+      },
+      {
+        "id": "15-21-5-knowledge-check-integration",
+        "title": "15.21.5 Knowledge Check: Integration",
+        "level": 3
       },
       {
         "id": "15-14-key-takeaways",
@@ -1936,7 +4266,7 @@
     "difficulty": "Intermediate",
     "level": 5,
     "minutes": 95,
-    "words": 892,
+    "words": 4137,
     "sections": [
       {
         "id": "17-1-the-api-security-top-10",
@@ -1994,6 +4324,206 @@
         "level": 2
       },
       {
+        "id": "17-14-mastery-deep-dive-bola-and-bfla-in-depth",
+        "title": "17.14 Mastery Deep Dive: BOLA and BFLA in Depth",
+        "level": 2
+      },
+      {
+        "id": "17-14-1-root-cause-and-mechanism",
+        "title": "17.14.1 Root cause and mechanism",
+        "level": 3
+      },
+      {
+        "id": "17-14-2-lab-safe-testing-methodology",
+        "title": "17.14.2 Lab-safe testing methodology",
+        "level": 3
+      },
+      {
+        "id": "17-14-3-detection-and-defense",
+        "title": "17.14.3 Detection and defense",
+        "level": 3
+      },
+      {
+        "id": "17-15-mastery-deep-dive-mass-assignment-and-excessive-data-exposure",
+        "title": "17.15 Mastery Deep Dive: Mass Assignment and Excessive Data Exposure",
+        "level": 2
+      },
+      {
+        "id": "17-15-1-mass-assignment-auto-binding",
+        "title": "17.15.1 Mass assignment (auto-binding)",
+        "level": 3
+      },
+      {
+        "id": "17-15-2-excessive-data-exposure",
+        "title": "17.15.2 Excessive data exposure",
+        "level": 3
+      },
+      {
+        "id": "17-16-mastery-deep-dive-graphql-security",
+        "title": "17.16 Mastery Deep Dive: GraphQL Security",
+        "level": 2
+      },
+      {
+        "id": "17-16-1-introspection-and-schema-recon",
+        "title": "17.16.1 Introspection and schema recon",
+        "level": 3
+      },
+      {
+        "id": "17-16-2-query-abuse-patterns-labs-only",
+        "title": "17.16.2 Query abuse patterns (labs only)",
+        "level": 3
+      },
+      {
+        "id": "17-17-mastery-deep-dive-api-keys-jwt-oauth-and-mobile-backends",
+        "title": "17.17 Mastery Deep Dive: API Keys, JWT, OAuth, and Mobile Backends",
+        "level": 2
+      },
+      {
+        "id": "17-17-1-api-key-handling",
+        "title": "17.17.1 API key handling",
+        "level": 3
+      },
+      {
+        "id": "17-17-2-jwt-and-oauth-for-apis",
+        "title": "17.17.2 JWT and OAuth for APIs",
+        "level": 3
+      },
+      {
+        "id": "17-17-3-mobile-backends",
+        "title": "17.17.3 Mobile backends",
+        "level": 3
+      },
+      {
+        "id": "17-18-mastery-deep-dive-rate-limiting-and-resource-consumption",
+        "title": "17.18 Mastery Deep Dive: Rate Limiting and Resource Consumption",
+        "level": 2
+      },
+      {
+        "id": "17-18-1-what-to-limit",
+        "title": "17.18.1 What to limit",
+        "level": 3
+      },
+      {
+        "id": "17-18-2-bypass-patterns-labs-only",
+        "title": "17.18.2 Bypass patterns (labs only)",
+        "level": 3
+      },
+      {
+        "id": "17-19-mastery-deep-dive-inventory-recon-and-fuzzing-workflow",
+        "title": "17.19 Mastery Deep Dive: Inventory, Recon, and Fuzzing Workflow",
+        "level": 2
+      },
+      {
+        "id": "17-19-1-improper-asset-management-api9",
+        "title": "17.19.1 Improper asset management (API9)",
+        "level": 3
+      },
+      {
+        "id": "17-19-2-a-disciplined-recon-and-fuzz-workflow",
+        "title": "17.19.2 A disciplined recon-and-fuzz workflow",
+        "level": 3
+      },
+      {
+        "id": "17-19-3-owasp-api-top-10-coverage-map",
+        "title": "17.19.3 OWASP API Top 10 coverage map",
+        "level": 3
+      },
+      {
+        "id": "17-20-mastery-deep-dive-verification-and-practice",
+        "title": "17.20 Mastery Deep Dive: Verification and Practice",
+        "level": 2
+      },
+      {
+        "id": "17-20-1-what-mastery-looks-like-checklist",
+        "title": "17.20.1 What mastery looks like — checklist",
+        "level": 3
+      },
+      {
+        "id": "17-20-2-common-mistakes",
+        "title": "17.20.2 Common mistakes",
+        "level": 3
+      },
+      {
+        "id": "17-20-3-knowledge-checks-answers-below",
+        "title": "17.20.3 Knowledge checks (answers below)",
+        "level": 3
+      },
+      {
+        "id": "17-20-4-lab-exercises",
+        "title": "17.20.4 Lab exercises",
+        "level": 3
+      },
+      {
+        "id": "17-21-mastery-deep-dive-advanced-bfla-and-function-level-testing",
+        "title": "17.21 Mastery Deep Dive: Advanced BFLA and Function-Level Testing",
+        "level": 2
+      },
+      {
+        "id": "17-21-1-building-the-method-content-type-matrix",
+        "title": "17.21.1 Building the method × content-type matrix",
+        "level": 3
+      },
+      {
+        "id": "17-21-2-microservice-and-internal-api-trust",
+        "title": "17.21.2 Microservice and internal-API trust",
+        "level": 3
+      },
+      {
+        "id": "17-22-mastery-deep-dive-schema-driven-fuzzing-and-differential-testing",
+        "title": "17.22 Mastery Deep Dive: Schema-Driven Fuzzing and Differential Testing",
+        "level": 2
+      },
+      {
+        "id": "17-22-1-schema-aware-fuzzing-workflow",
+        "title": "17.22.1 Schema-aware fuzzing workflow",
+        "level": 3
+      },
+      {
+        "id": "17-22-2-authorization-differential-testing",
+        "title": "17.22.2 Authorization differential testing",
+        "level": 3
+      },
+      {
+        "id": "17-23-mastery-deep-dive-api-threat-modeling-and-defense-architecture",
+        "title": "17.23 Mastery Deep Dive: API Threat Modeling and Defense Architecture",
+        "level": 2
+      },
+      {
+        "id": "17-23-1-defense-at-the-gateway-and-in-the-app",
+        "title": "17.23.1 Defense at the gateway and in the app",
+        "level": 3
+      },
+      {
+        "id": "17-23-2-secure-development-lifecycle-for-apis",
+        "title": "17.23.2 Secure development lifecycle for APIs",
+        "level": 3
+      },
+      {
+        "id": "17-23-3-putting-it-all-together",
+        "title": "17.23.3 Putting it all together",
+        "level": 3
+      },
+      {
+        "id": "17-24-mastery-deep-dive-webhooks-mobile-keys-and-inventory",
+        "title": "17.24 Mastery Deep Dive: Webhooks, Mobile Keys, and Inventory",
+        "level": 2
+      },
+      {
+        "id": "17-24-1-webhook-security-in-depth",
+        "title": "17.24.1 Webhook security in depth",
+        "level": 3
+      },
+      {
+        "id": "17-24-2-keys-and-secrets-in-mobile-clients",
+        "title": "17.24.2 Keys and secrets in mobile clients",
+        "level": 3
+      },
+      {
+        "id": "17-24-3-inventory-as-a-security-control",
+        "title": "17.24.3 Inventory as a security control",
+        "level": 3
+      },
+      {
         "id": "17-12-key-takeaways",
         "title": "17.12 Key Takeaways",
         "level": 2
@@ -2030,7 +4560,7 @@
     "difficulty": "Intermediate",
     "level": 6,
     "minutes": 100,
-    "words": 895,
+    "words": 4720,
     "sections": [
       {
         "id": "18-1-mobile-platform-architecture",
@@ -2103,6 +4633,146 @@
         "level": 2
       },
       {
+        "id": "18-15-mastery-deep-dive-android-internals-and-attack-surface",
+        "title": "18.15 Mastery Deep Dive: Android Internals and Attack Surface",
+        "level": 2
+      },
+      {
+        "id": "18-15-1-verified-boot-the-sandbox-and-the-real-privilege-model",
+        "title": "18.15.1 Verified Boot, the Sandbox, and the Real Privilege Model",
+        "level": 3
+      },
+      {
+        "id": "18-15-2-apk-binary-format-walkthrough",
+        "title": "18.15.2 APK Binary Format Walkthrough",
+        "level": 3
+      },
+      {
+        "id": "18-15-3-permission-model-and-runtime-grants",
+        "title": "18.15.3 Permission Model and Runtime Grants",
+        "level": 3
+      },
+      {
+        "id": "18-15-4-intent-and-deep-link-routing-deep-dive",
+        "title": "18.15.4 Intent and Deep-Link Routing Deep Dive",
+        "level": 3
+      },
+      {
+        "id": "18-15-5-activity-lifecycle-and-task-hijacking",
+        "title": "18.15.5 Activity Lifecycle and Task Hijacking",
+        "level": 3
+      },
+      {
+        "id": "18-15-6-content-providers-and-sql-injection",
+        "title": "18.15.6 Content Providers and SQL Injection",
+        "level": 3
+      },
+      {
+        "id": "18-15-7-keystore-and-secure-storage-internals",
+        "title": "18.15.7 Keystore and Secure Storage Internals",
+        "level": 3
+      },
+      {
+        "id": "18-15-8-webview-attack-surface",
+        "title": "18.15.8 WebView Attack Surface",
+        "level": 3
+      },
+      {
+        "id": "18-16-mastery-deep-dive-ios-internals-and-analysis",
+        "title": "18.16 Mastery Deep Dive: iOS Internals and Analysis",
+        "level": 2
+      },
+      {
+        "id": "18-16-1-codesigning-sandbox-and-entitlements",
+        "title": "18.16.1 Codesigning, Sandbox, and Entitlements",
+        "level": 3
+      },
+      {
+        "id": "18-16-2-ipa-bundle-and-mach-o-walkthrough",
+        "title": "18.16.2 IPA Bundle and Mach-O Walkthrough",
+        "level": 3
+      },
+      {
+        "id": "18-16-3-keychain-data-protection-and-secure-enclave",
+        "title": "18.16.3 Keychain, Data Protection, and Secure Enclave",
+        "level": 3
+      },
+      {
+        "id": "18-16-4-ats-url-schemes-and-universal-links",
+        "title": "18.16.4 ATS, URL Schemes, and Universal Links",
+        "level": 3
+      },
+      {
+        "id": "18-16-5-ios-static-and-dynamic-analysis-tools",
+        "title": "18.16.5 iOS Static and Dynamic Analysis Tools",
+        "level": 3
+      },
+      {
+        "id": "18-17-mastery-deep-dive-analysis-workflows-and-tool-mastery",
+        "title": "18.17 Mastery Deep Dive: Analysis Workflows and Tool Mastery",
+        "level": 2
+      },
+      {
+        "id": "18-17-1-static-analysis-workflow-with-output-interpretation",
+        "title": "18.17.1 Static Analysis Workflow with Output Interpretation",
+        "level": 3
+      },
+      {
+        "id": "18-17-2-dynamic-analysis-workflow-with-output-interpretation",
+        "title": "18.17.2 Dynamic Analysis Workflow with Output Interpretation",
+        "level": 3
+      },
+      {
+        "id": "18-17-3-certificate-pinning-concepts-and-lab-bypass",
+        "title": "18.17.3 Certificate Pinning: Concepts and Lab Bypass",
+        "level": 3
+      },
+      {
+        "id": "18-17-4-mobile-api-testing",
+        "title": "18.17.4 Mobile API Testing",
+        "level": 3
+      },
+      {
+        "id": "18-17-5-mapping-findings-to-owasp-masvs-mstg",
+        "title": "18.17.5 Mapping Findings to OWASP MASVS/MSTG",
+        "level": 3
+      },
+      {
+        "id": "18-18-mastery-deep-dive-hardening-verification-and-practice",
+        "title": "18.18 Mastery Deep Dive: Hardening, Verification, and Practice",
+        "level": 2
+      },
+      {
+        "id": "18-18-1-building-a-hardened-mobile-lab",
+        "title": "18.18.1 Building a Hardened Mobile Lab",
+        "level": 3
+      },
+      {
+        "id": "18-18-2-detection-and-defense-checklists",
+        "title": "18.18.2 Detection and Defense Checklists",
+        "level": 3
+      },
+      {
+        "id": "18-18-3-common-mistakes-to-avoid",
+        "title": "18.18.3 Common Mistakes to Avoid",
+        "level": 3
+      },
+      {
+        "id": "18-18-4-verify-in-your-lab",
+        "title": "18.18.4 Verify in Your Lab",
+        "level": 3
+      },
+      {
+        "id": "18-18-5-what-mastery-looks-like",
+        "title": "18.18.5 What Mastery Looks Like",
+        "level": 3
+      },
+      {
+        "id": "18-18-6-knowledge-check-answers-included",
+        "title": "18.18.6 Knowledge Check (Answers Included)",
+        "level": 3
+      },
+      {
         "id": "18-13-key-takeaways",
         "title": "18.13 Key Takeaways",
         "level": 2
@@ -2139,7 +4809,7 @@
     "difficulty": "Intermediate",
     "level": 6,
     "minutes": 105,
-    "words": 929,
+    "words": 6579,
     "sections": [
       {
         "id": "19-1-cloud-fundamentals-and-shared-responsibility",
@@ -2212,6 +4882,246 @@
         "level": 2
       },
       {
+        "id": "19-17-mastery-deep-dive-iam-policy-evaluation-logic",
+        "title": "19.17 Mastery Deep Dive: IAM Policy Evaluation Logic",
+        "level": 2
+      },
+      {
+        "id": "19-17-1-the-evaluation-algorithm",
+        "title": "19.17.1 The Evaluation Algorithm",
+        "level": 3
+      },
+      {
+        "id": "19-17-2-the-six-policy-types-and-what-each-controls",
+        "title": "19.17.2 The Six Policy Types and What Each Controls",
+        "level": 3
+      },
+      {
+        "id": "19-17-3-identity-vs-resource-policies-and-the-same-account-or",
+        "title": "19.17.3 Identity vs. Resource Policies and the Same-Account OR",
+        "level": 3
+      },
+      {
+        "id": "19-17-4-trust-policies-sts-and-assumerole",
+        "title": "19.17.4 Trust Policies, STS, and AssumeRole",
+        "level": 3
+      },
+      {
+        "id": "19-17-5-workload-identity-federation-oidc",
+        "title": "19.17.5 Workload Identity Federation (OIDC)",
+        "level": 3
+      },
+      {
+        "id": "19-17-6-decision-table-and-common-mistakes",
+        "title": "19.17.6 Decision Table and Common Mistakes",
+        "level": 3
+      },
+      {
+        "id": "19-18-mastery-deep-dive-instance-metadata-and-ssrf-to-credential-chains",
+        "title": "19.18 Mastery Deep Dive: Instance Metadata and SSRF-to-Credential Chains",
+        "level": 2
+      },
+      {
+        "id": "19-18-1-imdsv1-vs-imdsv2-mechanics",
+        "title": "19.18.1 IMDSv1 vs. IMDSv2 Mechanics",
+        "level": 3
+      },
+      {
+        "id": "19-18-2-provider-comparison-metadata-endpoints",
+        "title": "19.18.2 Provider Comparison: Metadata Endpoints",
+        "level": 3
+      },
+      {
+        "id": "19-18-3-ssrf-to-credential-chain-anatomy-lab-only",
+        "title": "19.18.3 SSRF-to-Credential Chain Anatomy (Lab Only)",
+        "level": 3
+      },
+      {
+        "id": "19-18-4-detection-and-fix-checklists",
+        "title": "19.18.4 Detection and Fix Checklists",
+        "level": 3
+      },
+      {
+        "id": "19-19-mastery-deep-dive-object-storage-misconfiguration-taxonomy",
+        "title": "19.19 Mastery Deep Dive: Object Storage Misconfiguration Taxonomy",
+        "level": 2
+      },
+      {
+        "id": "19-19-1-the-four-layer-model",
+        "title": "19.19.1 The Four-Layer Model",
+        "level": 3
+      },
+      {
+        "id": "19-19-2-acls-vs-policies-vs-iam",
+        "title": "19.19.2 ACLs vs. Policies vs. IAM",
+        "level": 3
+      },
+      {
+        "id": "19-19-3-pre-signed-url-sas-risks",
+        "title": "19.19.3 Pre-signed URL / SAS Risks",
+        "level": 3
+      },
+      {
+        "id": "19-19-4-detection-fix-and-verify",
+        "title": "19.19.4 Detection, Fix, and Verify",
+        "level": 3
+      },
+      {
+        "id": "19-20-mastery-deep-dive-container-and-kubernetes-attack-paths",
+        "title": "19.20 Mastery Deep Dive: Container and Kubernetes Attack Paths",
+        "level": 2
+      },
+      {
+        "id": "19-20-1-container-escape-mechanics",
+        "title": "19.20.1 Container Escape Mechanics",
+        "level": 3
+      },
+      {
+        "id": "19-20-2-kubernetes-rbac-and-service-account-tokens",
+        "title": "19.20.2 Kubernetes RBAC and Service Account Tokens",
+        "level": 3
+      },
+      {
+        "id": "19-20-3-admission-control-network-policies-and-pod-security",
+        "title": "19.20.3 Admission Control, Network Policies, and Pod Security",
+        "level": 3
+      },
+      {
+        "id": "19-20-4-etcd-and-control-plane-exposure",
+        "title": "19.20.4 etcd and Control-Plane Exposure",
+        "level": 3
+      },
+      {
+        "id": "19-21-mastery-deep-dive-serverless-event-injection-and-denial-of-wallet",
+        "title": "19.21 Mastery Deep Dive: Serverless Event Injection and Denial of Wallet",
+        "level": 2
+      },
+      {
+        "id": "19-21-1-event-injection-surfaces",
+        "title": "19.21.1 Event Injection Surfaces",
+        "level": 3
+      },
+      {
+        "id": "19-21-2-denial-of-wallet-financial-dos",
+        "title": "19.21.2 Denial of Wallet (Financial DoS)",
+        "level": 3
+      },
+      {
+        "id": "19-21-3-secrets-and-dependencies-in-functions",
+        "title": "19.21.3 Secrets and Dependencies in Functions",
+        "level": 3
+      },
+      {
+        "id": "19-22-mastery-deep-dive-cloud-logging-and-detection-engineering",
+        "title": "19.22 Mastery Deep Dive: Cloud Logging and Detection Engineering",
+        "level": 2
+      },
+      {
+        "id": "19-22-1-core-log-sources-by-provider",
+        "title": "19.22.1 Core Log Sources by Provider",
+        "level": 3
+      },
+      {
+        "id": "19-22-2-high-value-detection-patterns",
+        "title": "19.22.2 High-Value Detection Patterns",
+        "level": 3
+      },
+      {
+        "id": "19-22-3-detection-as-code",
+        "title": "19.22.3 Detection-as-Code",
+        "level": 3
+      },
+      {
+        "id": "19-23-mastery-deep-dive-cloud-assessment-playbook-authorized-only",
+        "title": "19.23 Mastery Deep Dive: Cloud Assessment Playbook (Authorized Only)",
+        "level": 2
+      },
+      {
+        "id": "19-23-1-methodology",
+        "title": "19.23.1 Methodology",
+        "level": 3
+      },
+      {
+        "id": "19-23-2-tool-comparison",
+        "title": "19.23.2 Tool Comparison",
+        "level": 3
+      },
+      {
+        "id": "19-23-3-reporting-and-ethics",
+        "title": "19.23.3 Reporting and Ethics",
+        "level": 3
+      },
+      {
+        "id": "19-24-mastery-deep-dive-twelve-realistic-misconfiguration-case-patterns",
+        "title": "19.24 Mastery Deep Dive: Twelve Realistic Misconfiguration Case Patterns",
+        "level": 2
+      },
+      {
+        "id": "19-25-mastery-deep-dive-verification-checklists-and-knowledge-checks",
+        "title": "19.25 Mastery Deep Dive: Verification, Checklists, and Knowledge Checks",
+        "level": 2
+      },
+      {
+        "id": "19-25-1-verify-it-in-your-own-lab-sequence",
+        "title": "19.25.1 \"Verify It in Your Own Lab\" Sequence",
+        "level": 3
+      },
+      {
+        "id": "19-25-2-what-mastery-looks-like",
+        "title": "19.25.2 What Mastery Looks Like",
+        "level": 3
+      },
+      {
+        "id": "19-25-3-knowledge-checks-with-answers",
+        "title": "19.25.3 Knowledge Checks (With Answers)",
+        "level": 3
+      },
+      {
+        "id": "19-26-mastery-deep-dive-iam-privilege-escalation-patterns-authorized-lab",
+        "title": "19.26 Mastery Deep Dive: IAM Privilege Escalation Patterns (Authorized Lab)",
+        "level": 2
+      },
+      {
+        "id": "19-26-1-the-escalation-mindset",
+        "title": "19.26.1 The Escalation Mindset",
+        "level": 3
+      },
+      {
+        "id": "19-26-2-worked-lab-scenario-passrole-to-instance-profile",
+        "title": "19.26.2 Worked Lab Scenario: PassRole to Instance Profile",
+        "level": 3
+      },
+      {
+        "id": "19-26-3-detection-and-guardrails",
+        "title": "19.26.3 Detection and Guardrails",
+        "level": 3
+      },
+      {
+        "id": "19-27-mastery-deep-dive-cloud-network-perimeter-and-exfiltration-paths",
+        "title": "19.27 Mastery Deep Dive: Cloud Network Perimeter and Exfiltration Paths",
+        "level": 2
+      },
+      {
+        "id": "19-27-1-security-groups-nacls-and-the-three-perimeters",
+        "title": "19.27.1 Security Groups, NACLs, and the Three Perimeters",
+        "level": 3
+      },
+      {
+        "id": "19-27-2-private-endpoints-and-data-exfiltration",
+        "title": "19.27.2 Private Endpoints and Data Exfiltration",
+        "level": 3
+      },
+      {
+        "id": "19-27-3-provider-comparison",
+        "title": "19.27.3 Provider Comparison",
+        "level": 3
+      },
+      {
+        "id": "19-27-4-detection-and-fix-checklist",
+        "title": "19.27.4 Detection and Fix Checklist",
+        "level": 3
+      },
+      {
         "id": "19-15-key-takeaways",
         "title": "19.15 Key Takeaways",
         "level": 2
@@ -2248,7 +5158,7 @@
     "difficulty": "Advanced",
     "level": 6,
     "minutes": 90,
-    "words": 875,
+    "words": 5380,
     "sections": [
       {
         "id": "20-1-secure-code-review",
@@ -2311,6 +5221,251 @@
         "level": 2
       },
       {
+        "id": "20-15-mastery-deep-dive-sast-dast-iast-and-sca-compared",
+        "title": "20.15 Mastery Deep Dive: SAST, DAST, IAST, and SCA Compared",
+        "level": 2
+      },
+      {
+        "id": "20-15-1-what-each-technique-sees",
+        "title": "20.15.1 What Each Technique Sees",
+        "level": 3
+      },
+      {
+        "id": "20-15-2-sast-mechanics-sources-sinks-and-sanitizers",
+        "title": "20.15.2 SAST Mechanics: Sources, Sinks, and Sanitizers",
+        "level": 3
+      },
+      {
+        "id": "20-15-3-dast-and-iast-mechanics",
+        "title": "20.15.3 DAST and IAST Mechanics",
+        "level": 3
+      },
+      {
+        "id": "20-15-4-sca-and-reachability",
+        "title": "20.15.4 SCA and Reachability",
+        "level": 3
+      },
+      {
+        "id": "20-16-mastery-deep-dive-dependency-attacks-typosquatting-confusion-and-lockfile-poisoning",
+        "title": "20.16 Mastery Deep Dive: Dependency Attacks — Typosquatting, Confusion, and Lockfile Poisoning",
+        "level": 2
+      },
+      {
+        "id": "20-16-1-dependency-confusion-lab-only",
+        "title": "20.16.1 Dependency Confusion (Lab Only)",
+        "level": 3
+      },
+      {
+        "id": "20-16-2-typosquatting-and-combosquatting",
+        "title": "20.16.2 Typosquatting and Combosquatting",
+        "level": 3
+      },
+      {
+        "id": "20-16-3-lockfile-poisoning",
+        "title": "20.16.3 Lockfile Poisoning",
+        "level": 3
+      },
+      {
+        "id": "20-16-4-defense-decision-table",
+        "title": "20.16.4 Defense Decision Table",
+        "level": 3
+      },
+      {
+        "id": "20-16-5-verify-it-in-your-lab",
+        "title": "20.16.5 Verify It in Your Lab",
+        "level": 3
+      },
+      {
+        "id": "20-17-mastery-deep-dive-ci-cd-and-github-actions-security",
+        "title": "20.17 Mastery Deep Dive: CI/CD and GitHub Actions Security",
+        "level": 2
+      },
+      {
+        "id": "20-17-1-the-github-actions-permission-model",
+        "title": "20.17.1 The GitHub Actions Permission Model",
+        "level": 3
+      },
+      {
+        "id": "20-17-2-pwn-requests-and-pull-request-target",
+        "title": "20.17.2 Pwn Requests and `pull_request_target`",
+        "level": 3
+      },
+      {
+        "id": "20-17-3-oidc-short-lived-credentials",
+        "title": "20.17.3 OIDC Short-Lived Credentials",
+        "level": 3
+      },
+      {
+        "id": "20-17-4-artifact-and-cache-poisoning",
+        "title": "20.17.4 Artifact and Cache Poisoning",
+        "level": 3
+      },
+      {
+        "id": "20-17-5-assessment-checklist",
+        "title": "20.17.5 Assessment Checklist",
+        "level": 3
+      },
+      {
+        "id": "20-18-mastery-deep-dive-secrets-discovery-and-rotation",
+        "title": "20.18 Mastery Deep Dive: Secrets Discovery and Rotation",
+        "level": 2
+      },
+      {
+        "id": "20-18-1-where-secrets-leak",
+        "title": "20.18.1 Where Secrets Leak",
+        "level": 3
+      },
+      {
+        "id": "20-18-2-detection-techniques",
+        "title": "20.18.2 Detection Techniques",
+        "level": 3
+      },
+      {
+        "id": "20-18-3-git-history-and-rotation",
+        "title": "20.18.3 Git History and Rotation",
+        "level": 3
+      },
+      {
+        "id": "20-19-mastery-deep-dive-secure-code-review-by-language",
+        "title": "20.19 Mastery Deep Dive: Secure Code Review by Language",
+        "level": 2
+      },
+      {
+        "id": "20-19-1-cross-language-dangerous-api-map",
+        "title": "20.19.1 Cross-Language Dangerous API Map",
+        "level": 3
+      },
+      {
+        "id": "20-19-2-language-specific-review-notes",
+        "title": "20.19.2 Language-Specific Review Notes",
+        "level": 3
+      },
+      {
+        "id": "20-19-3-a-repeatable-review-checklist",
+        "title": "20.19.3 A Repeatable Review Checklist",
+        "level": 3
+      },
+      {
+        "id": "20-20-mastery-deep-dive-build-integrity-slsa-sbom-and-provenance",
+        "title": "20.20 Mastery Deep Dive: Build Integrity, SLSA, SBOM, and Provenance",
+        "level": 2
+      },
+      {
+        "id": "20-20-1-the-slsa-model",
+        "title": "20.20.1 The SLSA Model",
+        "level": 3
+      },
+      {
+        "id": "20-20-2-sboms-and-provenance",
+        "title": "20.20.2 SBOMs and Provenance",
+        "level": 3
+      },
+      {
+        "id": "20-20-3-reproducible-and-hermetic-builds",
+        "title": "20.20.3 Reproducible and Hermetic Builds",
+        "level": 3
+      },
+      {
+        "id": "20-20-4-incident-response-for-a-supply-chain-compromise",
+        "title": "20.20.4 Incident Response for a Supply-Chain Compromise",
+        "level": 3
+      },
+      {
+        "id": "20-21-mastery-deep-dive-vulnerability-management-and-triage",
+        "title": "20.21 Mastery Deep Dive: Vulnerability Management and Triage",
+        "level": 2
+      },
+      {
+        "id": "20-21-1-the-triage-dimensions",
+        "title": "20.21.1 The Triage Dimensions",
+        "level": 3
+      },
+      {
+        "id": "20-21-2-the-management-lifecycle",
+        "title": "20.21.2 The Management Lifecycle",
+        "level": 3
+      },
+      {
+        "id": "20-21-3-false-positive-triage-discipline",
+        "title": "20.21.3 False-Positive Triage Discipline",
+        "level": 3
+      },
+      {
+        "id": "20-22-mastery-deep-dive-labs-checklists-and-knowledge-checks",
+        "title": "20.22 Mastery Deep Dive: Labs, Checklists, and Knowledge Checks",
+        "level": 2
+      },
+      {
+        "id": "20-22-1-what-mastery-looks-like",
+        "title": "20.22.1 What Mastery Looks Like",
+        "level": 3
+      },
+      {
+        "id": "20-22-2-verify-it-in-your-own-lab",
+        "title": "20.22.2 Verify It in Your Own Lab",
+        "level": 3
+      },
+      {
+        "id": "20-22-3-knowledge-checks-with-answers",
+        "title": "20.22.3 Knowledge Checks (With Answers)",
+        "level": 3
+      },
+      {
+        "id": "20-23-mastery-deep-dive-threat-modeling-source-and-supply-chain",
+        "title": "20.23 Mastery Deep Dive: Threat Modeling Source and Supply Chain",
+        "level": 2
+      },
+      {
+        "id": "20-23-1-assets-trust-boundaries-and-actors",
+        "title": "20.23.1 Assets, Trust Boundaries, and Actors",
+        "level": 3
+      },
+      {
+        "id": "20-23-2-stride-applied-to-the-pipeline",
+        "title": "20.23.2 STRIDE Applied to the Pipeline",
+        "level": 3
+      },
+      {
+        "id": "20-23-3-a-repeatable-threat-model-exercise-lab",
+        "title": "20.23.3 A Repeatable Threat-Model Exercise (Lab)",
+        "level": 3
+      },
+      {
+        "id": "20-24-mastery-deep-dive-secure-dependency-management-in-practice",
+        "title": "20.24 Mastery Deep Dive: Secure Dependency Management in Practice",
+        "level": 2
+      },
+      {
+        "id": "20-24-1-lockfiles-hashes-and-reproducibility",
+        "title": "20.24.1 Lockfiles, Hashes, and Reproducibility",
+        "level": 3
+      },
+      {
+        "id": "20-24-2-registry-hardening-steps",
+        "title": "20.24.2 Registry Hardening Steps",
+        "level": 3
+      },
+      {
+        "id": "20-24-3-vendoring-and-hermetic-builds",
+        "title": "20.24.3 Vendoring and Hermetic Builds",
+        "level": 3
+      },
+      {
+        "id": "20-24-4-verifying-provenance-at-deploy-time",
+        "title": "20.24.4 Verifying Provenance at Deploy Time",
+        "level": 3
+      },
+      {
+        "id": "20-24-5-responsible-open-source-research-deep-dive",
+        "title": "20.24.5 Responsible Open-Source Research Deep Dive",
+        "level": 3
+      },
+      {
+        "id": "20-25-mastery-deep-dive-twelve-realistic-supply-chain-case-patterns",
+        "title": "20.25 Mastery Deep Dive: Twelve Realistic Supply-Chain Case Patterns",
+        "level": 2
+      },
+      {
         "id": "20-13-key-takeaways",
         "title": "20.13 Key Takeaways",
         "level": 2
@@ -2346,7 +5501,7 @@
     "difficulty": "Advanced",
     "level": 7,
     "minutes": 130,
-    "words": 766,
+    "words": 4618,
     "sections": [
       {
         "id": "21-1-foundations-in-c",
@@ -2394,6 +5549,136 @@
         "level": 2
       },
       {
+        "id": "21-12-mastery-deep-dive-architecture-and-assembly-essentials",
+        "title": "21.12 Mastery Deep Dive: Architecture and Assembly Essentials",
+        "level": 2
+      },
+      {
+        "id": "21-12-1-x86-64-registers-operand-sizes-and-endianness",
+        "title": "21.12.1 x86-64 Registers, Operand Sizes, and Endianness",
+        "level": 3
+      },
+      {
+        "id": "21-12-2-the-x86-64-calling-convention-and-a-worked-stack-frame",
+        "title": "21.12.2 The x86-64 Calling Convention and a Worked Stack Frame",
+        "level": 3
+      },
+      {
+        "id": "21-12-3-arm-aarch64-essentials-and-calling-convention",
+        "title": "21.12.3 ARM / AArch64 Essentials and Calling Convention",
+        "level": 3
+      },
+      {
+        "id": "21-12-4-reading-disassembly-a-guided-interpretation",
+        "title": "21.12.4 Reading Disassembly: A Guided Interpretation",
+        "level": 3
+      },
+      {
+        "id": "21-13-mastery-deep-dive-memory-corruption-mechanics-in-the-lab",
+        "title": "21.13 Mastery Deep Dive: Memory Corruption Mechanics in the Lab",
+        "level": 2
+      },
+      {
+        "id": "21-13-1-stack-overflow-offset-discovery-and-control-of-rip",
+        "title": "21.13.1 Stack Overflow: Offset Discovery and Control of RIP",
+        "level": 3
+      },
+      {
+        "id": "21-13-2-shellcode-concepts-lab-only-and-why-nx-exists",
+        "title": "21.13.2 Shellcode Concepts (Lab-Only) and Why NX Exists",
+        "level": 3
+      },
+      {
+        "id": "21-13-3-format-string-vulnerabilities-reads-and-writes",
+        "title": "21.13.3 Format String Vulnerabilities: Reads and Writes",
+        "level": 3
+      },
+      {
+        "id": "21-13-4-heap-internals-uaf-double-free-and-overflow",
+        "title": "21.13.4 Heap Internals: UAF, Double Free, and Overflow",
+        "level": 3
+      },
+      {
+        "id": "21-13-5-integer-overflows-and-off-by-one",
+        "title": "21.13.5 Integer Overflows and Off-by-One",
+        "level": 3
+      },
+      {
+        "id": "21-14-mastery-deep-dive-exploit-techniques-and-mitigations",
+        "title": "21.14 Mastery Deep Dive: Exploit Techniques and Mitigations",
+        "level": 2
+      },
+      {
+        "id": "21-14-1-rop-chain-construction-concepts",
+        "title": "21.14.1 ROP Chain Construction Concepts",
+        "level": 3
+      },
+      {
+        "id": "21-14-2-mitigation-matrix-how-each-changes-exploitation",
+        "title": "21.14.2 Mitigation Matrix: How Each Changes Exploitation",
+        "level": 3
+      },
+      {
+        "id": "21-14-3-info-leaks-and-defeating-aslr-concepts",
+        "title": "21.14.3 Info Leaks and Defeating ASLR (Concepts)",
+        "level": 3
+      },
+      {
+        "id": "21-14-4-honest-exploitability-assessment",
+        "title": "21.14.4 Honest Exploitability Assessment",
+        "level": 3
+      },
+      {
+        "id": "21-15-mastery-deep-dive-debugger-workflow-crash-analysis-and-verification",
+        "title": "21.15 Mastery Deep Dive: Debugger Workflow, Crash Analysis, and Verification",
+        "level": 2
+      },
+      {
+        "id": "21-15-1-gdb-gef-workflow-with-annotated-output",
+        "title": "21.15.1 GDB / GEF Workflow with Annotated Output",
+        "level": 3
+      },
+      {
+        "id": "21-15-2-ghidra-workflow-for-vulnerability-research",
+        "title": "21.15.2 Ghidra Workflow for Vulnerability Research",
+        "level": 3
+      },
+      {
+        "id": "21-15-3-crash-triage-and-minimization",
+        "title": "21.15.3 Crash Triage and Minimization",
+        "level": 3
+      },
+      {
+        "id": "21-15-4-the-fuzzing-connection-and-sanitizers",
+        "title": "21.15.4 The Fuzzing Connection and Sanitizers",
+        "level": 3
+      },
+      {
+        "id": "21-15-5-detection-and-defense-checklists",
+        "title": "21.15.5 Detection and Defense Checklists",
+        "level": 3
+      },
+      {
+        "id": "21-15-6-common-mistakes",
+        "title": "21.15.6 Common Mistakes",
+        "level": 3
+      },
+      {
+        "id": "21-15-7-verify-in-your-lab",
+        "title": "21.15.7 Verify in Your Lab",
+        "level": 3
+      },
+      {
+        "id": "21-15-8-what-mastery-looks-like",
+        "title": "21.15.8 What Mastery Looks Like",
+        "level": 3
+      },
+      {
+        "id": "21-15-9-knowledge-check-answers-included",
+        "title": "21.15.9 Knowledge Check (Answers Included)",
+        "level": 3
+      },
+      {
         "id": "21-10-key-takeaways",
         "title": "21.10 Key Takeaways",
         "level": 2
@@ -2430,7 +5715,7 @@
     "difficulty": "Advanced",
     "level": 7,
     "minutes": 110,
-    "words": 674,
+    "words": 4245,
     "sections": [
       {
         "id": "22-1-what-reverse-engineering-is",
@@ -2483,6 +5768,141 @@
         "level": 2
       },
       {
+        "id": "22-13-mastery-deep-dive-executable-formats-and-loading",
+        "title": "22.13 Mastery Deep Dive: Executable Formats and Loading",
+        "level": 2
+      },
+      {
+        "id": "22-13-1-elf-section-by-section",
+        "title": "22.13.1 ELF, Section by Section",
+        "level": 3
+      },
+      {
+        "id": "22-13-2-pe-section-by-section",
+        "title": "22.13.2 PE, Section by Section",
+        "level": 3
+      },
+      {
+        "id": "22-13-3-mach-o-section-by-section",
+        "title": "22.13.3 Mach-O, Section by Section",
+        "level": 3
+      },
+      {
+        "id": "22-13-4-loader-imports-relocations-and-dynamic-linking",
+        "title": "22.13.4 Loader, Imports, Relocations, and Dynamic Linking",
+        "level": 3
+      },
+      {
+        "id": "22-13-5-case-study-following-a-string-to-behavior",
+        "title": "22.13.5 Case Study: Following a String to Behavior",
+        "level": 3
+      },
+      {
+        "id": "22-14-mastery-deep-dive-disassembly-decompilation-and-tool-workflows",
+        "title": "22.14 Mastery Deep Dive: Disassembly, Decompilation, and Tool Workflows",
+        "level": 2
+      },
+      {
+        "id": "22-14-1-disassembly-vs-decompilation-and-their-limits",
+        "title": "22.14.1 Disassembly vs. Decompilation and Their Limits",
+        "level": 3
+      },
+      {
+        "id": "22-14-2-ghidra-workflow-with-headless-automation",
+        "title": "22.14.2 Ghidra Workflow with Headless Automation",
+        "level": 3
+      },
+      {
+        "id": "22-14-3-radare2-rizin-workflow",
+        "title": "22.14.3 radare2 / rizin Workflow",
+        "level": 3
+      },
+      {
+        "id": "22-14-4-symbols-stripping-and-function-identification",
+        "title": "22.14.4 Symbols, Stripping, and Function Identification",
+        "level": 3
+      },
+      {
+        "id": "22-14-5-debugging-and-breakpoints",
+        "title": "22.14.5 Debugging and Breakpoints",
+        "level": 3
+      },
+      {
+        "id": "22-15-mastery-deep-dive-malware-behavior-analysis-in-an-isolated-lab",
+        "title": "22.15 Mastery Deep Dive: Malware Behavior Analysis in an Isolated Lab",
+        "level": 2
+      },
+      {
+        "id": "22-15-1-safe-analysis-environment-and-containment",
+        "title": "22.15.1 Safe Analysis Environment and Containment",
+        "level": 3
+      },
+      {
+        "id": "22-15-2-static-triage-of-a-suspicious-sample",
+        "title": "22.15.2 Static Triage of a Suspicious Sample",
+        "level": 3
+      },
+      {
+        "id": "22-15-3-behavioral-analysis-persistence-lateral-and-network-indicators",
+        "title": "22.15.3 Behavioral Analysis: Persistence, Lateral, and Network Indicators",
+        "level": 3
+      },
+      {
+        "id": "22-15-4-writing-yara-rules",
+        "title": "22.15.4 Writing YARA Rules",
+        "level": 3
+      },
+      {
+        "id": "22-15-5-memory-forensics-basics",
+        "title": "22.15.5 Memory Forensics Basics",
+        "level": 3
+      },
+      {
+        "id": "22-15-6-protocol-reverse-engineering",
+        "title": "22.15.6 Protocol Reverse Engineering",
+        "level": 3
+      },
+      {
+        "id": "22-15-7-handling-packed-and-obfuscated-samples",
+        "title": "22.15.7 Handling Packed and Obfuscated Samples",
+        "level": 3
+      },
+      {
+        "id": "22-15-8-producing-an-analysis-report-and-timeline",
+        "title": "22.15.8 Producing an Analysis Report and Timeline",
+        "level": 3
+      },
+      {
+        "id": "22-16-mastery-deep-dive-verification-and-practice",
+        "title": "22.16 Mastery Deep Dive: Verification and Practice",
+        "level": 2
+      },
+      {
+        "id": "22-16-1-detection-and-defense-checklists",
+        "title": "22.16.1 Detection and Defense Checklists",
+        "level": 3
+      },
+      {
+        "id": "22-16-2-common-mistakes",
+        "title": "22.16.2 Common Mistakes",
+        "level": 3
+      },
+      {
+        "id": "22-16-3-verify-in-your-lab",
+        "title": "22.16.3 Verify in Your Lab",
+        "level": 3
+      },
+      {
+        "id": "22-16-4-what-mastery-looks-like",
+        "title": "22.16.4 What Mastery Looks Like",
+        "level": 3
+      },
+      {
+        "id": "22-16-5-knowledge-check-answers-included",
+        "title": "22.16.5 Knowledge Check (Answers Included)",
+        "level": 3
+      },
+      {
         "id": "22-11-key-takeaways",
         "title": "22.11 Key Takeaways",
         "level": 2
@@ -2518,7 +5938,7 @@
     "difficulty": "Advanced",
     "level": 7,
     "minutes": 100,
-    "words": 628,
+    "words": 4205,
     "sections": [
       {
         "id": "23-1-what-fuzzing-is",
@@ -2566,6 +5986,131 @@
         "level": 2
       },
       {
+        "id": "23-12-mastery-deep-dive-fuzzing-taxonomy-and-strategy-selection",
+        "title": "23.12 Mastery Deep Dive: Fuzzing Taxonomy and Strategy Selection",
+        "level": 2
+      },
+      {
+        "id": "23-12-1-the-five-strategies-compared",
+        "title": "23.12.1 The Five Strategies Compared",
+        "level": 3
+      },
+      {
+        "id": "23-12-2-coverage-instrumentation-and-the-feedback-loop",
+        "title": "23.12.2 Coverage Instrumentation and the Feedback Loop",
+        "level": 3
+      },
+      {
+        "id": "23-12-3-corpus-management-and-minimization",
+        "title": "23.12.3 Corpus Management and Minimization",
+        "level": 3
+      },
+      {
+        "id": "23-12-4-what-fuzzing-excels-at-and-what-it-misses",
+        "title": "23.12.4 What Fuzzing Excels At and What It Misses",
+        "level": 3
+      },
+      {
+        "id": "23-13-mastery-deep-dive-fuzzer-toolchains-and-command-walks",
+        "title": "23.13 Mastery Deep Dive: Fuzzer Toolchains and Command Walks",
+        "level": 2
+      },
+      {
+        "id": "23-13-1-afl-setup-and-command-walkthrough",
+        "title": "23.13.1 AFL++ Setup and Command Walkthrough",
+        "level": 3
+      },
+      {
+        "id": "23-13-2-libfuzzer-setup-and-command-walkthrough",
+        "title": "23.13.2 libFuzzer Setup and Command Walkthrough",
+        "level": 3
+      },
+      {
+        "id": "23-13-3-honggfuzz-and-other-engines",
+        "title": "23.13.3 honggfuzz and Other Engines",
+        "level": 3
+      },
+      {
+        "id": "23-13-4-harness-design-deep-dive",
+        "title": "23.13.4 Harness Design Deep Dive",
+        "level": 3
+      },
+      {
+        "id": "23-13-5-running-campaigns-at-scale",
+        "title": "23.13.5 Running Campaigns at Scale",
+        "level": 3
+      },
+      {
+        "id": "23-14-mastery-deep-dive-sanitizers-triage-and-advanced-strategies",
+        "title": "23.14 Mastery Deep Dive: Sanitizers, Triage, and Advanced Strategies",
+        "level": 2
+      },
+      {
+        "id": "23-14-1-sanitizers-in-depth-with-example-findings",
+        "title": "23.14.1 Sanitizers in Depth with Example Findings",
+        "level": 3
+      },
+      {
+        "id": "23-14-2-crash-triage-minimization-and-root-cause",
+        "title": "23.14.2 Crash Triage, Minimization, and Root Cause",
+        "level": 3
+      },
+      {
+        "id": "23-14-3-differential-fuzzing",
+        "title": "23.14.3 Differential Fuzzing",
+        "level": 3
+      },
+      {
+        "id": "23-14-4-grammar-and-structure-aware-fuzzing",
+        "title": "23.14.4 Grammar and Structure-Aware Fuzzing",
+        "level": 3
+      },
+      {
+        "id": "23-14-5-api-and-protocol-fuzzing",
+        "title": "23.14.5 API and Protocol Fuzzing",
+        "level": 3
+      },
+      {
+        "id": "23-14-6-troubleshooting-a-stalled-campaign",
+        "title": "23.14.6 Troubleshooting a Stalled Campaign",
+        "level": 3
+      },
+      {
+        "id": "23-15-mastery-deep-dive-lab-measurement-and-practice",
+        "title": "23.15 Mastery Deep Dive: Lab, Measurement, and Practice",
+        "level": 2
+      },
+      {
+        "id": "23-15-1-building-a-fuzzing-lab-and-measuring-coverage",
+        "title": "23.15.1 Building a Fuzzing Lab and Measuring Coverage",
+        "level": 3
+      },
+      {
+        "id": "23-15-2-detection-and-defense-checklists",
+        "title": "23.15.2 Detection and Defense Checklists",
+        "level": 3
+      },
+      {
+        "id": "23-15-3-common-mistakes",
+        "title": "23.15.3 Common Mistakes",
+        "level": 3
+      },
+      {
+        "id": "23-15-4-verify-in-your-lab",
+        "title": "23.15.4 Verify in Your Lab",
+        "level": 3
+      },
+      {
+        "id": "23-15-5-what-mastery-looks-like",
+        "title": "23.15.5 What Mastery Looks Like",
+        "level": 3
+      },
+      {
+        "id": "23-15-6-knowledge-check-answers-included",
+        "title": "23.15.6 Knowledge Check (Answers Included)",
+        "level": 3
+      },
+      {
         "id": "23-10-key-takeaways",
         "title": "23.10 Key Takeaways",
         "level": 2
@@ -2601,7 +6146,7 @@
     "difficulty": "Intermediate",
     "level": 7,
     "minutes": 120,
-    "words": 2630,
+    "words": 7537,
     "sections": [
       {
         "id": "24-1-why-ai-security-is-different",
@@ -2754,6 +6299,311 @@
         "level": 2
       },
       {
+        "id": "24-15-mastery-deep-dive-prompt-injection-mechanics-and-taxonomy",
+        "title": "24.15 Mastery Deep Dive: Prompt Injection Mechanics and Taxonomy",
+        "level": 2
+      },
+      {
+        "id": "24-15-1-why-delimiters-fail",
+        "title": "24.15.1 Why Delimiters Fail",
+        "level": 3
+      },
+      {
+        "id": "24-15-2-direct-vs-indirect-injection",
+        "title": "24.15.2 Direct vs. Indirect Injection",
+        "level": 3
+      },
+      {
+        "id": "24-15-3-encoding-obfuscation-and-tokenization",
+        "title": "24.15.3 Encoding, Obfuscation, and Tokenization",
+        "level": 3
+      },
+      {
+        "id": "24-15-4-many-shot-and-context-attacks",
+        "title": "24.15.4 Many-Shot and Context Attacks",
+        "level": 3
+      },
+      {
+        "id": "24-15-5-a-concrete-lab-request-response",
+        "title": "24.15.5 A Concrete Lab Request/Response",
+        "level": 3
+      },
+      {
+        "id": "24-16-mastery-deep-dive-jailbreak-taxonomy-and-safety-vs-security",
+        "title": "24.16 Mastery Deep Dive: Jailbreak Taxonomy and Safety vs. Security",
+        "level": 2
+      },
+      {
+        "id": "24-16-1-taxonomy-of-common-jailbreak-families",
+        "title": "24.16.1 Taxonomy of Common Jailbreak Families",
+        "level": 3
+      },
+      {
+        "id": "24-16-2-the-severity-ladder-safety-security",
+        "title": "24.16.2 The Severity Ladder (Safety → Security)",
+        "level": 3
+      },
+      {
+        "id": "24-16-3-turning-a-jailbreak-into-a-security-finding",
+        "title": "24.16.3 Turning a Jailbreak into a Security Finding",
+        "level": 3
+      },
+      {
+        "id": "24-17-mastery-deep-dive-rag-poisoning-and-vector-embedding-weaknesses",
+        "title": "24.17 Mastery Deep Dive: RAG Poisoning and Vector/Embedding Weaknesses",
+        "level": 2
+      },
+      {
+        "id": "24-17-1-the-rag-trust-chain",
+        "title": "24.17.1 The RAG Trust Chain",
+        "level": 3
+      },
+      {
+        "id": "24-17-2-retrieval-poisoning-and-ranking-manipulation",
+        "title": "24.17.2 Retrieval Poisoning and Ranking Manipulation",
+        "level": 3
+      },
+      {
+        "id": "24-17-3-cross-tenant-leakage-test-lab",
+        "title": "24.17.3 Cross-Tenant Leakage Test (Lab)",
+        "level": 3
+      },
+      {
+        "id": "24-17-4-other-vector-weaknesses",
+        "title": "24.17.4 Other Vector Weaknesses",
+        "level": 3
+      },
+      {
+        "id": "24-17-5-fix-checklist",
+        "title": "24.17.5 Fix Checklist",
+        "level": 3
+      },
+      {
+        "id": "24-18-mastery-deep-dive-agent-tool-and-mcp-security",
+        "title": "24.18 Mastery Deep Dive: Agent, Tool, and MCP Security",
+        "level": 2
+      },
+      {
+        "id": "24-18-1-the-three-excessive-agency-axes",
+        "title": "24.18.1 The Three Excessive-AGENCY Axes",
+        "level": 3
+      },
+      {
+        "id": "24-18-2-tool-function-calling-mechanics-and-argument-injection",
+        "title": "24.18.2 Tool/Function Calling Mechanics and Argument Injection",
+        "level": 3
+      },
+      {
+        "id": "24-18-3-mcp-and-tool-poisoning",
+        "title": "24.18.3 MCP and Tool Poisoning",
+        "level": 3
+      },
+      {
+        "id": "24-18-4-confused-deputy-and-approval-gates",
+        "title": "24.18.4 Confused-Deputy and Approval Gates",
+        "level": 3
+      },
+      {
+        "id": "24-19-mastery-deep-dive-model-privacy-extraction-inversion-and-membership-inference",
+        "title": "24.19 Mastery Deep Dive: Model Privacy — Extraction, Inversion, and Membership Inference",
+        "level": 2
+      },
+      {
+        "id": "24-19-1-model-extraction",
+        "title": "24.19.1 Model Extraction",
+        "level": 3
+      },
+      {
+        "id": "24-19-2-membership-inference",
+        "title": "24.19.2 Membership Inference",
+        "level": 3
+      },
+      {
+        "id": "24-19-3-model-inversion",
+        "title": "24.19.3 Model Inversion",
+        "level": 3
+      },
+      {
+        "id": "24-19-4-severity-factors-and-detection",
+        "title": "24.19.4 Severity Factors and Detection",
+        "level": 3
+      },
+      {
+        "id": "24-20-mastery-deep-dive-training-data-poisoning-and-model-supply-chain",
+        "title": "24.20 Mastery Deep Dive: Training/Data Poisoning and Model Supply Chain",
+        "level": 2
+      },
+      {
+        "id": "24-20-1-data-poisoning-mechanics",
+        "title": "24.20.1 Data Poisoning Mechanics",
+        "level": 3
+      },
+      {
+        "id": "24-20-2-model-artifact-risks",
+        "title": "24.20.2 Model Artifact Risks",
+        "level": 3
+      },
+      {
+        "id": "24-20-3-defenses",
+        "title": "24.20.3 Defenses",
+        "level": 3
+      },
+      {
+        "id": "24-21-mastery-deep-dive-mapping-to-owasp-2026-and-mitre-atlas",
+        "title": "24.21 Mastery Deep Dive: Mapping to OWASP 2026 and MITRE ATLAS",
+        "level": 2
+      },
+      {
+        "id": "24-21-1-technique-to-framework-map",
+        "title": "24.21.1 Technique-to-Framework Map",
+        "level": 3
+      },
+      {
+        "id": "24-21-2-how-to-use-the-lists-in-practice",
+        "title": "24.21.2 How to Use the Lists in Practice",
+        "level": 3
+      },
+      {
+        "id": "24-22-mastery-deep-dive-evals-guardrails-and-defensive-architecture",
+        "title": "24.22 Mastery Deep Dive: Evals, Guardrails, and Defensive Architecture",
+        "level": 2
+      },
+      {
+        "id": "24-22-1-eval-driven-security",
+        "title": "24.22.1 Eval-Driven Security",
+        "level": 3
+      },
+      {
+        "id": "24-22-2-guardrail-layers",
+        "title": "24.22.2 Guardrail Layers",
+        "level": 3
+      },
+      {
+        "id": "24-22-3-the-deterministic-policy-gate",
+        "title": "24.22.3 The Deterministic Policy Gate",
+        "level": 3
+      },
+      {
+        "id": "24-23-mastery-deep-dive-ai-red-team-methodology-and-incident-response",
+        "title": "24.23 Mastery Deep Dive: AI Red-Team Methodology and Incident Response",
+        "level": 2
+      },
+      {
+        "id": "24-23-1-red-team-phases",
+        "title": "24.23.1 Red-Team Phases",
+        "level": 3
+      },
+      {
+        "id": "24-23-2-reproducible-reporting-under-nondeterminism",
+        "title": "24.23.2 Reproducible Reporting Under Nondeterminism",
+        "level": 3
+      },
+      {
+        "id": "24-23-3-incident-response-for-ai-systems",
+        "title": "24.23.3 Incident Response for AI Systems",
+        "level": 3
+      },
+      {
+        "id": "24-24-mastery-deep-dive-safe-local-labs-case-patterns-and-knowledge-checks",
+        "title": "24.24 Mastery Deep Dive: Safe Local Labs, Case Patterns, and Knowledge Checks",
+        "level": 2
+      },
+      {
+        "id": "24-24-1-safe-local-lab-setup",
+        "title": "24.24.1 Safe Local Lab Setup",
+        "level": 3
+      },
+      {
+        "id": "24-24-2-case-patterns",
+        "title": "24.24.2 Case Patterns",
+        "level": 3
+      },
+      {
+        "id": "24-24-3-what-mastery-looks-like",
+        "title": "24.24.3 What Mastery Looks Like",
+        "level": 3
+      },
+      {
+        "id": "24-24-4-knowledge-checks-with-answers",
+        "title": "24.24.4 Knowledge Checks (With Answers)",
+        "level": 3
+      },
+      {
+        "id": "24-25-mastery-deep-dive-multimodal-and-computer-use-agent-security",
+        "title": "24.25 Mastery Deep Dive: Multimodal and Computer-Use Agent Security",
+        "level": 2
+      },
+      {
+        "id": "24-25-1-cross-modal-injection-mechanics",
+        "title": "24.25.1 Cross-Modal Injection Mechanics",
+        "level": 3
+      },
+      {
+        "id": "24-25-2-browser-and-computer-use-agents",
+        "title": "24.25.2 Browser and Computer-Use Agents",
+        "level": 3
+      },
+      {
+        "id": "24-25-3-defensive-controls",
+        "title": "24.25.3 Defensive Controls",
+        "level": 3
+      },
+      {
+        "id": "24-25-4-lab-exercise",
+        "title": "24.25.4 Lab Exercise",
+        "level": 3
+      },
+      {
+        "id": "24-26-mastery-deep-dive-building-an-adversarial-eval-suite-and-measuring-guardrails",
+        "title": "24.26 Mastery Deep Dive: Building an Adversarial Eval Suite and Measuring Guardrails",
+        "level": 2
+      },
+      {
+        "id": "24-26-1-anatomy-of-a-good-eval-case",
+        "title": "24.26.1 Anatomy of a Good Eval Case",
+        "level": 3
+      },
+      {
+        "id": "24-26-2-scoring-and-statistics",
+        "title": "24.26.2 Scoring and Statistics",
+        "level": 3
+      },
+      {
+        "id": "24-26-3-evolving-the-suite",
+        "title": "24.26.3 Evolving the Suite",
+        "level": 3
+      },
+      {
+        "id": "24-26-4-guardrail-tradeoffs",
+        "title": "24.26.4 Guardrail Tradeoffs",
+        "level": 3
+      },
+      {
+        "id": "24-27-mastery-deep-dive-scoping-disclosure-and-finding-case-patterns",
+        "title": "24.27 Mastery Deep Dive: Scoping, Disclosure, and Finding Case Patterns",
+        "level": 2
+      },
+      {
+        "id": "24-27-1-reading-an-ai-program-scope",
+        "title": "24.27.1 Reading an AI Program Scope",
+        "level": 3
+      },
+      {
+        "id": "24-27-2-turning-an-observation-into-a-report",
+        "title": "24.27.2 Turning an Observation into a Report",
+        "level": 3
+      },
+      {
+        "id": "24-27-3-additional-case-patterns",
+        "title": "24.27.3 Additional Case Patterns",
+        "level": 3
+      },
+      {
+        "id": "24-27-4-verify-it-in-your-lab",
+        "title": "24.27.4 Verify It in Your Lab",
+        "level": 3
+      },
+      {
         "id": "24-13-key-takeaways",
         "title": "24.13 Key Takeaways",
         "level": 2
@@ -2790,7 +6640,7 @@
     "difficulty": "Intermediate",
     "level": 5,
     "minutes": 70,
-    "words": 3424,
+    "words": 7123,
     "sections": [
       {
         "id": "25-1-anatomy-of-a-high-quality-report",
@@ -2913,6 +6763,211 @@
         "level": 3
       },
       {
+        "id": "25-7-mastery-deep-dive-report-anatomy-line-by-line",
+        "title": "25.7 Mastery Deep Dive: Report Anatomy Line by Line",
+        "level": 2
+      },
+      {
+        "id": "25-7-1-title-and-executive-summary",
+        "title": "25.7.1 Title and Executive Summary",
+        "level": 3
+      },
+      {
+        "id": "25-7-2-affected-asset-scope-and-preconditions",
+        "title": "25.7.2 Affected Asset, Scope, and Preconditions",
+        "level": 3
+      },
+      {
+        "id": "25-7-3-steps-to-reproduce-and-proof-of-concept",
+        "title": "25.7.3 Steps to Reproduce and Proof of Concept",
+        "level": 3
+      },
+      {
+        "id": "25-7-4-impact-remediation-and-references",
+        "title": "25.7.4 Impact, Remediation, and References",
+        "level": 3
+      },
+      {
+        "id": "25-7-5-writing-for-triagers-and-engineers",
+        "title": "25.7.5 Writing for Triagers and Engineers",
+        "level": 3
+      },
+      {
+        "id": "25-8-mastery-deep-dive-cvss-3-1-worked-calculations",
+        "title": "25.8 Mastery Deep Dive: CVSS 3.1 Worked Calculations",
+        "level": 2
+      },
+      {
+        "id": "25-8-1-base-metrics-and-the-subscores",
+        "title": "25.8.1 Base Metrics and the Subscores",
+        "level": 3
+      },
+      {
+        "id": "25-8-2-temporal-and-environmental-metrics",
+        "title": "25.8.2 Temporal and Environmental Metrics",
+        "level": 3
+      },
+      {
+        "id": "25-8-3-worked-example-stored-xss-with-changed-scope",
+        "title": "25.8.3 Worked Example: Stored XSS With Changed Scope",
+        "level": 3
+      },
+      {
+        "id": "25-8-4-when-cvss-misleads",
+        "title": "25.8.4 When CVSS Misleads",
+        "level": 3
+      },
+      {
+        "id": "25-9-mastery-deep-dive-cvss-4-0-and-what-changed",
+        "title": "25.9 Mastery Deep Dive: CVSS 4.0 and What Changed",
+        "level": 2
+      },
+      {
+        "id": "25-9-1-new-metrics-you-must-know",
+        "title": "25.9.1 New Metrics You Must Know",
+        "level": 3
+      },
+      {
+        "id": "25-9-2-worked-cvss-4-0-example",
+        "title": "25.9.2 Worked CVSS 4.0 Example",
+        "level": 3
+      },
+      {
+        "id": "25-9-3-cvss-3-1-vs-4-0",
+        "title": "25.9.3 CVSS 3.1 vs. 4.0",
+        "level": 3
+      },
+      {
+        "id": "25-9-4-choosing-which-version-to-report",
+        "title": "25.9.4 Choosing Which Version to Report",
+        "level": 3
+      },
+      {
+        "id": "25-10-mastery-deep-dive-cwe-mapping-and-severity-decision-trees",
+        "title": "25.10 Mastery Deep Dive: CWE Mapping and Severity Decision Trees",
+        "level": 2
+      },
+      {
+        "id": "25-10-1-cwe-mapping-table",
+        "title": "25.10.1 CWE Mapping Table",
+        "level": 3
+      },
+      {
+        "id": "25-10-2-root-cause-vs-symptom",
+        "title": "25.10.2 Root Cause vs. Symptom",
+        "level": 3
+      },
+      {
+        "id": "25-10-3-severity-decision-tree",
+        "title": "25.10.3 Severity Decision Tree",
+        "level": 3
+      },
+      {
+        "id": "25-10-4-impact-framing-without-real-data",
+        "title": "25.10.4 Impact Framing Without Real Data",
+        "level": 3
+      },
+      {
+        "id": "25-11-mastery-deep-dive-harmless-pocs-and-evidence-hygiene",
+        "title": "25.11 Mastery Deep Dive: Harmless PoCs and Evidence Hygiene",
+        "level": 2
+      },
+      {
+        "id": "25-11-1-designing-safe-reproducible-pocs",
+        "title": "25.11.1 Designing Safe, Reproducible PoCs",
+        "level": 3
+      },
+      {
+        "id": "25-11-2-screenshot-and-video-hygiene",
+        "title": "25.11.2 Screenshot and Video Hygiene",
+        "level": 3
+      },
+      {
+        "id": "25-11-3-data-handling-and-scope-discipline",
+        "title": "25.11.3 Data Handling and Scope Discipline",
+        "level": 3
+      },
+      {
+        "id": "25-11-4-redaction-checklist",
+        "title": "25.11.4 Redaction Checklist",
+        "level": 3
+      },
+      {
+        "id": "25-12-mastery-deep-dive-triage-conversations-and-disposition-outcomes",
+        "title": "25.12 Mastery Deep Dive: Triage Conversations and Disposition Outcomes",
+        "level": 2
+      },
+      {
+        "id": "25-12-1-duplicates-informative-and-not-applicable",
+        "title": "25.12.1 Duplicates, Informative, and Not Applicable",
+        "level": 3
+      },
+      {
+        "id": "25-12-2-handling-severity-pushback-with-scripts",
+        "title": "25.12.2 Handling Severity Pushback With Scripts",
+        "level": 3
+      },
+      {
+        "id": "25-12-3-disclosure-timeline-and-coordination",
+        "title": "25.12.3 Disclosure Timeline and Coordination",
+        "level": 3
+      },
+      {
+        "id": "25-12-4-common-mistakes-and-what-mastery-looks-like",
+        "title": "25.12.4 Common Mistakes and What Mastery Looks Like",
+        "level": 3
+      },
+      {
+        "id": "25-13-mastery-deep-dive-templates-worked-example-and-knowledge-checks",
+        "title": "25.13 Mastery Deep Dive: Templates, Worked Example, and Knowledge Checks",
+        "level": 2
+      },
+      {
+        "id": "25-13-1-fill-in-report-template",
+        "title": "25.13.1 Fill-in Report Template",
+        "level": 3
+      },
+      {
+        "id": "25-13-2-fully-worked-example",
+        "title": "25.13.2 Fully Worked Example",
+        "level": 3
+      },
+      {
+        "id": "25-13-3-common-report-mistakes",
+        "title": "25.13.3 Common Report Mistakes",
+        "level": 3
+      },
+      {
+        "id": "25-13-4-knowledge-checks-with-answers",
+        "title": "25.13.4 Knowledge Checks With Answers",
+        "level": 3
+      },
+      {
+        "id": "25-14-mastery-deep-dive-advanced-scoring-and-triage-edge-cases",
+        "title": "25.14 Mastery Deep Dive: Advanced Scoring and Triage Edge Cases",
+        "level": 2
+      },
+      {
+        "id": "25-14-1-environmental-scoring-worked-example",
+        "title": "25.14.1 Environmental Scoring Worked Example",
+        "level": 3
+      },
+      {
+        "id": "25-14-2-chained-vulnerabilities-and-score-caps",
+        "title": "25.14.2 Chained Vulnerabilities and Score Caps",
+        "level": 3
+      },
+      {
+        "id": "25-14-3-report-review-and-self-critique-rubric",
+        "title": "25.14.3 Report Review and Self-Critique Rubric",
+        "level": 3
+      },
+      {
+        "id": "25-14-4-knowledge-checks-ii-advanced",
+        "title": "25.14.4 Knowledge Checks II (Advanced)",
+        "level": 3
+      },
+      {
         "id": "25-5-key-takeaways",
         "title": "25.5 Key Takeaways",
         "level": 2
@@ -2947,7 +7002,7 @@
     "difficulty": "Intermediate",
     "level": 6,
     "minutes": 65,
-    "words": 556,
+    "words": 3670,
     "sections": [
       {
         "id": "26-1-the-ten-phases",
@@ -3025,6 +7080,236 @@
         "level": 2
       },
       {
+        "id": "26-8-mastery-deep-dive-engagement-management-end-to-end",
+        "title": "26.8 Mastery Deep Dive: Engagement Management End to End",
+        "level": 2
+      },
+      {
+        "id": "26-8-1-pre-engagement-setup-and-scope-lock",
+        "title": "26.8.1 Pre-Engagement Setup and Scope Lock",
+        "level": 3
+      },
+      {
+        "id": "26-8-2-timeboxing-and-target-selection",
+        "title": "26.8.2 Timeboxing and Target Selection",
+        "level": 3
+      },
+      {
+        "id": "26-8-3-the-ten-phases-as-a-state-machine",
+        "title": "26.8.3 The Ten Phases as a State Machine",
+        "level": 3
+      },
+      {
+        "id": "26-8-4-definition-of-done-for-each-phase",
+        "title": "26.8.4 Definition of Done for Each Phase",
+        "level": 3
+      },
+      {
+        "id": "26-9-mastery-deep-dive-lab-and-tooling-setup",
+        "title": "26.9 Mastery Deep Dive: Lab and Tooling Setup",
+        "level": 2
+      },
+      {
+        "id": "26-9-1-browser-profiles-and-isolation",
+        "title": "26.9.1 Browser Profiles and Isolation",
+        "level": 3
+      },
+      {
+        "id": "26-9-2-proxy-configuration-burp-zap",
+        "title": "26.9.2 Proxy Configuration (Burp/ZAP)",
+        "level": 3
+      },
+      {
+        "id": "26-9-3-vms-containers-and-network-isolation",
+        "title": "26.9.3 VMs, Containers, and Network Isolation",
+        "level": 3
+      },
+      {
+        "id": "26-9-4-notes-and-knowledge-base-systems",
+        "title": "26.9.4 Notes and Knowledge Base Systems",
+        "level": 3
+      },
+      {
+        "id": "26-10-mastery-deep-dive-automation-without-losing-understanding",
+        "title": "26.10 Mastery Deep Dive: Automation Without Losing Understanding",
+        "level": 2
+      },
+      {
+        "id": "26-10-1-what-to-automate-and-what-to-keep-manual",
+        "title": "26.10.1 What to Automate and What to Keep Manual",
+        "level": 3
+      },
+      {
+        "id": "26-10-2-building-a-recon-pipeline",
+        "title": "26.10.2 Building a Recon Pipeline",
+        "level": 3
+      },
+      {
+        "id": "26-10-3-rate-limiting-and-safe-automation",
+        "title": "26.10.3 Rate Limiting and Safe Automation",
+        "level": 3
+      },
+      {
+        "id": "26-10-4-validating-tool-output",
+        "title": "26.10.4 Validating Tool Output",
+        "level": 3
+      },
+      {
+        "id": "26-11-mastery-deep-dive-tracking-findings-and-personal-knowledge-base",
+        "title": "26.11 Mastery Deep Dive: Tracking Findings and Personal Knowledge Base",
+        "level": 2
+      },
+      {
+        "id": "26-11-1-finding-lifecycle-states",
+        "title": "26.11.1 Finding Lifecycle States",
+        "level": 3
+      },
+      {
+        "id": "26-11-2-the-hypothesis-journal",
+        "title": "26.11.2 The Hypothesis Journal",
+        "level": 3
+      },
+      {
+        "id": "26-11-3-structuring-a-searchable-knowledge-base",
+        "title": "26.11.3 Structuring a Searchable Knowledge Base",
+        "level": 3
+      },
+      {
+        "id": "26-11-4-metrics-that-matter-and-vanity-metrics",
+        "title": "26.11.4 Metrics That Matter (and Vanity Metrics)",
+        "level": 3
+      },
+      {
+        "id": "26-12-mastery-deep-dive-collaboration-handoffs-and-communication",
+        "title": "26.12 Mastery Deep Dive: Collaboration, Handoffs, and Communication",
+        "level": 2
+      },
+      {
+        "id": "26-12-1-working-with-other-researchers",
+        "title": "26.12.1 Working With Other Researchers",
+        "level": 3
+      },
+      {
+        "id": "26-12-2-handoff-templates",
+        "title": "26.12.2 Handoff Templates",
+        "level": 3
+      },
+      {
+        "id": "26-12-3-communicating-with-program-owners",
+        "title": "26.12.3 Communicating With Program Owners",
+        "level": 3
+      },
+      {
+        "id": "26-12-4-avoiding-burnout-and-maintaining-momentum",
+        "title": "26.12.4 Avoiding Burnout and Maintaining Momentum",
+        "level": 3
+      },
+      {
+        "id": "26-13-mastery-deep-dive-continuous-improvement-and-operating-rhythm",
+        "title": "26.13 Mastery Deep Dive: Continuous Improvement and Operating Rhythm",
+        "level": 2
+      },
+      {
+        "id": "26-13-1-the-weekly-operating-rhythm",
+        "title": "26.13.1 The Weekly Operating Rhythm",
+        "level": 3
+      },
+      {
+        "id": "26-13-2-the-retrospective-loop",
+        "title": "26.13.2 The Retrospective Loop",
+        "level": 3
+      },
+      {
+        "id": "26-13-3-checklists",
+        "title": "26.13.3 Checklists",
+        "level": 3
+      },
+      {
+        "id": "26-13-4-what-mastery-looks-like-and-knowledge-checks",
+        "title": "26.13.4 What Mastery Looks Like and Knowledge Checks",
+        "level": 3
+      },
+      {
+        "id": "26-14-mastery-deep-dive-recon-and-mapping-depth",
+        "title": "26.14 Mastery Deep Dive: Recon and Mapping Depth",
+        "level": 2
+      },
+      {
+        "id": "26-14-1-passive-recon-sources-and-their-limits",
+        "title": "26.14.1 Passive Recon Sources and Their Limits",
+        "level": 3
+      },
+      {
+        "id": "26-14-2-building-an-authorization-matrix",
+        "title": "26.14.2 Building an Authorization Matrix",
+        "level": 3
+      },
+      {
+        "id": "26-14-3-technology-fingerprinting-and-hypothesis-generation",
+        "title": "26.14.3 Technology Fingerprinting and Hypothesis Generation",
+        "level": 3
+      },
+      {
+        "id": "26-14-4-attack-surface-diffing-and-change-detection",
+        "title": "26.14.4 Attack-Surface Diffing and Change Detection",
+        "level": 3
+      },
+      {
+        "id": "26-15-mastery-deep-dive-evidence-reporting-and-closure",
+        "title": "26.15 Mastery Deep Dive: Evidence, Reporting, and Closure",
+        "level": 2
+      },
+      {
+        "id": "26-15-1-evidence-package-structure",
+        "title": "26.15.1 Evidence Package Structure",
+        "level": 3
+      },
+      {
+        "id": "26-15-2-peer-review-of-your-own-reports",
+        "title": "26.15.2 Peer Review of Your Own Reports",
+        "level": 3
+      },
+      {
+        "id": "26-15-3-handling-triage-threads-at-scale",
+        "title": "26.15.3 Handling Triage Threads at Scale",
+        "level": 3
+      },
+      {
+        "id": "26-15-4-engagement-closure-and-cleanup",
+        "title": "26.15.4 Engagement Closure and Cleanup",
+        "level": 3
+      },
+      {
+        "id": "26-16-mastery-deep-dive-judgment-under-uncertainty",
+        "title": "26.16 Mastery Deep Dive: Judgment Under Uncertainty",
+        "level": 2
+      },
+      {
+        "id": "26-16-1-decision-checklist-under-uncertainty",
+        "title": "26.16.1 Decision Checklist Under Uncertainty",
+        "level": 3
+      },
+      {
+        "id": "26-16-2-knowing-when-to-stop-testing-a-target",
+        "title": "26.16.2 Knowing When to Stop Testing a Target",
+        "level": 3
+      },
+      {
+        "id": "26-16-3-handling-sensitive-discoveries",
+        "title": "26.16.3 Handling Sensitive Discoveries",
+        "level": 3
+      },
+      {
+        "id": "26-16-4-knowledge-checks-iii",
+        "title": "26.16.4 Knowledge Checks III",
+        "level": 3
+      },
+      {
+        "id": "26-16-5-common-workflow-mistakes",
+        "title": "26.16.5 Common Workflow Mistakes",
+        "level": 3
+      },
+      {
         "id": "26-6-key-takeaways",
         "title": "26.6 Key Takeaways",
         "level": 2
@@ -3060,7 +7345,7 @@
     "difficulty": "Beginner",
     "level": 8,
     "minutes": 55,
-    "words": 580,
+    "words": 3640,
     "sections": [
       {
         "id": "27-1-building-a-research-portfolio",
@@ -3091,6 +7376,261 @@
         "id": "27-6-continuous-learning",
         "title": "27.6 Continuous Learning",
         "level": 2
+      },
+      {
+        "id": "27-9-mastery-deep-dive-reputation-and-trust",
+        "title": "27.9 Mastery Deep Dive: Reputation and Trust",
+        "level": 2
+      },
+      {
+        "id": "27-9-1-trust-as-a-career-asset",
+        "title": "27.9.1 Trust as a Career Asset",
+        "level": 3
+      },
+      {
+        "id": "27-9-2-building-reputation-through-consistent-behavior",
+        "title": "27.9.2 Building Reputation Through Consistent Behavior",
+        "level": 3
+      },
+      {
+        "id": "27-9-3-reputation-failure-modes",
+        "title": "27.9.3 Reputation Failure Modes",
+        "level": 3
+      },
+      {
+        "id": "27-9-4-measuring-trust",
+        "title": "27.9.4 Measuring Trust",
+        "level": 3
+      },
+      {
+        "id": "27-10-mastery-deep-dive-writing-and-publishing-research-safely",
+        "title": "27.10 Mastery Deep Dive: Writing and Publishing Research Safely",
+        "level": 2
+      },
+      {
+        "id": "27-10-1-responsible-disclosure-workflow",
+        "title": "27.10.1 Responsible Disclosure Workflow",
+        "level": 3
+      },
+      {
+        "id": "27-10-2-embargoes-and-coordination",
+        "title": "27.10.2 Embargoes and Coordination",
+        "level": 3
+      },
+      {
+        "id": "27-10-3-anonymization-and-data-minimization",
+        "title": "27.10.3 Anonymization and Data Minimization",
+        "level": 3
+      },
+      {
+        "id": "27-10-4-publishing-checklist",
+        "title": "27.10.4 Publishing Checklist",
+        "level": 3
+      },
+      {
+        "id": "27-11-mastery-deep-dive-measuring-skill-honestly",
+        "title": "27.11 Mastery Deep Dive: Measuring Skill Honestly",
+        "level": 2
+      },
+      {
+        "id": "27-11-1-skill-vs-credential",
+        "title": "27.11.1 Skill vs. Credential",
+        "level": 3
+      },
+      {
+        "id": "27-11-2-self-assessment-rubric",
+        "title": "27.11.2 Self-Assessment Rubric",
+        "level": 3
+      },
+      {
+        "id": "27-11-3-deliberate-practice",
+        "title": "27.11.3 Deliberate Practice",
+        "level": 3
+      },
+      {
+        "id": "27-11-4-feedback-loops",
+        "title": "27.11.4 Feedback Loops",
+        "level": 3
+      },
+      {
+        "id": "27-12-mastery-deep-dive-portfolio-and-personal-brand",
+        "title": "27.12 Mastery Deep Dive: Portfolio and Personal Brand",
+        "level": 2
+      },
+      {
+        "id": "27-12-1-portfolio-architecture",
+        "title": "27.12.1 Portfolio Architecture",
+        "level": 3
+      },
+      {
+        "id": "27-12-2-writing-that-demonstrates-depth",
+        "title": "27.12.2 Writing That Demonstrates Depth",
+        "level": 3
+      },
+      {
+        "id": "27-12-3-personal-brand-without-hype",
+        "title": "27.12.3 Personal Brand Without Hype",
+        "level": 3
+      },
+      {
+        "id": "27-12-4-portfolio-review-checklist",
+        "title": "27.12.4 Portfolio Review Checklist",
+        "level": 3
+      },
+      {
+        "id": "27-13-mastery-deep-dive-networking-mentoring-and-communication",
+        "title": "27.13 Mastery Deep Dive: Networking, Mentoring, and Communication",
+        "level": 2
+      },
+      {
+        "id": "27-13-1-networking-that-is-not-transactional",
+        "title": "27.13.1 Networking That Is Not Transactional",
+        "level": 3
+      },
+      {
+        "id": "27-13-2-mentoring-and-being-mentored",
+        "title": "27.13.2 Mentoring and Being Mentored",
+        "level": 3
+      },
+      {
+        "id": "27-13-3-communicating-with-engineers-and-executives",
+        "title": "27.13.3 Communicating With Engineers and Executives",
+        "level": 3
+      },
+      {
+        "id": "27-13-4-community-contribution",
+        "title": "27.13.4 Community Contribution",
+        "level": 3
+      },
+      {
+        "id": "27-14-mastery-deep-dive-legal-business-and-ethics-basics",
+        "title": "27.14 Mastery Deep Dive: Legal, Business, and Ethics Basics",
+        "level": 2
+      },
+      {
+        "id": "27-14-1-scope-authorization-and-safe-harbor",
+        "title": "27.14.1 Scope, Authorization, and Safe Harbor",
+        "level": 3
+      },
+      {
+        "id": "27-14-2-data-handling-and-privacy",
+        "title": "27.14.2 Data Handling and Privacy",
+        "level": 3
+      },
+      {
+        "id": "27-14-3-contracts-ndas-and-liability",
+        "title": "27.14.3 Contracts, NDAs, and Liability",
+        "level": 3
+      },
+      {
+        "id": "27-14-4-ethics-checklists",
+        "title": "27.14.4 Ethics Checklists",
+        "level": 3
+      },
+      {
+        "id": "27-15-mastery-deep-dive-handling-failure-plateaus-and-the-five-year-model",
+        "title": "27.15 Mastery Deep Dive: Handling Failure, Plateaus, and the Five-Year Model",
+        "level": 2
+      },
+      {
+        "id": "27-15-1-failure-and-plateaus",
+        "title": "27.15.1 Failure and Plateaus",
+        "level": 3
+      },
+      {
+        "id": "27-15-2-the-five-year-growth-model",
+        "title": "27.15.2 The Five-Year Growth Model",
+        "level": 3
+      },
+      {
+        "id": "27-15-3-milestones-and-review-cadence",
+        "title": "27.15.3 Milestones and Review Cadence",
+        "level": 3
+      },
+      {
+        "id": "27-15-4-what-mastery-looks-like-and-knowledge-checks",
+        "title": "27.15.4 What Mastery Looks Like and Knowledge Checks",
+        "level": 3
+      },
+      {
+        "id": "27-16-mastery-deep-dive-writing-speaking-and-teaching",
+        "title": "27.16 Mastery Deep Dive: Writing, Speaking, and Teaching",
+        "level": 2
+      },
+      {
+        "id": "27-16-1-the-anatomy-of-a-deep-technical-write-up",
+        "title": "27.16.1 The Anatomy of a Deep Technical Write-up",
+        "level": 3
+      },
+      {
+        "id": "27-16-2-building-a-talk-from-a-finding",
+        "title": "27.16.2 Building a Talk From a Finding",
+        "level": 3
+      },
+      {
+        "id": "27-16-3-lab-design-for-teaching",
+        "title": "27.16.3 Lab Design for Teaching",
+        "level": 3
+      },
+      {
+        "id": "27-16-4-editing-and-feedback-cycles",
+        "title": "27.16.4 Editing and Feedback Cycles",
+        "level": 3
+      },
+      {
+        "id": "27-17-mastery-deep-dive-career-transitions-and-the-long-game",
+        "title": "27.17 Mastery Deep Dive: Career Transitions and the Long Game",
+        "level": 2
+      },
+      {
+        "id": "27-17-1-evaluating-offers-and-roles",
+        "title": "27.17.1 Evaluating Offers and Roles",
+        "level": 3
+      },
+      {
+        "id": "27-17-2-the-apprentice-to-expert-ladder",
+        "title": "27.17.2 The Apprentice-to-Expert Ladder",
+        "level": 3
+      },
+      {
+        "id": "27-17-3-building-a-personal-advisory-network",
+        "title": "27.17.3 Building a Personal Advisory Network",
+        "level": 3
+      },
+      {
+        "id": "27-17-4-knowledge-checks-ii-and-mastery-rubric",
+        "title": "27.17.4 Knowledge Checks II and Mastery Rubric",
+        "level": 3
+      },
+      {
+        "id": "27-18-mastery-deep-dive-ethics-under-pressure-and-legacy",
+        "title": "27.18 Mastery Deep Dive: Ethics Under Pressure and Legacy",
+        "level": 2
+      },
+      {
+        "id": "27-18-1-pressure-points-and-responses",
+        "title": "27.18.1 Pressure Points and Responses",
+        "level": 3
+      },
+      {
+        "id": "27-18-2-conflicts-of-interest",
+        "title": "27.18.2 Conflicts of Interest",
+        "level": 3
+      },
+      {
+        "id": "27-18-3-giving-back-and-building-legacy",
+        "title": "27.18.3 Giving Back and Building Legacy",
+        "level": 3
+      },
+      {
+        "id": "27-18-4-final-knowledge-checks",
+        "title": "27.18.4 Final Knowledge Checks",
+        "level": 3
+      },
+      {
+        "id": "27-18-5-common-career-mistakes",
+        "title": "27.18.5 Common Career Mistakes",
+        "level": 3
       },
       {
         "id": "27-7-key-takeaways",

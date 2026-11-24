@@ -1,8 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight, Award, BookOpen, CheckCircle2, FileCheck2, Globe2, Radar, Scale, Search, Target, Workflow } from 'lucide-react';
+import { ArrowRight, Award, BookOpen, CheckCircle2, Compass, FileCheck2, Globe2, Layers3, Radar, Scale, Search, ShieldCheck, Target, Workflow } from 'lucide-react';
 import { useData } from '@/lib/data';
+import { topicConfig } from '@/lib/nav';
 import type { Chapter, Tool, Report } from '@/lib/types';
 import { Badge, PageHeader, Panel, ProgressBar, SeverityBadge } from '@/components/ui';
 import { useProgress } from '@/components/providers';
@@ -31,6 +32,7 @@ export default function BugBountyPage() {
   const { data: tools } = useData<Tool[]>('tools.json');
   const { data: reports } = useData<Report[]>('reports.json');
   const { isMastered, state } = useProgress();
+  const config = topicConfig['bug-bounty'];
   const bountyChapters = (chapters ?? []).filter((c) => c.schoolIds.includes('advanced-bug-bounty-hunting'));
   const mastered = bountyChapters.filter((c) => isMastered(c.id)).length;
   const reconTools = (tools ?? []).filter((t) => /recon|scan|intercept|web testing|fuzz/i.test(t.category)).slice(0, 10);
@@ -43,6 +45,38 @@ export default function BugBountyPage() {
         description="A repeatable professional workflow from program selection to a triage-ready report — built on deep technical understanding, careful scope discipline and responsible conduct."
         actions={<Link href="/simulator" className="btn-primary"><Workflow className="h-4 w-4" /> Open workflow simulator</Link>}
       />
+
+      <Panel className="mb-4 p-6">
+        <div className="mb-3 flex items-center gap-2"><Compass className="h-4 w-4 text-mint-400" /><div className="label">About this track</div></div>
+        <p className="max-w-4xl text-[14px] leading-relaxed text-slate-300">{config.overview}</p>
+      </Panel>
+
+      <div className="mb-6 grid gap-4 lg:grid-cols-2">
+        <Panel className="p-6">
+          <div className="mb-4 flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-mint-400" /><div className="label">Learning objectives</div></div>
+          <ul className="space-y-2.5">
+            {config.objectives.map((o) => (
+              <li key={o} className="flex gap-2.5 text-[13px] leading-relaxed text-slate-300">
+                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-mint-400" />{o}
+              </li>
+            ))}
+          </ul>
+        </Panel>
+        <Panel className="p-6">
+          <div className="mb-4 flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-cyanx-300" /><div className="label">Signals of true mastery</div></div>
+          <ul className="space-y-2.5">
+            {config.masterySignals.map((s) => (
+              <li key={s} className="flex gap-2.5 text-[13px] leading-relaxed text-slate-300">
+                <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-cyanx-300" />{s}
+              </li>
+            ))}
+          </ul>
+          <div className="mt-5 border-t border-ink-800 pt-4">
+            <div className="mb-2 flex items-center gap-2"><Layers3 className="h-3.5 w-3.5 text-mint-400" /><div className="label">Core skills</div></div>
+            <div className="flex flex-wrap gap-1.5">{config.coreSkills.map((s) => <span key={s} className="chip">{s}</span>)}</div>
+          </div>
+        </Panel>
+      </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Panel className="p-5"><div className="label">Bounty track progress</div><div className="stat-num mt-2">{pct(mastered, bountyChapters.length)}%</div><ProgressBar className="mt-3" value={pct(mastered, bountyChapters.length)} /><div className="mt-2 text-xs text-muted">{mastered}/{bountyChapters.length} chapters mastered</div></Panel>

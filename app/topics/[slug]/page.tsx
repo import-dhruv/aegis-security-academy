@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useMemo, useState } from 'react';
-import { ArrowRight, BookOpen, CheckCircle2, Clock, FlaskConical, Wrench } from 'lucide-react';
+import { ArrowRight, BookOpen, CheckCircle2, Clock, Compass, FlaskConical, Layers3, Route, ShieldCheck, Wrench } from 'lucide-react';
 import { useData } from '@/lib/data';
 import type { Chapter, School, Tool, Lab } from '@/lib/types';
 import { Badge, DifficultyBadge, PageHeader, Panel, SearchInput, ProgressBar } from '@/components/ui';
@@ -35,6 +35,7 @@ export default function TopicPage() {
   const relatedTools = (tools ?? []).filter((t) => config.schoolIds.some((sid) => t.category.toLowerCase().includes(sid.split('-')[0]))).slice(0, 8);
   const relatedLabs = (labs ?? []).filter((l) => l.skills.some((s) => config.title.toLowerCase().includes(s.toLowerCase().split(' ')[0]))).slice(0, 4);
   const mastered = list.filter((c) => isMastered(c.id)).length;
+  const chapterTitle = (id: number) => (chapters ?? []).find((c) => c.id === id)?.title ?? `Chapter ${id}`;
 
   return (
     <div className="animate-fade-up">
@@ -44,6 +45,61 @@ export default function TopicPage() {
         description={config.subtitle}
         actions={<Link href="/roadmap" className="btn-ghost">Where this fits <ArrowRight className="h-4 w-4" /></Link>}
       />
+
+      <Panel className="mb-4 p-6">
+        <div className="mb-3 flex items-center gap-2"><Compass className="h-4 w-4 text-mint-400" /><div className="label">About this topic</div></div>
+        <p className="max-w-4xl text-[14px] leading-relaxed text-slate-300">{config.overview}</p>
+      </Panel>
+
+      <div className="mb-4 grid gap-4 lg:grid-cols-2">
+        <Panel className="p-6">
+          <div className="mb-4 flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-mint-400" /><div className="label">Learning objectives</div></div>
+          <ul className="space-y-2.5">
+            {config.objectives.map((o) => (
+              <li key={o} className="flex gap-2.5 text-[13px] leading-relaxed text-slate-300">
+                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-mint-400" />{o}
+              </li>
+            ))}
+          </ul>
+        </Panel>
+        <Panel className="p-6">
+          <div className="mb-4 flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-cyanx-300" /><div className="label">Signals of true mastery</div></div>
+          <ul className="space-y-2.5">
+            {config.masterySignals.map((s) => (
+              <li key={s} className="flex gap-2.5 text-[13px] leading-relaxed text-slate-300">
+                <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-cyanx-300" />{s}
+              </li>
+            ))}
+          </ul>
+          <div className="mt-5 border-t border-ink-800 pt-4">
+            <div className="mb-2 flex items-center gap-2"><Layers3 className="h-3.5 w-3.5 text-mint-400" /><div className="label">Core skills</div></div>
+            <div className="flex flex-wrap gap-1.5">{config.coreSkills.map((s) => <span key={s} className="chip">{s}</span>)}</div>
+          </div>
+        </Panel>
+      </div>
+
+      <Panel className="mb-6 p-6">
+        <div className="mb-4 flex items-center gap-2"><Route className="h-4 w-4 text-mint-400" /><div className="label">Recommended learning path</div></div>
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          {config.path.map((stage, i) => (
+            <div key={stage.title} className="rounded-xl border border-ink-700 bg-ink-900/60 p-4">
+              <div className="mb-2 flex items-center justify-between">
+                <span className="font-mono text-xs text-mint-500/70">STAGE {String(i + 1).padStart(2, '0')}</span>
+                {stage.chapterIds.some((id) => isMastered(id)) && <CheckCircle2 className="h-3.5 w-3.5 text-mint-400" />}
+              </div>
+              <h3 className="text-sm font-semibold text-slate-100">{stage.title}</h3>
+              <p className="mt-1.5 text-[12px] leading-relaxed text-muted">{stage.detail}</p>
+              <div className="mt-3 flex flex-wrap gap-1.5">
+                {stage.chapterIds.map((id) => (
+                  <Link key={id} href={`/learn/chapter-${String(id).padStart(2, '0')}`} className="chip hover:border-mint-500/40 hover:text-mint-300">
+                    {chapterTitle(id)} <ArrowRight className="h-3 w-3" />
+                  </Link>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </Panel>
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
         <div className="min-w-0">
