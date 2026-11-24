@@ -1,0 +1,65 @@
+[
+  {
+    "slug": "bug-bounty",
+    "title": "Bug Bounty Academy",
+    "count": 50,
+    "words": 13394,
+    "citedModules": 0
+  },
+  {
+    "slug": "web-security",
+    "title": "Web Security",
+    "count": 50,
+    "words": 17142,
+    "citedModules": 0
+  },
+  {
+    "slug": "networking",
+    "title": "Networking",
+    "count": 50,
+    "words": 16243,
+    "citedModules": 0
+  },
+  {
+    "slug": "linux-windows",
+    "title": "Linux & Windows",
+    "count": 50,
+    "words": 16142,
+    "citedModules": 0
+  },
+  {
+    "slug": "cloud-security",
+    "title": "Cloud Security",
+    "count": 50,
+    "words": 20571,
+    "citedModules": 0
+  },
+  {
+    "slug": "mobile-security",
+    "title": "Mobile Security",
+    "count": 50,
+    "words": 16479,
+    "citedModules": 0
+  },
+  {
+    "slug": "reverse-engineering",
+    "title": "Reverse Engineering",
+    "count": 50,
+    "words": 14677,
+    "citedModules": 0
+  },
+  {
+    "slug": "ai-security",
+    "title": "AI Security",
+    "count": 50,
+    "words": 14342,
+    "citedModules": 0
+  },
+  {
+    "slug": "field-guide",
+    "title": "Practical Bug Bounty Field Guide",
+    "count": 50,
+    "words": 13913,
+    "citedModules": 50
+  }
+]

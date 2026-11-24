@@ -14,6 +14,7 @@ export const navGroups: { title: string; items: NavItem[] }[] = [
     title: 'Learn',
     items: [
       { href: '/bug-bounty', label: 'Bug Bounty Academy', icon: 'Target' },
+      { href: '/field-guide', label: 'Practical Field Guide', icon: 'BookOpenCheck' },
       { href: '/topics/web-security', label: 'Web Security', icon: 'Bug' },
       { href: '/topics/networking', label: 'Networking', icon: 'Network' },
       { href: '/topics/linux-windows', label: 'Linux & Windows', icon: 'Server' },

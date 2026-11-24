@@ -1,0 +1,1102 @@
+[
+  {
+    "id": "networking-01",
+    "topic": "networking",
+    "number": 1,
+    "title": "Bits, Bytes, and Binary Foundations",
+    "level": "Beginner",
+    "minutes": 25,
+    "summary": "Build the numeric foundation every network concept rests on: bits, octets, binary, decimal, and hexadecimal. Learn to convert between them fluently.",
+    "objectives": [
+      "Convert between binary, decimal, and hex",
+      "Explain why octets and powers of two matter",
+      "Avoid unit-conversion errors"
+    ],
+    "takeaways": [
+      "A byte is eight bits and an IPv4 address is four octets",
+      "Hex is compact binary",
+      "Networking uses powers of ten for line rates"
+    ],
+    "practice": "On your own lab host, pick five random octets and verify each binary, decimal, and hex form with command-line tools.",
+    "sources": [],
+    "content": "## Core idea\nEverything on a network is ultimately bits. A bit is one binary digit, 0 or 1; eight bits form a byte (octet). Network engineers count in powers of two, so fluency in binary, decimal, and hexadecimal conversion underpins addresses, masks, and every protocol field. The mental model: a protocol field is a fixed-width row of bits, and interpreting a packet means knowing which bit positions carry which meaning.\n\n## Method\n1. Memorize the positional values of a byte: 128, 64, 32, 16, 8, 4, 2, 1.\n2. Convert binary to decimal by summing place values where the bit is 1, and decimal to binary by repeated subtraction.\n3. Group four bits into a nibble and map each nibble to one hex digit (0-9, A-F) for compact notation.\n4. Track units carefully: memory uses powers of two (1024), while network line rates use powers of ten (1000).\n\n## Example\nOn your lab host, convert values and inspect a byte:\n```bash\necho \"obase=2; 192\" | bc       # <LAB> -> 11000000\nprintf '%x\\n' 192              # <LAB> -> c0\npython3 -c \"print(bin(192))\"   # <LAB> -> 0b11000000\n```\n\n## Comparison\n| Representation | Value 192 | Best for |\n|---|---|---|\n| Binary | 11000000 | Mask logic, bitwise ops |\n| Decimal | 192 | Human-readable addresses |\n| Hex | C0 | Compact packet dumps |\n\n## Common mistakes\n- Treating 1000 (10^3) as 1024 (2^10) when sizing subnets or estimating throughput.\n- Reading bit positions right-to-left; the leftmost bit is the most significant.\n- Assuming an IPv4 address is four arbitrary numbers rather than four octets.\n\n## Defense / verification\nAlways verify conversions with a tool rather than mental math. In the lab, generate a random octet and confirm its binary, decimal, and hex forms agree before using it in a mask exercise.\n\n## Knowledge check\nQ: What is decimal 255 in binary and hex?\nA: 11111111 and FF."
+  },
+  {
+    "id": "networking-02",
+    "topic": "networking",
+    "number": 2,
+    "title": "The OSI and TCP/IP Models",
+    "level": "Beginner",
+    "minutes": 30,
+    "summary": "Understand layered networking models and how encapsulation wraps data as it descends each layer. Map common protocols to their layers.",
+    "objectives": [
+      "Recall the OSI and TCP/IP layers",
+      "Trace encapsulation of a request",
+      "Name the PDU at each layer"
+    ],
+    "takeaways": [
+      "Layers hide complexity behind interfaces",
+      "Each layer adds a header (and sometimes a trailer)",
+      "PDUs change names as they descend"
+    ],
+    "practice": "On your lab machine, capture one HTTP request and label each layer's header you can identify.",
+    "sources": [],
+    "content": "## Core idea\nLayered models split the huge problem of network communication into manageable pieces. The seven-layer OSI reference model is a teaching framework; the four-layer TCP/IP model reflects the real protocol suite. The mental model is nested envelopes: as data descends, each layer wraps the layer above it in a new header (and at the link layer, a trailer). At the receiver the wrappers are removed in reverse order. Layering lets a change at one level, such as swapping Ethernet for Wi-Fi, leave the layers above untouched.\n\n## Method\n1. Memorize OSI top-to-bottom: Application, Presentation, Session, Transport, Network, Data Link, Physical.\n2. Map TCP/IP onto it: Application, Transport, Network, Link (sometimes called Network Access).\n3. Assign protocols to layers: HTTP and DNS at Application, TCP and UDP at Transport, IP and ICMP at Network, Ethernet at Link.\n4. Trace a web request: data becomes a segment, then a packet, then a frame, then bits on the wire.\n\n## Example\nIn your lab, generate and observe one exchange:\n```bash\ncurl http://<LAB_HOST>/          # <LAB> generate one HTTP request\nsudo tcpdump -i <LAB_IFACE> -c 5 # <LAB> observe the resulting frames\n```\n\n## Comparison\n| OSI layer | TCP/IP layer | Example protocol |\n|---|---|---|\n| Application/Presentation/Session | Application | HTTP, DNS, TLS |\n| Transport | Transport | TCP, UDP |\n| Network | Network | IP, ICMP |\n| Data Link/Physical | Link | Ethernet, ARP |\n\n## Common mistakes\n- Treating OSI as a literal implementation; it is a conceptual guide, not a mandated stack.\n- Confusing the session and presentation layers with real protocols.\n- Forgetting that routers work at Layer 3 while switches work at Layer 2.\n\n## Defense / verification\nWhen troubleshooting, name the layer first, then inspect only that layer's headers. This narrows the problem quickly and prevents random restarting of services.\n\n## Knowledge check\nQ: Which PDU corresponds to the Network layer?\nA: A packet (a datagram)."
+  },
+  {
+    "id": "networking-03",
+    "topic": "networking",
+    "number": 3,
+    "title": "Frames and the Data Link Layer",
+    "level": "Beginner",
+    "minutes": 30,
+    "summary": "Learn how packets are wrapped into frames for delivery across a single physical link, including the frame header, payload, and integrity trailer.",
+    "objectives": [
+      "Identify Ethernet frame fields",
+      "Explain MTU and FCS",
+      "Distinguish a frame from a packet"
+    ],
+    "takeaways": [
+      "A frame is a link-local envelope",
+      "The FCS detects corruption, not malicious tampering",
+      "Routers rewrite frames at each hop"
+    ],
+    "practice": "On your lab host, capture frames and display link-layer headers with tcpdump's -e flag.",
+    "sources": [],
+    "content": "## Core idea\nThe data link layer moves packets between nodes on the same physical or logical link by wrapping them in frames. The mental model: a frame is a local delivery envelope addressed to the next hop, not the final destination. It contains a header (destination MAC, source MAC, EtherType), a payload (usually an IP packet), and a trailer with a Frame Check Sequence used to detect corruption. Frames live only on one link; a router strips and rebuilds them at every hop while the IP packet stays end-to-end.\n\n## Method\n1. Identify the standard Ethernet II fields: preamble, destination MAC, source MAC, EtherType (0x0800 for IPv4), payload, FCS.\n2. Learn MTU (typically 1500 bytes) and how larger IP packets are fragmented.\n3. Understand that FCS is a CRC computed by hardware; corrupt frames are silently dropped.\n4. Trace how a frame's MAC addresses change at each routed hop while IP addresses remain constant.\n\n## Example\nDisplay link-layer headers from a lab capture:\n```bash\nsudo tcpdump -i <LAB_IFACE> -e -c 3         # <LAB> print MAC addresses and EtherType\nip -s link show <LAB_IFACE>                 # <LAB> check RX/TX errors and drops\n```\n\n## Comparison\n| Property | Frame (Layer 2) | Packet (Layer 3) |\n|---|---|---|\n| Address type | MAC | IP |\n| Scope | Single link | End-to-end across networks |\n| Integrity | FCS/CRC | Header checksum (IPv4) |\n\n## Common mistakes\n- Believing MAC addresses stay the same from source to destination; they change at every router.\n- Expecting FCS to be a security control; it only detects accidental corruption.\n- Ignoring MTU mismatches that cause silent fragmentation or drops.\n\n## Defense / verification\nCheck interface counters for CRC and frame errors with `ip -s link`. Rising FCS errors usually indicate cabling, duplex, or physical problems rather than software bugs.\n\n## Knowledge check\nQ: What field tells a receiver which upper-layer protocol the frame carries?\nA: The EtherType field (for example, 0x0800 for IPv4)."
+  },
+  {
+    "id": "networking-04",
+    "topic": "networking",
+    "number": 4,
+    "title": "Ethernet: Frame Format, Duplex, and Autonegotiation",
+    "level": "Beginner",
+    "minutes": 30,
+    "summary": "Trace Ethernet from shared coax with CSMA/CD to modern switched full-duplex links, and read the frame format and link settings.",
+    "objectives": [
+      "Contrast legacy and modern Ethernet",
+      "Explain CSMA/CD and duplex",
+      "Inspect negotiated link parameters"
+    ],
+    "takeaways": [
+      "Modern switched Ethernet is full-duplex and collision-free",
+      "Autonegotiation sets speed and duplex",
+      "Ethernet II is the dominant frame format"
+    ],
+    "practice": "On your lab NIC, use ethtool to inspect speed, duplex, and negotiated settings.",
+    "sources": [],
+    "content": "## Core idea\nEthernet began as a shared bus where every station competed for the wire using CSMA/CD. Switched Ethernet removed contention by giving each device a dedicated link, making full-duplex the norm. The mental model: legacy Ethernet was a noisy room where devices waited for silence; a modern switch is a set of private phone lines. Two frame formats exist: Ethernet II (with EtherType) is standard for IP traffic, while IEEE 802.3 uses a length field and LLC/SNAP. Autonegotiation lets a link pick the highest common speed and duplex.\n\n## Method\n1. Recall the CSMA/CD steps: carrier sense, transmit, detect collision, back off randomly, retry.\n2. Contrast half-duplex (shared, collisions possible) with full-duplex (separate transmit and receive paths).\n3. Parse an Ethernet II header: destination MAC, source MAC, EtherType, payload, FCS.\n4. Inspect negotiated link settings and counters on a lab interface.\n\n## Example\nInspect your lab interface:\n```bash\nethtool <LAB_IFACE>        # <LAB> speed, duplex, autonegotiation state\nethtool -S <LAB_IFACE>     # <LAB> per-interface statistics and errors\n```\n\n## Comparison\n| Mode | Collisions | Typical use |\n|---|---|---|\n| Half-duplex shared | Possible | Legacy hubs, obsolete |\n| Full-duplex switched | None | All modern access links |\n\n## Common mistakes\n- Forcing speed and duplex on one side only, creating a duplex mismatch with late collisions and CRC errors.\n- Assuming collisions still occur on a modern switched network.\n- Confusing the 802.3 length field with an EtherType value.\n\n## Defense / verification\nPrefer autonegotiation on both ends; hard-code only when debugging and set both sides identically. Verify with ethtool that Speed, Duplex, and Auto-negotiation match expectations.\n\n## Knowledge check\nQ: Why can full-duplex Ethernet not have collisions?\nA: Separate transmit and receive paths remove contention; each endpoint has a dedicated link to the switch."
+  },
+  {
+    "id": "networking-05",
+    "topic": "networking",
+    "number": 5,
+    "title": "MAC Addresses: Structure and Addressing",
+    "level": "Beginner",
+    "minutes": 25,
+    "summary": "Decode the 48-bit MAC address, its OUI and device-specific portions, and the unicast, multicast, and broadcast address types.",
+    "objectives": [
+      "Parse a MAC address into OUI and node ID",
+      "Identify unicast, multicast, and broadcast",
+      "Recognize locally administered addresses"
+    ],
+    "takeaways": [
+      "MAC addresses are 48 bits shown as six hex pairs",
+      "The I/G bit marks group addresses",
+      "Broadcast is FF:FF:FF:FF:FF:FF"
+    ],
+    "practice": "On your lab host, list interface MACs and decode the OUI and locally administered bit for each.",
+    "sources": [],
+    "content": "## Core idea\nA MAC address is a 48-bit identifier written as six colon-separated hex pairs. The first 24 bits are the OUI assigned to a vendor; the last 24 bits are assigned by that vendor. The least significant bit of the first octet is the Individual/Group bit: 0 means unicast, 1 means multicast. The next bit marks locally administered versus universally administered addresses. The mental model: MAC addresses are local names that only matter on the current link, unlike IP addresses which are globally meaningful. Broadcast uses all-ones (FF:FF:FF:FF:FF:FF).\n\n## Method\n1. Split a MAC into its OUI (first three octets) and node identifier (last three octets).\n2. Read the first octet in binary to determine unicast/multicast and global/local scope.\n3. Recognize special addresses: broadcast all-ones, IPv4 multicast starting 01:00:5E, IPv6 multicast starting 33:33.\n4. Note that OSes often randomize MACs for privacy on wireless networks.\n\n## Example\nInspect and decode lab interface addresses:\n```bash\nip link show <LAB_IFACE>                 # <LAB> view link-layer address\necho \"0x$(echo 02 | sed 's/./&/g')\"      # <LAB> inspect the first octet bits\n```\n\n## Comparison\n| Address type | I/G bit | Example | Reach |\n|---|---|---|---|\n| Unicast | 0 | 00:1A:2B:3C:4D:5E | One NIC |\n| Multicast | 1 | 01:00:5E:00:00:01 | Group of NICs |\n| Broadcast | all ones | FF:FF:FF:FF:FF:FF | All NICs on link |\n\n## Common mistakes\n- Assuming a burned-in address is permanent; software can override it.\n- Treating multicast as broadcast; only subscribed NICs accept multicast frames.\n- Reading the OUI as proof of device type; addresses can be spoofed or randomized in a lab.\n\n## Defense / verification\nUse `ip link` to confirm the active MAC rather than trusting documentation. On managed switches, port-security features bind expected MACs to ports.\n\n## Knowledge check\nQ: What does a first octet of 02 indicate?\nA: Locally administered, unicast (the second-least-significant bit is set, the I/G bit is clear)."
+  },
+  {
+    "id": "networking-06",
+    "topic": "networking",
+    "number": 6,
+    "title": "ARP: Resolving IPv4 Addresses to MAC Addresses",
+    "level": "Beginner",
+    "minutes": 35,
+    "summary": "Learn how ARP maps a next-hop IPv4 address to a MAC address on the local link using a broadcast request and unicast reply.",
+    "objectives": [
+      "Explain the ARP request/reply flow",
+      "Inspect the ARP cache",
+      "State ARP's local-link limitation"
+    ],
+    "takeaways": [
+      "ARP asks \"who has this IP?\" by broadcast",
+      "The reply is unicast",
+      "ARP only works on the local broadcast domain"
+    ],
+    "practice": "In your lab, clear and repopulate the ARP cache while capturing ARP traffic.",
+    "sources": [],
+    "content": "## Core idea\nBefore an IPv4 host can send a frame, it needs the MAC address of the next hop. ARP provides that mapping. The mental model: a host shouts a question to the whole local network — \"who has IP 192.168.1.1? Tell 192.168.1.10\" — and the owner answers privately. The request is a broadcast frame; the reply is unicast. Results are cached for a limited time so the exchange is not repeated for every packet. Crucially, ARP is confined to the local broadcast domain; a router answers ARP on behalf of remote destinations.\n\n## Method\n1. Check the local ARP/neighbor cache for the desired IP.\n2. If absent, build a broadcast ARP request with target protocol address and blank target hardware address.\n3. The owner fills in its MAC and sends a unicast ARP reply.\n4. Cache the mapping with a timer and then send the queued IP packet.\n\n## Example\nObserve ARP in a lab segment:\n```bash\nip neigh show <LAB_GATEWAY>       # <LAB> inspect neighbor (ARP) cache\nsudo ip neigh flush dev <LAB_IFACE> # <LAB> clear cache to force a new exchange\nsudo tcpdump -i <LAB_IFACE> arp -c 4 # <LAB> capture request and reply\n```\n\n## Comparison\n| Message | Destination | Purpose |\n|---|---|---|\n| ARP request | Broadcast FF:FF:... | Find owner of an IP |\n| ARP reply | Unicast to requester | Provide MAC mapping |\n\n## Common mistakes\n- Thinking ARP resolves remote IPs directly; it always resolves the next-hop gateway on the local link.\n- Assuming ARP is authenticated; in a lab, spoofed replies can poison a cache, which is why dynamic ARP inspection exists.\n- Forgetting cache entries expire, so stale mappings can briefly break connectivity.\n\n## Defense / verification\nVerify mappings with `ip neigh show` and compare against known gateway MACs. On managed switches, enable dynamic ARP inspection and DHCP snooping in production.\n\n## Knowledge check\nQ: Why is the ARP request a broadcast but the reply unicast?\nA: The requester does not know the target MAC, so it must ask everyone; the target learns the requester's MAC from the request and can answer directly."
+  },
+  {
+    "id": "networking-07",
+    "topic": "networking",
+    "number": 7,
+    "title": "Switching: MAC Learning and Forwarding",
+    "level": "Intermediate",
+    "minutes": 35,
+    "summary": "Discover how a switch learns MAC-to-port mappings, forwards frames intelligently, and floods unknown destinations and broadcasts.",
+    "objectives": [
+      "Describe MAC learning and aging",
+      "Explain forwarding, filtering, and flooding",
+      "Understand loop risks and STP"
+    ],
+    "takeaways": [
+      "Switches build a MAC address table from source addresses",
+      "Unknown unicast is flooded",
+      "Loops require Spanning Tree"
+    ],
+    "practice": "In a lab with two hosts and a switch (or Linux bridge), watch the MAC table populate as hosts communicate.",
+    "sources": [],
+    "content": "## Core idea\nA switch is a transparent Layer 2 device that connects hosts within one broadcast domain. The mental model: the switch is a receptionist who learns which desk each person sits at by watching who speaks, then delivers letters directly to the correct desk. It learns by recording the source MAC of every incoming frame against the ingress port. Known destination MACs are forwarded only out the learned port; unknown unicast, multicast, and broadcast are flooded out all other ports in the VLAN. Redundant links create loops, so Spanning Tree Protocol blocks paths.\n\n## Method\n1. Learn: on frame arrival, record source MAC and ingress port in the CAM/MAC table with a timer.\n2. Forward: if the destination MAC is known on another port, send only there; if on the same port, filter it.\n3. Flood: if the destination is unknown or broadcast, send to all other ports in the same VLAN.\n4. Age out stale entries and run STP to prevent loops in redundant topologies.\n\n## Example\nInspect a lab switch or Linux bridge table:\n```bash\nbrctl showmacs <LAB_BRIDGE>        # <LAB> list learned MAC/port pairs\nip link show <LAB_BRIDGE>          # <LAB> confirm bridge state\n```\n\n## Comparison\n| Device | Collision domains | Broadcast domains |\n|---|---|---|\n| Hub | One | One |\n| Switch | One per port | One per VLAN |\n| Router | One per port | One per interface |\n\n## Common mistakes\n- Believing a switch separates broadcast domains; only VLANs or routers do that.\n- Ignoring STP; duplicate links without it create broadcast storms.\n- Assuming the MAC table is infinite; in a lab, MAC flooding can exhaust it and cause flooding.\n\n## Defense / verification\nEnable STP, port security, and storm control on managed switches. Verify learned entries with the MAC table and confirm no unexpected ports appear.\n\n## Knowledge check\nQ: What does a switch do with a frame whose destination MAC is unknown?\nA: It floods the frame out every other port in the same VLAN."
+  },
+  {
+    "id": "networking-08",
+    "topic": "networking",
+    "number": 8,
+    "title": "VLANs, Trunking, and 802.1Q Tags",
+    "level": "Intermediate",
+    "minutes": 40,
+    "summary": "Learn how VLANs divide one physical switch into separate broadcast domains and how 802.1Q tags carry VLAN identity across trunks.",
+    "objectives": [
+      "Explain access and trunk ports",
+      "Describe the 802.1Q tag",
+      "Avoid native VLAN and hopping mistakes"
+    ],
+    "takeaways": [
+      "A VLAN is a logical broadcast domain",
+      "802.1Q inserts a 4-byte tag with a 12-bit VLAN ID",
+      "Inter-VLAN traffic needs a router or L3 switch"
+    ],
+    "practice": "In your lab, create two VLANs on a managed switch or Linux bridge and verify tag isolation with captures.",
+    "sources": [],
+    "content": "## Core idea\nA VLAN lets one physical switch behave like several independent switches. The mental model: VLANs are separate rooms inside the same building; people in different rooms cannot hear each other unless a router acts as a hallway. Access ports belong to one VLAN and carry untagged frames. Trunk ports carry multiple VLANs by inserting an 802.1Q tag containing a 12-bit VLAN ID (1-4094). The native VLAN is untagged on a trunk and must match on both ends. Traffic between VLANs requires a router-on-a-stick or a Layer 3 switch.\n\n## Method\n1. Define the VLANs and assign each access port to one.\n2. Configure trunk ports to carry the required VLAN list.\n3. Ensure native VLAN IDs match on both ends and consider tagging the native VLAN.\n4. Verify that hosts in different VLANs cannot reach each other without routing.\n\n## Example\nCapture a tagged frame in the lab:\n```bash\nsudo tcpdump -i <LAB_IFACE> -e -c 3    # <LAB> look for \"vlan\" in link headers\nip link add link <LAB_IFACE> name <LAB_VLAN_IF> type vlan id <LAB_VID>\nip link set <LAB_VLAN_IF> up           # <LAB> create a VLAN subinterface\n```\n\n## Comparison\n| Port type | Frame format | VLANs carried |\n|---|---|---|\n| Access | Untagged | One |\n| Trunk | Tagged (except native) | Many |\n\n## Common mistakes\n- Forgetting that VLANs are Layer 2; inter-VLAN traffic still needs a router.\n- Native VLAN mismatches causing traffic to land in the wrong VLAN.\n- Leaving unused VLANs on trunks, which enables double-tagging VLAN hopping in a lab.\n\n## Defense / verification\nPrune trunks to only required VLANs, change the native VLAN to an unused ID, and explicitly tag it. Verify with `tcpdump -e` that tags appear as expected.\n\n## Knowledge check\nQ: How many VLAN IDs does 802.1Q support?\nA: 4094 usable IDs (12 bits, with 0 and 4095 reserved)."
+  },
+  {
+    "id": "networking-09",
+    "topic": "networking",
+    "number": 9,
+    "title": "IPv4 Address Structure and Address Classes",
+    "level": "Beginner",
+    "minutes": 30,
+    "summary": "Understand the 32-bit IPv4 address, dotted-decimal notation, the historic class system, and reserved address ranges.",
+    "objectives": [
+      "Read an IPv4 address in binary",
+      "Identify legacy class A/B/C ranges",
+      "Recognize special-purpose ranges"
+    ],
+    "takeaways": [
+      "IPv4 is 32 bits written as four octets",
+      "Classes are historical but shape default masks",
+      "Private and reserved ranges are not globally routable"
+    ],
+    "practice": "On your lab host, list all IPv4 addresses and classify each by range and purpose.",
+    "sources": [],
+    "content": "## Core idea\nAn IPv4 address is a 32-bit number written as four decimal octets separated by dots. Historically, the leading bits determined a class that fixed the split between network and host portions: class A (/8), B (/16), and C (/24), plus multicast (D) and experimental (E). Classful addressing was replaced by CIDR, but the defaults still appear in discussions and tools. The mental model: an address has a network part that identifies the link and a host part that identifies the device on that link. Special ranges such as 127/8 loopback, 169.254/16 link-local, and RFC 1918 private space serve specific roles.\n\n## Method\n1. Convert each octet to binary to see the full 32-bit address.\n2. Classify by the first octet: 1-126 A, 128-191 B, 192-223 C, 224-239 D, 240-255 E.\n3. Note the default mask implied by each class (/8, /16, /24).\n4. Flag reserved ranges: private (10/8, 172.16/12, 192.168/16), loopback, link-local, multicast.\n\n## Example\nList and classify lab addresses:\n```bash\nip -4 addr show <LAB_IFACE>     # <LAB> show IPv4 address and prefix\npython3 -c \"import ipaddress; a=ipaddress.ip_address('10.0.0.1'); print(a.is_private, a.is_multicast)\"\n```\n\n## Comparison\n| Class | First octet | Default mask |\n|---|---|---|\n| A | 1-126 | /8 |\n| B | 128-191 | /16 |\n| C | 192-223 | /24 |\n| D (multicast) | 224-239 | N/A |\n\n## Common mistakes\n- Applying class defaults when an explicit prefix length is present; CIDR always wins.\n- Treating private addresses as if they were globally routable.\n- Forgetting that 127.0.0.1 is loopback and never appears on the wire.\n\n## Defense / verification\nUse `ip -4 addr` to confirm the actual prefix instead of guessing from the class. Cross-check unusual addresses with Python's `ipaddress` module.\n\n## Knowledge check\nQ: What is the default mask of a class B address?\nA: /16, or 255.255.0.0."
+  },
+  {
+    "id": "networking-10",
+    "topic": "networking",
+    "number": 10,
+    "title": "Subnet Masks and the Binary AND Operation",
+    "level": "Beginner",
+    "minutes": 35,
+    "summary": "Learn how a subnet mask separates network from host bits and how a bitwise AND yields the network address for any IP.",
+    "objectives": [
+      "Convert a prefix length to a mask",
+      "Compute a network address with AND",
+      "Derive broadcast and usable range"
+    ],
+    "takeaways": [
+      "A mask is a run of 1s followed by 0s",
+      "IP AND mask gives the network address",
+      "Prefix length counts the 1 bits"
+    ],
+    "practice": "In your lab, take three host addresses and compute network, broadcast, and usable host ranges by hand, then verify with ipcalc.",
+    "sources": [],
+    "content": "## Core idea\nA subnet mask is a 32-bit pattern of consecutive 1s followed by 0s. The 1s mark network bits and the 0s mark host bits. Performing a bitwise AND between an IP address and its mask yields the network address, which identifies the subnet. The mental model: the mask is a stencil that hides the host portion, leaving only the street name (network) visible. Prefix notation like /26 is shorthand for a mask with 26 leading ones. From the network address and host-bit count you can derive the broadcast address and the usable host range.\n\n## Method\n1. Write the mask as 1s and 0s from the prefix length (for example, /26 is 26 ones then 6 zeros).\n2. Align the IP address above the mask in binary.\n3. AND each column: 1 only where both bits are 1.\n4. Convert the result back to dotted decimal to get the network address; set all host bits to 1 for the broadcast.\n\n## Example\nWorked example on a lab-sized subnet:\n```\nIP:    192.168.10.130  = 11000000.10101000.00001010.10000010\nMask:  255.255.255.192 = 11111111.11111111.11111111.11000000 (/26)\nAND:   192.168.10.128  = 11000000.10101000.00001010.10000000\nBroadcast = 192.168.10.191 ; usable hosts = .129 - .190\n```\n```bash\nipcalc 192.168.10.130/26          # <LAB> verify the worked result\n```\n\n## Comparison\n| Notation | Example | Meaning |\n|---|---|---|\n| Dotted mask | 255.255.255.192 | Same 26 network bits |\n| Prefix length | /26 | Count of leading 1 bits |\n\n## Common mistakes\n- Counting usable hosts as 2^h instead of 2^h - 2 (network and broadcast are not usable).\n- Misaligning octets when doing the AND by hand.\n- Assuming the broadcast address is always the last address ending in 255.\n\n## Defense / verification\nVerify hand calculations with `ipcalc` or `python3 -c \"import ipaddress; print(ipaddress.ip_network('192.168.10.130/26', strict=False))\"` on your lab machine.\n\n## Knowledge check\nQ: What is the network address of 172.16.5.77/24?\nA: 172.16.5.0."
+  },
+  {
+    "id": "networking-11",
+    "topic": "networking",
+    "number": 11,
+    "title": "Subnetting Worked Examples",
+    "level": "Intermediate",
+    "minutes": 45,
+    "summary": "Work through practical IPv4 subnetting problems, splitting a network into equal-sized subnets and calculating ranges by hand.",
+    "objectives": [
+      "Borrow host bits to create subnets",
+      "Compute ranges for /26 and /27",
+      "Verify with tooling"
+    ],
+    "takeaways": [
+      "Borrowing n bits creates 2^n subnets",
+      "Hosts per subnet is 2^h - 2",
+      "The block size is 256 minus the mask's last octet"
+    ],
+    "practice": "In your lab, split 192.168.20.0/24 into four equal subnets and assign addresses to three test hosts, then verify reachability.",
+    "sources": [],
+    "content": "## Core idea\nSubnetting borrows bits from the host portion of an address to create multiple smaller networks. The mental model: you start with one large street and subdivide it into blocks, each with its own network address, broadcast address, and pool of house numbers. A /24 network has 256 addresses; borrowing two host bits gives four /26 blocks of 64 addresses each (62 usable). Borrowing three gives eight /27 blocks of 32 addresses (30 usable). The block size in the last octet is the key shortcut: 256 minus the mask value.\n\n## Method\n1. Decide how many subnets you need and borrow n bits so 2^n is at least that many.\n2. Compute the new prefix: original prefix plus n.\n3. Find the block size: 256 - last-octet mask value (for masks within one octet).\n4. List each subnet's network, first usable, last usable, and broadcast address.\n\n## Example\nSplit 192.168.20.0/24 into four /26 subnets (mask 255.255.255.192, block size 64):\n```\nSubnet 1: 192.168.20.0/26   hosts .1   - .62   broadcast .63\nSubnet 2: 192.168.20.64/26  hosts .65  - .126  broadcast .127\nSubnet 3: 192.168.20.128/26 hosts .129 - .190  broadcast .191\nSubnet 4: 192.168.20.192/26 hosts .193 - .254  broadcast .255\n```\n```bash\nipcalc -n -b 192.168.20.65/26   # <LAB> confirm network and broadcast\n```\n\n## Comparison\n| Prefix | Mask | Hosts/subnet | Subnets from /24 |\n|---|---|---|---|\n| /25 | 255.255.255.128 | 126 | 2 |\n| /26 | 255.255.255.192 | 62 | 4 |\n| /27 | 255.255.255.224 | 30 | 8 |\n| /28 | 255.255.255.240 | 14 | 16 |\n\n## Common mistakes\n- Assigning the network or broadcast address to a host.\n- Using block size 64 but numbering subnets from .1 instead of .0.\n- Forgetting that borrowed bits reduce hosts, not increase them.\n\n## Defense / verification\nVerify each range with `ipcalc` or Python's `ipaddress` module before assigning addresses. Test with `ping` between subnets in your lab to confirm the intended isolation.\n\n## Knowledge check\nQ: How many usable hosts does a /27 subnet have?\nA: 30 (2^5 - 2)."
+  },
+  {
+    "id": "networking-12",
+    "topic": "networking",
+    "number": 12,
+    "title": "CIDR and Variable-Length Subnet Masking",
+    "level": "Intermediate",
+    "minutes": 45,
+    "summary": "Learn classless inter-domain routing and VLSM, where different subnets use different prefix lengths to allocate addresses efficiently.",
+    "objectives": [
+      "Aggregate routes with CIDR",
+      "Apply VLSM to mixed-size networks",
+      "Avoid overlapping ranges"
+    ],
+    "takeaways": [
+      "CIDR replaces classful masks with arbitrary prefix lengths",
+      "VLSM sizes each subnet to need",
+      "Supernetting collapses multiple networks into one route"
+    ],
+    "practice": "In your lab, design a VLSM plan for networks needing 50, 20, and 10 hosts from a single /24 and verify no overlaps.",
+    "sources": [],
+    "content": "## Core idea\nCIDR describes an IP address with an explicit prefix length, removing the rigidity of classful addressing. VLSM goes further: within one major network, different subnets use different prefix lengths so each is sized to its actual host count. The mental model: instead of cutting a cake into equal slices, you cut slices of different sizes to match each guest's appetite. CIDR also enables aggregation (supernetting), where several contiguous networks are summarized into one routing-table entry, which keeps internet routing tables manageable.\n\n## Method\n1. List required host counts and sort from largest to smallest.\n2. For each, choose the smallest prefix whose usable host count fits: 2^h - 2 >= needed.\n3. Allocate blocks on boundary addresses so they do not overlap.\n4. Where contiguous blocks share a common prefix, aggregate them into a summary route.\n\n## Example\nAllocate from 10.0.0.0/24 for needs of 50, 20, and 10 hosts:\n```\n50 hosts -> /26 : 10.0.0.0/26   (62 usable)\n20 hosts -> /27 : 10.0.0.64/27  (30 usable)\n10 hosts -> /28 : 10.0.0.96/28  (14 usable)\nUnused       : 10.0.0.112/28 - 10.0.0.255\n```\n```bash\npython3 -c \"import ipaddress; print(ipaddress.collapse_addresses([ipaddress.ip_network('10.0.0.0/26'), ipaddress.ip_network('10.0.0.64/27')]))\"\n# <LAB> repeat the aggregation check with your own lab prefixes\n```\n\n## Comparison\n| Technique | Prefixes | Main benefit |\n|---|---|---|\n| Classful | Fixed by class | Simple but wasteful |\n| CIDR | One prefix per network | Flexible allocation |\n| VLSM | Mixed prefixes in one block | Minimal wasted addresses |\n\n## Common mistakes\n- Allocating blocks that overlap because they were not aligned to their boundary.\n- Choosing a prefix where 2^h - 2 is just below the host requirement.\n- Summarizing non-contiguous blocks, which black-holes traffic.\n\n## Defense / verification\nUse `ipaddress.collapse_addresses` or a spreadsheet to check for overlaps before deployment. In the lab, verify each host's address and mask with `ip addr` and confirm routing between subnets.\n\n## Knowledge check\nQ: What prefix fits exactly 10 hosts with the least waste?\nA: /28, which provides 14 usable addresses."
+  },
+  {
+    "id": "networking-13",
+    "topic": "networking",
+    "number": 13,
+    "title": "NAT and PAT: Translating Private Addresses",
+    "level": "Intermediate",
+    "minutes": 40,
+    "summary": "Understand how NAT maps private addresses to public ones and how PAT overloads many internal hosts onto a single public IP.",
+    "objectives": [
+      "Distinguish static NAT, dynamic NAT, and PAT",
+      "Explain the translation table",
+      "Identify NAT side effects"
+    ],
+    "takeaways": [
+      "NAT conserves public IPv4 addresses",
+      "PAT adds a port dimension",
+      "NAT breaks end-to-end address transparency"
+    ],
+    "practice": "On your lab router or Linux host, configure a lab-only NAT rule and inspect the translation table while a client browses.",
+    "sources": [],
+    "content": "## Core idea\nNetwork Address Translation rewrites IP addresses in packet headers as traffic crosses a boundary, typically between a private lab network and the internet. Static NAT maps one internal address to one external address; dynamic NAT draws from a pool; PAT (also called NAT overload) maps many internal addresses to one external IP using distinct source ports. The mental model: PAT is an apartment mailroom where many tenants share one street address, and the apartment number is the port that identifies the real recipient. Translation state lives in a table keyed by protocol, internal address/port, external address/port, and destination.\n\n## Method\n1. Identify inside and outside interfaces on the gateway.\n2. Define which internal addresses are eligible for translation.\n3. Choose static, dynamic, or PAT behavior and configure the rule.\n4. Inspect the translation table and confirm return traffic is mapped back correctly.\n\n## Example\nInspect lab NAT state on a Linux gateway:\n```bash\nsudo iptables -t nat -A POSTROUTING -s <LAB_LAN> -o <LAB_WAN> -j MASQUERADE\nsudo conntrack -L | head          # <LAB> view active translation entries\n```\n\n## Comparison\n| Type | Internal to external | Typical use |\n|---|---|---|\n| Static NAT | One-to-one, fixed | Lab server with a stable public mapping |\n| Dynamic NAT | One-to-one from pool | Limited public addresses |\n| PAT | Many-to-one with ports | Home and small-office gateways |\n\n## Common mistakes\n- Expecting inbound connections to work through PAT without an explicit port forwarding rule.\n- Forgetting that some protocols embed addresses in their payloads and need application-layer gateways.\n- Assuming NAT provides security; it hides addresses but is not a firewall.\n\n## Defense / verification\nInspect the translation table with `conntrack -L` or the vendor equivalent. Keep logs of external ports if attribution is needed, and pair NAT with an actual firewall policy.\n\n## Knowledge check\nQ: What makes PAT different from dynamic NAT?\nA: PAT reuses one public IP and distinguishes sessions by source port, while dynamic NAT assigns distinct public IPs from a pool."
+  },
+  {
+    "id": "networking-14",
+    "topic": "networking",
+    "number": 14,
+    "title": "Routing: Static Routes and Dynamic Protocols",
+    "level": "Intermediate",
+    "minutes": 45,
+    "summary": "Learn how routers choose paths from their routing tables, the longest-prefix-match rule, and the roles of static and dynamic routing.",
+    "objectives": [
+      "Read a routing table",
+      "Apply longest-prefix matching",
+      "Compare static and dynamic routing"
+    ],
+    "takeaways": [
+      "A route is destination prefix plus next hop and outgoing interface",
+      "Longest prefix wins",
+      "Administrative distance breaks ties between sources"
+    ],
+    "practice": "In a lab with two routers, add a static route between two subnets and verify with ping and traceroute.",
+    "sources": [],
+    "content": "## Core idea\nRouters forward packets by consulting a routing table that maps destination prefixes to next hops or outgoing interfaces. The mental model: a routing table is a set of signposts, and when several signposts could apply, the most specific one wins — the longest prefix match. Directly connected routes are most specific; a default route (0.0.0.0/0) is the least specific catch-all. Routes are learned from directly connected interfaces, static configuration, or dynamic protocols such as OSPF. Administrative distance ranks trust when the same prefix arrives from multiple sources.\n\n## Method\n1. Display the routing table and identify directly connected, static, and default routes.\n2. For a destination, find all matching prefixes.\n3. Select the one with the longest prefix length.\n4. If ties remain between sources, use administrative distance and then the protocol's metric.\n\n## Example\nAdd and verify a lab static route:\n```bash\nip route show                                  # <LAB> inspect the table\nsudo ip route add <LAB_REMOTE_NET> via <LAB_NEXT_HOP>\nip route get <LAB_REMOTE_HOST>                 # <LAB> see chosen route\ntraceroute <LAB_REMOTE_HOST>                   # <LAB> verify the path\n```\n\n## Comparison\n| Route source | Administrative distance (Cisco-style) | Behavior |\n|---|---|---|\n| Connected | 0 | Most trusted |\n| Static | 1 | Operator-defined |\n| OSPF | 110 | Dynamic link-state |\n| RIP | 120 | Dynamic distance-vector |\n\n## Common mistakes\n- Adding a static route pointing to a next hop that is not itself reachable.\n- Expecting a default route to override a more specific route; specificity always wins first.\n- Forgetting return routes, so ping succeeds one way but replies are lost.\n\n## Defense / verification\nUse `ip route get <destination>` to confirm which path the kernel chooses. In the lab, verify both directions with `traceroute` and check that only intended prefixes are advertised by dynamic protocols.\n\n## Knowledge check\nQ: Which route wins for destination 10.1.2.3 when both 10.1.0.0/16 and 10.1.2.0/24 exist?\nA: 10.1.2.0/24, because it is the longer (more specific) prefix."
+  },
+  {
+    "id": "networking-15",
+    "topic": "networking",
+    "number": 15,
+    "title": "IPv6 Address Format and Notation",
+    "level": "Beginner",
+    "minutes": 35,
+    "summary": "Learn the 128-bit IPv6 address format, hexadecimal notation, compression rules, and prefix length conventions.",
+    "objectives": [
+      "Write IPv6 addresses in canonical form",
+      "Apply zero compression rules",
+      "Interpret prefix lengths"
+    ],
+    "takeaways": [
+      "IPv6 uses eight 16-bit hexadecimal groups",
+      "Leading zeros and consecutive zero groups can be compressed",
+      "Prefix length follows a slash like /64"
+    ],
+    "practice": "On your lab host, expand and compress several IPv6 addresses and verify with Python's ipaddress module.",
+    "sources": [],
+    "content": "## Core idea\nIPv6 uses 128-bit addresses, written as eight groups of four hexadecimal digits separated by colons. The mental model: where IPv4 had four small decimal boxes, IPv6 has eight larger hex boxes, giving a vast address space. Two compression rules keep addresses readable: leading zeros within a group may be dropped, and one consecutive run of all-zero groups may be replaced by a double colon (::). The double colon may appear only once, or the address would be ambiguous. Prefix length works as in IPv4: /64 is the common LAN size, leaving 64 bits for the interface identifier.\n\n## Method\n1. Split the address into eight 16-bit groups.\n2. Drop leading zeros in each group (e.g., 0a3f becomes a3f).\n3. Replace the longest run of zero groups with ::, once only.\n4. Read the prefix length after the slash; /64 means the first 64 bits are the network portion.\n\n## Example\nExpand and compress lab addresses:\n```\n2001:0db8:0000:0000:0000:ff00:0042:8329\n2001:db8::ff00:42:8329   (compressed, canonical)\n```\n```bash\npython3 -c \"import ipaddress; print(ipaddress.IPv6Address('2001:db8::ff00:42:8329').compressed)\"\nip -6 addr show <LAB_IFACE>    # <LAB> view your host's IPv6 addresses\n```\n\n## Comparison\n| Property | IPv4 | IPv6 |\n|---|---|---|\n| Bits | 32 | 128 |\n| Notation | Decimal octets | Hex groups |\n| Common LAN prefix | /24 | /64 |\n\n## Common mistakes\n- Using :: more than once in a single address.\n- Dropping trailing zeros instead of leading zeros within a group.\n- Assuming /64 wastes addresses; it is the intended size for SLAAC.\n\n## Defense / verification\nLet tools canonicalize addresses for you with `ipaddress.IPv6Address(...).compressed`. Copy addresses from tool output rather than retyping long hex strings to avoid typos.\n\n## Knowledge check\nQ: How many 16-bit groups does an IPv6 address contain?\nA: Eight."
+  },
+  {
+    "id": "networking-16",
+    "topic": "networking",
+    "number": 16,
+    "title": "IPv6 Address Types and Scopes",
+    "level": "Intermediate",
+    "minutes": 35,
+    "summary": "Survey the major IPv6 address types: global unicast, link-local, multicast, anycast, loopback, and IPv4-mapped addresses.",
+    "objectives": [
+      "Identify an address type from its prefix",
+      "Explain link-local scope",
+      "Recognize EUI-64 and mapped addresses"
+    ],
+    "takeaways": [
+      "Global unicast commonly begins 2000::/3",
+      "Link-local uses fe80::/10",
+      "Multicast begins ff00::/8"
+    ],
+    "practice": "On your lab host, list every IPv6 address and classify each by type and scope.",
+    "sources": [],
+    "content": "## Core idea\nIPv6 defines several address types distinguished by their leading bits. Global unicast addresses (commonly 2000::/3) are publicly routable. Link-local addresses (fe80::/10) are valid only on a single link and are automatically configured on every interface. Multicast (ff00::/8) replaces IPv4 broadcast for group communication. Anycast is the same address assigned to multiple nodes, with packets delivered to the nearest. The loopback address ::1 refers to the local host, and the unspecified address :: means \"no address.\" IPv4-mapped addresses (::ffff:a.b.c.d) represent IPv4 nodes in a dual-stack system.\n\n## Method\n1. Read the leading bits or hextet to classify the address.\n2. Note its scope: link-local, interface-local, link, site (deprecated), or global.\n3. Identify how it was assigned: SLAAC via EUI-64, DHCPv6, or static configuration.\n4. Verify which scope a destination requires before testing connectivity.\n\n## Example\nClassify addresses from a lab host:\n```bash\nip -6 addr show <LAB_IFACE>    # <LAB> look for fe80:: and global addresses\nping -6 fe80::1%<LAB_IFACE>    # <LAB> link-local needs a zone (scope) index\n```\n\n## Comparison\n| Type | Prefix | Routable globally |\n|---|---|---|\n| Global unicast | 2000::/3 | Yes |\n| Link-local | fe80::/10 | No, single link |\n| Multicast | ff00::/8 | Depends on scope |\n| Loopback | ::1 | No |\n\n## Common mistakes\n- Forgetting the zone identifier (%eth0) when pinging a link-local address.\n- Assuming EUI-64 MAC-derived identifiers are private; they expose hardware identity and are often randomized.\n- Treating anycast as multicast; anycast delivers to one node, multicast to all group members.\n\n## Defense / verification\nUse `ip -6 addr` and classify each address by prefix. In the lab, confirm that link-local traffic stays on the segment by capturing with `tcpdump ip6`.\n\n## Knowledge check\nQ: Which prefix identifies link-local IPv6 addresses?\nA: fe80::/10."
+  },
+  {
+    "id": "networking-17",
+    "topic": "networking",
+    "number": 17,
+    "title": "Neighbor Discovery Protocol and ICMPv6",
+    "level": "Intermediate",
+    "minutes": 40,
+    "summary": "Learn how IPv6 uses ICMPv6 Neighbor Discovery for router discovery, address resolution, duplicate address detection, and redirects.",
+    "objectives": [
+      "Explain RS/RA and NS/NA exchanges",
+      "Describe DAD",
+      "Contrast NDP with ARP"
+    ],
+    "takeaways": [
+      "NDP replaces ARP and several ICMPv4 helper functions",
+      "Router advertisements enable SLAAC",
+      "Neighbor solicitation is multicast"
+    ],
+    "practice": "In your lab, capture ICMPv6 router advertisements and neighbor solicitations while hosts communicate.",
+    "sources": [],
+    "content": "## Core idea\nIPv6 has no ARP. Instead, ICMPv6 Neighbor Discovery (NDP) performs address resolution, router discovery, prefix discovery, duplicate address detection, and redirect signaling. The mental model: NDP is ARP, router advertisements, and ICMP redirects combined into one protocol, carried by multicast instead of broadcast. A host sends a Router Solicitation (RS) to find routers; routers reply with Router Advertisements (RA) containing prefixes and default gateway information. To resolve a neighbor's link-layer address, a host sends a Neighbor Solicitation (NS) to a solicited-node multicast address; the owner answers with a Neighbor Advertisement (NA).\n\n## Method\n1. Observe RS/RA to see how hosts learn prefixes and the default gateway.\n2. Watch NS/NA to resolve an IPv6 address to a MAC address.\n3. Understand Duplicate Address Detection (DAD): a host sends NS for its own tentative address before using it.\n4. Note that link-local addresses are always used as the source for NDP messages.\n\n## Example\nCapture NDP traffic on a lab link:\n```bash\nsudo tcpdump -i <LAB_IFACE> icmp6 -c 10     # <LAB> observe RS, RA, NS, NA\nip -6 neigh show                            # <LAB> inspect the IPv6 neighbor cache\n```\n\n## Comparison\n| Function | IPv4 | IPv6 |\n|---|---|---|\n| Address resolution | ARP broadcast | NS/NA multicast |\n| Router discovery | DHCP option 3 | Router advertisements |\n| Duplicate detection | Gratuitous ARP | DAD via NS |\n\n## Common mistakes\n- Looking for ARP traffic on an IPv6-only link; there is none.\n- Filtering only broadcast when NDP uses multicast, so captures appear empty.\n- Ignoring RA guard considerations in untrusted lab segments.\n\n## Defense / verification\nVerify neighbor entries with `ip -6 neigh show`. On managed switches, enable RA guard and DHCPv6 shield features to prevent rogue router advertisements in production.\n\n## Knowledge check\nQ: Which ICMPv6 message does a host send to check whether an address is already in use?\nA: A Neighbor Solicitation for the tentative address (Duplicate Address Detection)."
+  },
+  {
+    "id": "networking-18",
+    "topic": "networking",
+    "number": 18,
+    "title": "DHCPv4: Dynamic Host Configuration",
+    "level": "Beginner",
+    "minutes": 40,
+    "summary": "Learn the DORA exchange by which DHCPv4 assigns IP addresses and options, plus leases, renewal, and relay agents.",
+    "objectives": [
+      "Describe the DORA four-step exchange",
+      "Interpret lease and option data",
+      "Explain DHCP relay"
+    ],
+    "takeaways": [
+      "Discover, Offer, Request, Acknowledge is the lease flow",
+      "Options carry gateway, DNS, and mask",
+      "Renewal happens at half the lease time"
+    ],
+    "practice": "In an isolated lab, run a DHCP server for your test segment and capture the DORA exchange from a client.",
+    "sources": [],
+    "content": "## Core idea\nDHCPv4 automatically gives hosts an IP address and configuration options. The mental model: a new host raises its hand and asks \"is there a server?\" (Discover), the server offers an address (Offer), the host accepts one (Request), and the server confirms with options and a lease duration (Acknowledge). This is the DORA flow. Options carry the subnet mask, default gateway, DNS servers, and other settings. Leases are temporary; a client renews at half the lease time (T1) and again later (T2). DHCP relays forward broadcasts across subnets to a central server.\n\n## Method\n1. Client broadcasts DHCP Discover from 0.0.0.0:68 to 255.255.255.255:67.\n2. Server broadcasts or unicasts DHCP Offer with a candidate address and options.\n3. Client broadcasts DHCP Request naming the chosen server and address.\n4. Server sends DHCP Acknowledge, and the client configures the interface.\n\n## Example\nObserve the exchange in an isolated lab:\n```bash\nsudo tcpdump -i <LAB_IFACE> 'port 67 or port 68' -c 8    # <LAB> capture DORA\nip addr show <LAB_IFACE>                               # <LAB> confirm assigned address\n```\n\n## Comparison\n| Message | Sender | Destination | Purpose |\n|---|---|---|---|\n| Discover | Client | Broadcast | Find a server |\n| Offer | Server | Broadcast/Unicast | Propose an address |\n| Request | Client | Broadcast | Accept a proposal |\n| Acknowledge | Server | Broadcast/Unicast | Confirm and deliver options |\n\n## Common mistakes\n- Expecting DHCP to cross routers without a relay; Discover is a broadcast.\n- Confusing the DHCP server address with the default gateway option.\n- Ignoring lease exhaustion, which leaves clients with link-local addresses.\n\n## Defense / verification\nConfirm the assigned address, mask, gateway, and DNS with `ip addr` and `/etc/resolv.conf`. On managed networks, use DHCP snooping to prevent rogue servers in the lab.\n\n## Knowledge check\nQ: At what point in the lease does a client typically attempt renewal?\nA: At T1, usually half of the lease duration."
+  },
+  {
+    "id": "networking-19",
+    "topic": "networking",
+    "number": 19,
+    "title": "DHCPv6 and Stateless Address Autoconfiguration",
+    "level": "Intermediate",
+    "minutes": 40,
+    "summary": "Compare SLAAC, stateless DHCPv6, and stateful DHCPv6 for IPv6 address and option assignment.",
+    "objectives": [
+      "Explain SLAAC address formation",
+      "Contrast stateful and stateless DHCPv6",
+      "Interpret RA flags"
+    ],
+    "takeaways": [
+      "SLAAC combines a /64 prefix with an interface identifier",
+      "DHCPv6 delivers options such as DNS",
+      "RA flags choose the mode"
+    ],
+    "practice": "On a lab IPv6 network, enable SLAAC on a host and verify the generated address and default route from router advertisements.",
+    "sources": [],
+    "content": "## Core idea\nIPv6 hosts can configure themselves without a DHCP server. Stateless Address Autoconfiguration (SLAAC) takes the /64 prefix advertised in a Router Advertisement and appends an interface identifier, often derived from the MAC via EUI-64 or generated randomly for privacy. The mental model: the router announces the neighborhood name (prefix), and each host picks its own house number. DHCPv6 comes in two flavors: stateless supplies extra options such as DNS servers while addresses come from SLAAC, and stateful hands out addresses and tracks leases much like DHCPv4. RA flags — the Autonomous and Managed flags — tell hosts which mode to use.\n\n## Method\n1. Capture the RA and note the prefix, prefix length, and Autonomous/Managed flag settings.\n2. If Autonomous is set, form an address from the prefix plus an interface identifier.\n3. Perform Duplicate Address Detection before assigning it.\n4. Use DHCPv6 for additional options (stateless) or for full address management (stateful).\n\n## Example\nInspect lab SLAAC configuration:\n```bash\nsudo sysctl net.ipv6.conf.<LAB_IFACE>.autoconf   # <LAB> check SLAAC enabled\nip -6 addr show <LAB_IFACE>                     # <LAB> view SLAAC address\nip -6 route show default                        # <LAB> default route from RA\n```\n\n## Comparison\n| Method | Address source | Options source | State kept |\n|---|---|---|---|\n| SLAAC | RA prefix + IID | RA only | No |\n| Stateless DHCPv6 | SLAAC | DHCPv6 server | No |\n| Stateful DHCPv6 | DHCPv6 server | DHCPv6 server | Yes |\n\n## Common mistakes\n- Assuming /64 is wasteful and using a longer prefix, which breaks SLAAC.\n- Expecting DHCPv6 to distribute a default gateway; that comes from router advertisements.\n- Ignoring privacy extensions that periodically change the interface identifier.\n\n## Defense / verification\nVerify the SLAAC address, its scope, and the default route with `ip -6 addr` and `ip -6 route`. Confirm RA settings match the intended mode on your lab router.\n\n## Knowledge check\nQ: Where does a SLAAC host learn its default gateway?\nA: From the source of the Router Advertisement, not from DHCPv6."
+  },
+  {
+    "id": "networking-20",
+    "topic": "networking",
+    "number": 20,
+    "title": "IP Configuration Verification and Connectivity Troubleshooting",
+    "level": "Intermediate",
+    "minutes": 35,
+    "summary": "Build a repeatable method for verifying IP configuration and diagnosing connectivity failures across local links and routed paths.",
+    "objectives": [
+      "Inspect addresses, routes, and neighbors",
+      "Isolate each layer methodically",
+      "Interpret ping and traceroute results"
+    ],
+    "takeaways": [
+      "Verify from the bottom layer upward",
+      "Local neighbor failure differs from remote routing failure",
+      "Document expected state before changing anything"
+    ],
+    "practice": "In your lab, intentionally misconfigure a mask on a test host and diagnose it using only ip, ping, and tcpdump.",
+    "sources": [],
+    "content": "## Core idea\nConnectivity troubleshooting is a process of elimination across layers. The mental model: check that the host has the right identity (address and mask), knows its local neighbors (ARP/NDP), has a path (routing table), and can reach the service (transport and application). Beginning at the lowest failing layer avoids wasted effort. A ping to the gateway tests the local link; a ping to a remote host tests routing; a TCP connection test tests transport and service state. Each tool reveals one layer, so combine them rather than relying on a single check.\n\n## Method\n1. Verify interface state, address, and mask with `ip addr`.\n2. Check neighbor resolution with `ip neigh` (ARP) or `ip -6 neigh`.\n3. Inspect the routing table with `ip route` and confirm a path to the destination.\n4. Test with ping, then traceroute, then a transport-layer tool such as `nc -vz`.\n\n## Example\nRun a structured lab check:\n```bash\nip addr show <LAB_IFACE>          # <LAB> identity and mask\nip neigh show                     # <LAB> local resolution\nip route get <LAB_TARGET>         # <LAB> chosen path\nping -c 3 <LAB_TARGET>            # <LAB> reachability\nnc -vz <LAB_TARGET> <LAB_PORT>    # <LAB> transport reachability\n```\n\n## Comparison\n| Symptom | Likely layer | First tool |\n|---|---|---|\n| No link, no address | Physical/Data Link | ip link, ethtool |\n| Can't reach gateway | Network local | ip neigh, ping |\n| Can't reach remote | Routing | ip route, traceroute |\n| Ping works, service fails | Transport/App | nc, tcpdump |\n\n## Common mistakes\n- Rebooting before recording the failing state.\n- Assuming DNS is the problem when the address itself is wrong.\n- Testing only one direction and missing asymmetric routing.\n\n## Defense / verification\nRecord the expected configuration before making changes, and verify after each single change. Use `tcpdump` to confirm whether packets leave the interface and whether replies return.\n\n## Knowledge check\nQ: You can ping the default gateway but not a remote host. Which layer is most likely failing?\nA: Routing (Layer 3) beyond the local link — check the routing table and upstream path."
+  },
+  {
+    "id": "networking-21",
+    "topic": "networking",
+    "number": 21,
+    "title": "TCP Segments and the Three-Way Handshake",
+    "level": "Intermediate",
+    "minutes": 40,
+    "summary": "Learn the TCP segment header and how the SYN, SYN-ACK, ACK handshake establishes a reliable connection before data flows.",
+    "objectives": [
+      "Parse a TCP header",
+      "Trace the three-way handshake",
+      "Explain why a handshake is needed"
+    ],
+    "takeaways": [
+      "TCP is connection-oriented and byte-stream based",
+      "SYN carries an initial sequence number",
+      "The handshake synchronizes both directions"
+    ],
+    "practice": "In your lab, initiate a TCP connection to a local service and capture the three-way handshake.",
+    "sources": [],
+    "content": "## Core idea\nTCP provides a reliable, ordered byte stream between two applications. Before data is exchanged, both endpoints must agree on initial sequence numbers and window sizes through a three-way handshake. The mental model: two people agree on a starting page number for their conversation before reading aloud, so any missing page can be detected. The client sends a SYN with its initial sequence number (ISN). The server replies with SYN-ACK containing its own ISN and an acknowledgment of the client's ISN plus one. The client sends ACK acknowledging the server's ISN plus one. Only then does application data flow.\n\n## Method\n1. Identify the TCP header fields: source/destination ports, sequence number, acknowledgment number, data offset, flags, window, checksum, urgent pointer.\n2. Follow the SYN: ISN = x, no acknowledgment.\n3. Follow the SYN-ACK: ISN = y, ACK = x + 1.\n4. Follow the ACK: ACK = y + 1; connection is established.\n\n## Example\nCapture a handshake in the lab:\n```bash\nsudo tcpdump -i <LAB_IFACE> 'tcp port <LAB_PORT>' -c 3    # <LAB> SYN, SYN-ACK, ACK\nnc -vz <LAB_HOST> <LAB_PORT>                             # <LAB> generate a connection\n```\n\n## Comparison\n| Step | Flags | Sequence | Acknowledgment |\n|---|---|---|---|\n| 1 | SYN | x | 0 |\n| 2 | SYN, ACK | y | x + 1 |\n| 3 | ACK | x + 1 | y + 1 |\n\n## Common mistakes\n- Reading the sequence number as a packet count; it counts bytes.\n- Assuming the handshake carries application data; it does not normally.\n- Confusing the acknowledgment number with the next sequence number to send; it is the next byte expected from the peer.\n\n## Defense / verification\nVerify all three packets appear in order in your capture. In production, a SYN flood fills the handshake queue; SYN cookies and rate limiting are common defenses.\n\n## Knowledge check\nQ: In the three-way handshake, what does the server acknowledge in its SYN-ACK?\nA: The client's initial sequence number plus one."
+  },
+  {
+    "id": "networking-22",
+    "topic": "networking",
+    "number": 22,
+    "title": "The TCP State Machine and Connection Teardown",
+    "level": "Intermediate",
+    "minutes": 40,
+    "summary": "Follow TCP connection states from LISTEN through ESTABLISHED to TIME_WAIT, and understand graceful and abrupt teardown.",
+    "objectives": [
+      "Name the main TCP states",
+      "Trace a four-way FIN teardown",
+      "Explain TIME_WAIT"
+    ],
+    "takeaways": [
+      "Each socket moves through a defined state machine",
+      "FIN teardown uses four messages",
+      "TIME_WAIT prevents delayed packets from confusing new connections"
+    ],
+    "practice": "On your lab host, open and close a TCP connection while watching socket states with ss and a packet capture.",
+    "sources": [],
+    "content": "## Core idea\nA TCP connection is not just \"open\" or \"closed\"; it moves through a state machine. The mental model: a connection is like a phone call with formal phases — waiting for a ring (LISTEN), answering (SYN_RECEIVED), talking (ESTABLISHED), and hanging up carefully (FIN_WAIT, TIME_WAIT, CLOSED). A graceful close uses four messages because each direction must close independently: each side sends a FIN and acknowledges the other's FIN. The side that sends the first FIN enters TIME_WAIT, waiting twice the maximum segment lifetime so late packets from the old connection cannot be mistaken for a new one.\n\n## Method\n1. Start in LISTEN on the server and SYN_SENT on the client.\n2. After the handshake, both sides reach ESTABLISHED.\n3. On close, the initiator sends FIN; peer acknowledges and later sends its own FIN.\n4. The initiator acknowledges and remains in TIME_WAIT before CLOSED.\n\n## Example\nObserve states in the lab:\n```bash\nss -tan state established          # <LAB> list established sockets\nss -tan state time-wait             # <LAB> observe TIME_WAIT sockets\nsudo tcpdump -i <LAB_IFACE> 'tcp port <LAB_PORT>' -c 8  # <LAB> capture FIN exchange\n```\n\n## Comparison\n| State | Meaning |\n|---|---|\n| LISTEN | Waiting for incoming connections |\n| ESTABLISHED | Data can flow both ways |\n| FIN_WAIT_1/2 | Waiting for peer's FIN or ACK |\n| TIME_WAIT | Waiting for late packets to expire |\n\n## Common mistakes\n- Treating TIME_WAIT as a leak; it is normal and protective.\n- Assuming a single FIN closes both directions.\n- Confusing RST (abort) with FIN (graceful close).\n\n## Defense / verification\nUse `ss -tan` to confirm expected states. A large number of connections stuck in SYN_RECEIVED suggests a handshake problem; excessive RSTs suggest an application or firewall aborting sessions.\n\n## Knowledge check\nQ: Which state does the side that initiates the close enter last before CLOSED?\nA: TIME_WAIT."
+  },
+  {
+    "id": "networking-23",
+    "topic": "networking",
+    "number": 23,
+    "title": "TCP Flags, Sequencing, and Reliability",
+    "level": "Intermediate",
+    "minutes": 40,
+    "summary": "Understand TCP control flags and how sequence and acknowledgment numbers provide ordered, lossless delivery.",
+    "objectives": [
+      "Interpret SYN, ACK, FIN, RST, PSH, and URG",
+      "Explain byte-stream sequencing",
+      "Describe cumulative acknowledgments"
+    ],
+    "takeaways": [
+      "Flags control connection behavior",
+      "Sequence numbers count bytes, not packets",
+      "ACKs are cumulative"
+    ],
+    "practice": "In your lab, transfer a file between hosts and capture TCP to observe sequence and acknowledgment numbers advancing.",
+    "sources": [],
+    "content": "## Core idea\nTCP reliability comes from numbering every byte and acknowledging bytes received. The mental model: TCP is a conveyor belt where each item has a serial number; the receiver says \"I have everything up to serial number N,\" which is a cumulative acknowledgment. Flags in the header signal control actions: SYN synchronizes sequence numbers, ACK validates the acknowledgment field, FIN closes gracefully, RST aborts immediately, PSH asks the receiver to deliver data promptly, and URG marks urgent data. Selective acknowledgment options let a receiver report multiple missing blocks when several packets are lost.\n\n## Method\n1. Read the flags byte and identify which control bits are set.\n2. Track the sequence number and add the payload length to find the next expected sequence number.\n3. Verify the acknowledgment number equals the next byte the sender expects from the peer.\n4. Note retransmissions when an expected sequence number never arrives.\n\n## Example\nObserve byte counting in a lab transfer:\n```bash\nsudo tcpdump -i <LAB_IFACE> 'tcp port <LAB_PORT>' -c 10    # <LAB> watch seq/ack advance\ndd if=/dev/zero bs=1K count=1 | nc <LAB_HOST> <LAB_PORT>   # <LAB> generate data\n```\n\n## Comparison\n| Flag | Role |\n|---|---|\n| SYN | Synchronize sequence numbers |\n| ACK | Acknowledgment field is valid |\n| FIN | Graceful close |\n| RST | Immediate abort |\n| PSH | Push data to application |\n\n## Common mistakes\n- Assuming each packet is acknowledged individually; acknowledgments are cumulative.\n- Treating PSH as a guarantee of immediate delivery; it is a hint.\n- Ignoring the fact that SYN and FIN each consume one sequence number.\n\n## Defense / verification\nFollow a stream in Wireshark using the TCP sequence graph. In the lab, confirm that acknowledgments advance by the number of payload bytes received.\n\n## Knowledge check\nQ: How many sequence numbers does a SYN consume?\nA: One."
+  },
+  {
+    "id": "networking-24",
+    "topic": "networking",
+    "number": 24,
+    "title": "TCP Retransmission, Flow Control, and Congestion Control",
+    "level": "Advanced",
+    "minutes": 45,
+    "summary": "Learn how TCP recovers lost segments, prevents overwhelming a receiver with flow control, and adapts to network congestion.",
+    "objectives": [
+      "Explain retransmission triggers",
+      "Describe the sliding window",
+      "Compare slow start and congestion avoidance"
+    ],
+    "takeaways": [
+      "Retransmission timeout and duplicate ACKs drive recovery",
+      "The receive window implements flow control",
+      "Congestion window implements network safety"
+    ],
+    "practice": "In a lab with controlled packet loss, capture TCP to observe retransmissions and window changes.",
+    "sources": [],
+    "content": "## Core idea\nTCP must recover from loss without flooding the network. The mental model: a sender has two brakes — a receiver brake (the receive window, which prevents overwhelming the application) and a network brake (the congestion window, which prevents overwhelming the path). The effective send window is the smaller of the two. Loss is detected by a retransmission timeout or by receiving duplicate ACKs. Modern TCP uses algorithms such as Reno, Cubic, or BBR to grow the congestion window during slow start and congestion avoidance, and to shrink it when loss or delay signals congestion.\n\n## Method\n1. Track the receive window value advertised in ACK packets.\n2. Identify retransmissions: same sequence number sent again after a timeout or three duplicate ACKs.\n3. Observe slow start: congestion window doubles each round trip until a threshold.\n4. Observe congestion avoidance: linear growth, with a reduction on loss.\n\n## Example\nInspect loss and window behavior in the lab:\n```bash\nsudo tcpdump -i <LAB_IFACE> 'tcp port <LAB_PORT>' -c 20   # <LAB> look for [Retransmission]\nss -ti                                                  # <LAB> view per-socket cwnd and rtt\n```\n\n## Comparison\n| Mechanism | Protects | Signal |\n|---|---|---|\n| Receive window | Receiver buffers | Window field in ACK |\n| Congestion window | Network path | Loss or delay |\n| Fast retransmit | Lost segment | Three duplicate ACKs |\n\n## Common mistakes\n- Equating a zero window with a failure; it usually means the application is busy, not that the connection is dead.\n- Assuming all loss is congestion; wireless loss can be local.\n- Ignoring that window scaling options change advertised values dramatically.\n\n## Defense / verification\nUse `ss -ti` to inspect congestion window, round-trip time, and retransmission counts. In your lab, introduce controlled loss with a traffic-shaping tool and verify the sender backs off.\n\n## Knowledge check\nQ: What event typically triggers fast retransmit?\nA: Three duplicate ACKs for the same segment."
+  },
+  {
+    "id": "networking-25",
+    "topic": "networking",
+    "number": 25,
+    "title": "UDP: Datagrams and Use Cases",
+    "level": "Beginner",
+    "minutes": 30,
+    "summary": "Learn the connectionless User Datagram Protocol, its minimal header, and why applications choose it over TCP.",
+    "objectives": [
+      "Parse a UDP header",
+      "Contrast UDP with TCP",
+      "Name typical UDP applications"
+    ],
+    "takeaways": [
+      "UDP is connectionless and unordered",
+      "It adds only ports, length, and checksum",
+      "Applications handle reliability themselves when needed"
+    ],
+    "practice": "In your lab, generate UDP traffic with a simple tool and capture the datagrams to inspect the header.",
+    "sources": [],
+    "content": "## Core idea\nUDP is the minimal transport protocol: it adds only source port, destination port, length, and checksum to an IP payload. The mental model: TCP is a registered letter with tracking and confirmation; UDP is a postcard — quick, cheap, and not guaranteed. There is no handshake, no sequence number, no acknowledgment, and no retransmission. This makes UDP ideal for latency-sensitive or one-to-many traffic such as DNS queries, voice and video streaming, and broadcast/multicast discovery, where applications can tolerate occasional loss or implement their own reliability.\n\n## Method\n1. Identify the four 16-bit UDP header fields.\n2. Note that the checksum is optional in IPv4 but mandatory in IPv6.\n3. Contrast behavior: no handshake, no ordering, no flow or congestion control.\n4. Decide whether the application needs reliability and implement it above UDP if so.\n\n## Example\nGenerate and capture lab UDP traffic:\n```bash\necho \"lab\" | nc -u <LAB_HOST> <LAB_PORT>            # <LAB> send a UDP datagram\nsudo tcpdump -i <LAB_IFACE> udp -c 3                # <LAB> inspect UDP header\n```\n\n## Comparison\n| Property | TCP | UDP |\n|---|---|---|\n| Connection | Oriented | Connectionless |\n| Reliability | Guaranteed | Best effort |\n| Header size | 20+ bytes | 8 bytes |\n| Ordering | Ordered | Unordered |\n\n## Common mistakes\n- Assuming UDP means the application does not care about loss; many protocols add their own recovery.\n- Forgetting that UDP checksums are optional in IPv4, so corruption can go undetected.\n- Treating UDP as inherently insecure; security depends on the application and any encryption used.\n\n## Defense / verification\nVerify UDP flows with `tcpdump udp` and check server-side application logs. Because there is no connection state, firewalls must track UDP by timeout and port pairs.\n\n## Knowledge check\nQ: How large is the UDP header?\nA: Eight bytes."
+  },
+  {
+    "id": "networking-26",
+    "topic": "networking",
+    "number": 26,
+    "title": "Ports, Sockets, and Transport Multiplexing",
+    "level": "Beginner",
+    "minutes": 30,
+    "summary": "Learn how ports and sockets let one host run many network applications simultaneously and distinguish client from server roles.",
+    "objectives": [
+      "Explain well-known, registered, and ephemeral ports",
+      "Define a socket",
+      "Trace a connection's four-tuple"
+    ],
+    "takeaways": [
+      "A socket is an IP address plus a port",
+      "Servers listen on well-known ports",
+      "Clients use ephemeral source ports"
+    ],
+    "practice": "On your lab host, list listening sockets and identify the local and remote endpoints of an active connection.",
+    "sources": [],
+    "content": "## Core idea\nIP addresses identify hosts; ports identify applications or services on those hosts. The mental model: an IP address is a building street address and a port is the apartment number, so many services share one address without confusion. A socket is the combination of an IP address and a port, and a TCP connection is uniquely identified by a four-tuple: source IP, source port, destination IP, destination port. Well-known ports (0-1023) are assigned to common services such as 80 for HTTP and 53 for DNS; registered ports run 1024-49151, and ephemeral ports (typically 49152-65535) are chosen dynamically by clients.\n\n## Method\n1. Classify a port by range and identify the service commonly associated with it.\n2. Combine an address and port to form a socket.\n3. Track the four-tuple of a connection to distinguish simultaneous sessions.\n4. List listening sockets to see which services accept connections on the host.\n\n## Example\nInspect sockets in the lab:\n```bash\nss -tuln                  # <LAB> list listening TCP and UDP sockets\nss -tan                   # <LAB> view connection four-tuples and states\n```\n\n## Comparison\n| Port range | Name | Example |\n|---|---|---|\n| 0-1023 | Well-known | 80 HTTP, 443 HTTPS, 53 DNS |\n| 1024-49151 | Registered | 3389 RDP, 3306 MySQL |\n| 49152-65535 | Ephemeral | Client source ports |\n\n## Common mistakes\n- Assuming a well-known port guarantees the expected service; services can run on arbitrary ports.\n- Confusing a listening socket with an established connection.\n- Overlooking that NAT rewrites the client's source port, changing the observed four-tuple.\n\n## Defense / verification\nUse `ss -tuln` to audit listening ports on your lab host and close unneeded services. Document expected ports so unexpected listeners stand out during review.\n\n## Knowledge check\nQ: What four values uniquely identify a TCP connection?\nA: Source IP, source port, destination IP, and destination port."
+  },
+  {
+    "id": "networking-27",
+    "topic": "networking",
+    "number": 27,
+    "title": "DNS Architecture and the Hierarchical Namespace",
+    "level": "Intermediate",
+    "minutes": 35,
+    "summary": "Learn the distributed, hierarchical structure of DNS, including root, top-level, authoritative, and recursive servers.",
+    "objectives": [
+      "Describe the DNS hierarchy",
+      "Distinguish authoritative from recursive servers",
+      "Read a fully qualified domain name"
+    ],
+    "takeaways": [
+      "DNS is a distributed database organized as a tree",
+      "Roots delegate to TLDs, which delegate to authoritative zones",
+      "FQDNs read from host to root, right to left"
+    ],
+    "practice": "In your lab, trace the hierarchy of a name you control or a public name using dig from the root down.",
+    "sources": [],
+    "content": "## Core idea\nDNS translates human-readable names into IP addresses using a distributed hierarchy rather than one central database. The mental model: DNS is an inverted tree. The root sits at the top, below it are top-level domains such as .com and .org, below those are second-level domains, and below those are host names. A fully qualified domain name (FQDN) lists labels from most specific to least, ending with a trailing dot representing the root. Authority is delegated downward: the root refers to TLD servers, TLD servers refer to authoritative servers for a zone, and those servers hold the actual records.\n\n## Method\n1. Read an FQDN from right to left: host, domain, TLD, root.\n2. Identify which server is authoritative for the zone holding the name.\n3. Distinguish recursive resolvers, which answer on behalf of clients, from authoritative servers, which own zone data.\n4. Follow delegations from root to TLD to authoritative using NS records.\n\n## Example\nWalk the hierarchy in the lab:\n```bash\ndig +norec @<LAB_ROOT_HINT> <LAB_NAME> NS    # <LAB> query a root hint\ndig +trace <LAB_NAME>                        # <LAB> follow the full delegation chain\n```\n\n## Comparison\n| Server type | Role |\n|---|---|\n| Recursive resolver | Queries on behalf of clients and caches answers |\n| Root server | Points to TLD servers |\n| TLD server | Points to authoritative servers |\n| Authoritative server | Holds the zone's records |\n\n## Common mistakes\n- Assuming a recursive resolver stores the original zone data; it only caches results.\n- Forgetting the trailing dot that denotes the root in an FQDN.\n- Thinking one server knows the entire namespace; delegation is the core design.\n\n## Defense / verification\nUse `dig +trace` to confirm each delegation step. In your lab, point a client at your own resolver and verify it reaches the expected authoritative server.\n\n## Knowledge check\nQ: Which server type is authoritative for a zone?\nA: The authoritative name server that hosts and serves the zone's records."
+  },
+  {
+    "id": "networking-28",
+    "topic": "networking",
+    "number": 28,
+    "title": "DNS Resolution: Recursive and Iterative Queries",
+    "level": "Intermediate",
+    "minutes": 40,
+    "summary": "Trace how a DNS lookup proceeds from a client stub resolver through a recursive resolver and iterative referrals to an answer.",
+    "objectives": [
+      "Distinguish recursive from iterative queries",
+      "Follow a lookup step by step",
+      "Explain referral responses"
+    ],
+    "takeaways": [
+      "Clients ask resolvers recursively",
+      "Resolvers ask servers iteratively",
+      "Referrals lead the resolver down the tree"
+    ],
+    "practice": "In your lab, run dig with and without recursion and compare the responses and packet flows.",
+    "sources": [],
+    "content": "## Core idea\nA typical lookup starts when a stub resolver on a client asks its configured recursive resolver for a name. The mental model: you ask a librarian to find a book (recursive request); the librarian checks the catalog, then visits sections one by one (iterative requests), following referrals until the book is found. A recursive query means the server must return either a final answer or an error. An iterative query means the server may reply with a referral to a more authoritative server. The resolver caches each result and walks from root to TLD to authoritative server until it obtains the answer for the client.\n\n## Method\n1. Client sends a recursive query for the name to its configured resolver.\n2. Resolver checks its cache; on a miss, it queries a root server iteratively.\n3. Root returns a referral to the TLD server; resolver queries that TLD server.\n4. TLD returns a referral to the authoritative server, which supplies the answer.\n\n## Example\nCompare recursive and iterative behavior in the lab:\n```bash\ndig <LAB_NAME> A                    # <LAB> recursive query via local resolver\ndig +norec @<LAB_AUTH_SERVER> <LAB_NAME> A   # <LAB> direct iterative-style query\ndig +trace <LAB_NAME>               # <LAB> observe each referral\n```\n\n## Comparison\n| Query type | Server obligation | Typical sender |\n|---|---|---|\n| Recursive | Return final answer or error | Client to resolver |\n| Iterative | Return best answer or referral | Resolver to authority |\n\n## Common mistakes\n- Confusing the referral with the final answer; a referral contains NS records and glue, not the requested record.\n- Assuming the resolver always starts at the root; cached referrals let it start lower.\n- Forgetting that UDP is typical but DNS can use TCP for large responses or zone transfers.\n\n## Defense / verification\nCapture DNS traffic in your lab and confirm the recursion-desired and recursion-available flags. Verify the final answer matches the authoritative zone data.\n\n## Knowledge check\nQ: What does a server return when it cannot answer but knows who can?\nA: A referral containing NS records for a more authoritative server."
+  },
+  {
+    "id": "networking-29",
+    "topic": "networking",
+    "number": 29,
+    "title": "DNS Record Types",
+    "level": "Intermediate",
+    "minutes": 35,
+    "summary": "Learn the common DNS resource records — A, AAAA, CNAME, MX, NS, TXT, SOA, PTR, and SRV — and what each is used for.",
+    "objectives": [
+      "Identify common record types",
+      "Explain aliases versus canonical names",
+      "Read an SOA record"
+    ],
+    "takeaways": [
+      "A maps IPv4, AAAA maps IPv6",
+      "CNAME aliases point to another name",
+      "MX, NS, and SOA support mail and zone delegation"
+    ],
+    "practice": "In your lab zone, query each record type you create and verify the returned data.",
+    "sources": [],
+    "content": "## Core idea\nDNS stores information as resource records in zones. Each record has a name, type, class, TTL, and value. The mental model: a zone is a phone book where different record types are different columns — one for IPv4 numbers, one for IPv6, one for mail servers, one for aliases. A records map a name to IPv4; AAAA records map to IPv6; CNAME creates an alias to another canonical name; MX identifies mail exchangers with priorities; NS lists authoritative servers; SOA holds zone metadata such as the primary server and serial number; TXT carries arbitrary text used for verification and policy records; PTR maps addresses back to names; SRV locates services.\n\n## Method\n1. Read the record name, type, TTL, and RDATA from query output.\n2. Distinguish canonical names from aliases; a CNAME cannot coexist with other records at the same name.\n3. Use MX priority to order mail servers, with lower values preferred.\n4. Track the SOA serial to detect zone changes.\n\n## Example\nQuery lab records:\n```bash\ndig <LAB_NAME> A AAAA MX NS TXT SOA +short    # <LAB> retrieve several record types\ndig -x <LAB_IP> PTR +short                    # <LAB> reverse lookup\n```\n\n## Comparison\n| Record | Maps/Provides | Typical value |\n|---|---|---|\n| A | Name to IPv4 | 192.0.2.10 |\n| AAAA | Name to IPv6 | 2001:db8::10 |\n| CNAME | Alias to canonical name | www.example.com. |\n| MX | Mail server with priority | 10 mail.example.com. |\n\n## Common mistakes\n- Placing a CNAME at the zone apex or alongside other records, which breaks the zone.\n- Forgetting the trailing dot in fully qualified values, causing accidental relative names.\n- Treating TXT as free-form without quoting long strings correctly.\n\n## Defense / verification\nQuery your lab zone directly against its authoritative server with `dig @<LAB_AUTH_SERVER>`. Confirm TTLs and values match the zone file.\n\n## Knowledge check\nQ: Which record type maps an IPv4 address back to a hostname?\nA: PTR, used in reverse lookup zones."
+  },
+  {
+    "id": "networking-30",
+    "topic": "networking",
+    "number": 30,
+    "title": "DNS Caching and Time to Live",
+    "level": "Intermediate",
+    "minutes": 35,
+    "summary": "Understand how DNS caching reduces query load, how TTL controls freshness, and how negative caching works.",
+    "objectives": [
+      "Explain resolver and client caches",
+      "Interpret TTL values",
+      "Describe negative caching"
+    ],
+    "takeaways": [
+      "Caching happens at browsers, OS resolvers, and recursive servers",
+      "TTL sets how long an answer may be reused",
+      "Negative answers are cached using SOA minimum TTL"
+    ],
+    "practice": "In your lab, change a record and measure how long clients keep the old answer, then flush caches to observe the update.",
+    "sources": [],
+    "content": "## Core idea\nDNS is heavily cached to keep the system fast and scalable. The mental model: every resolver keeps a notepad of recent answers with expiry times; until the note expires, it reuses the answer instead of asking again. Caches live in browsers, operating systems, and recursive resolvers. Each resource record carries a Time to Live in seconds that dictates how long it may be cached. Negative answers, such as NXDOMAIN for a nonexistent name, are cached too, using the negative TTL derived from the zone's SOA record. This means changes to DNS can take time to propagate worldwide.\n\n## Method\n1. Query a record and read the TTL from the answer section.\n2. Identify where caching may occur along the path from client to authoritative server.\n3. Plan changes by lowering TTL in advance of a migration.\n4. Flush or wait out caches when verifying a change.\n\n## Example\nObserve TTL decay in the lab:\n```bash\ndig <LAB_NAME> A                    # <LAB> note the TTL value\ndig <LAB_NAME> A                    # <LAB> TTL decreases between queries\nsudo systemd-resolve --flush-caches # <LAB> clear the local resolver cache (if present)\n```\n\n## Comparison\n| Cache location | Scope | Flush method |\n|---|---|---|\n| Browser | Single browser | Browser settings |\n| OS resolver | Single host | OS-specific command |\n| Recursive resolver | Many clients | Resolver admin action |\n\n## Common mistakes\n- Expecting a DNS change to take effect instantly everywhere.\n- Setting very long TTLs before a planned migration, delaying rollback.\n- Assuming every client shares the same cached answer; caches are independent.\n\n## Defense / verification\nCheck the TTL with `dig` before and after a change. In your lab, lower the TTL well ahead of a cutover and verify caches expire as predicted.\n\n## Knowledge check\nQ: What does a TTL of 300 mean?\nA: The answer may be cached for 300 seconds before it must be refreshed."
+  },
+  {
+    "id": "networking-31",
+    "topic": "networking",
+    "number": 31,
+    "title": "DNSSEC Fundamentals",
+    "level": "Advanced",
+    "minutes": 45,
+    "summary": "Learn how DNSSEC uses digital signatures and a chain of trust to prove DNS answers have not been forged or tampered with.",
+    "objectives": [
+      "Explain the DNSSEC chain of trust",
+      "Describe RRSIG, DNSKEY, DS, and NSEC records",
+      "Validate a signed answer"
+    ],
+    "takeaways": [
+      "DNSSEC signs records, not encrypts them",
+      "Trust flows from the root down through DS and DNSKEY records",
+      "Authenticated denial of existence uses NSEC/NSEC3"
+    ],
+    "practice": "In your lab, query a signed zone with DNSSEC validation enabled and inspect the signature records.",
+    "sources": [],
+    "content": "## Core idea\nDNS was designed without authentication, so answers can be spoofed. DNSSEC adds integrity and authenticity by signing resource record sets. The mental model: each zone signs its records with a private key and publishes the public key; the parent signs a hash of that key, creating a chain of trust from the root down to the zone. A validating resolver starts from a trust anchor (the root key) and verifies each link. DNSSEC does not encrypt DNS traffic; it proves the data is authentic and unmodified. Signed denial of existence is provided by NSEC or NSEC3 records rather than by an empty answer.\n\n## Method\n1. Understand RRSIG: a signature over a record set, with algorithm and expiration fields.\n2. Understand DNSKEY: the public keys published in a zone (ZSK and KSK).\n3. Understand DS: a hash of the child's key stored in the parent zone to link the chain.\n4. Use NSEC/NSEC3 to prove that a name or type does not exist.\n\n## Example\nInspect DNSSEC records in the lab:\n```bash\ndig +dnssec <LAB_SIGNED_NAME> A          # <LAB> look for RRSIG in the answer\ndig <LAB_ZONE> DNSKEY +short             # <LAB> view public keys\ndig <LAB_ZONE> DS +short                 # <LAB> view the parent's delegation signer\n```\n\n## Comparison\n| Record | Purpose |\n|---|---|\n| RRSIG | Signature over a record set |\n| DNSKEY | Public verification key |\n| DS | Parent's hash of child key |\n| NSEC/NSEC3 | Authenticated denial of existence |\n\n## Common mistakes\n- Assuming DNSSEC provides confidentiality; queries and responses remain visible.\n- Forgetting that signatures expire, so stale zones cause validation failures.\n- Confusing a validating resolver with an authoritative server; the resolver performs validation.\n\n## Defense / verification\nEnable validation on your lab resolver and check the `ad` (authentic data) flag in `dig` output. Investigate SERVFAIL responses, which often indicate validation failure rather than an absent name.\n\n## Knowledge check\nQ: Which DNSSEC record links a child zone's key to its parent?\nA: The DS (delegation signer) record."
+  },
+  {
+    "id": "networking-32",
+    "topic": "networking",
+    "number": 32,
+    "title": "DNS in Practice: Queries and Troubleshooting",
+    "level": "Intermediate",
+    "minutes": 35,
+    "summary": "Use dig and nslookup effectively to diagnose DNS failures, distinguish resolver problems from authoritative problems, and read response flags.",
+    "objectives": [
+      "Read dig output sections",
+      "Interpret response flags and status",
+      "Isolate DNS failure points"
+    ],
+    "takeaways": [
+      "dig separates question, answer, authority, and additional sections",
+      "Flags reveal recursion and authority",
+      "SERVFAIL, NXDOMAIN, and NOERROR mean different things"
+    ],
+    "practice": "In your lab, break a zone record intentionally and diagnose the failure using dig against both the local resolver and the authoritative server.",
+    "sources": [],
+    "content": "## Core idea\nEffective DNS troubleshooting means knowing which server you asked and what it answered. The mental model: separate the client's view from the authoritative truth. A query to the configured resolver tests the whole resolution path including caches; a direct query to the authoritative server tests the zone itself. dig output has four sections: question, answer, authority, and additional. Flags such as qr, rd, ra, and ad reveal whether recursion was requested, whether the server supports it, and whether the answer was validated. Status codes like NOERROR, NXDOMAIN, and SERVFAIL point to very different causes.\n\n## Method\n1. Query the local resolver with `dig` and read the status and flags.\n2. Query the authoritative server directly to see the zone's actual data.\n3. Compare results: a correct authoritative answer but wrong resolver answer suggests cache or hijacking issues.\n4. Check for CNAME chains and missing glue records when delegation fails.\n\n## Example\nRun a comparative lab diagnosis:\n```bash\ndig <LAB_NAME> A                                # <LAB> via configured resolver\ndig @<LAB_AUTH_SERVER> <LAB_NAME> A             # <LAB> direct authoritative query\ndig <LAB_NAME> A +norec                         # <LAB> inspect flags without recursion\n```\n\n## Comparison\n| Status | Meaning | Likely cause |\n|---|---|---|\n| NOERROR with answer | Success | None |\n| NXDOMAIN | Name does not exist | Wrong name or deleted record |\n| SERVFAIL | Server failure | Validation or upstream failure |\n\n## Common mistakes\n- Blaming DNS when the application uses a different resolver or hosts file entry.\n- Misreading NXDOMAIN as a network outage.\n- Ignoring CNAME chains that end at an unresolvable target.\n\n## Defense / verification\nDocument the configured resolver with `resolvectl status` or `/etc/resolv.conf`. Verify answers against the authoritative server before changing zone data.\n\n## Knowledge check\nQ: What does the `ra` flag in dig output indicate?\nA: Recursion Available — the server supports recursive queries."
+  },
+  {
+    "id": "networking-33",
+    "topic": "networking",
+    "number": 33,
+    "title": "Cryptographic Foundations for TLS",
+    "level": "Advanced",
+    "minutes": 45,
+    "summary": "Review the symmetric encryption, public-key exchange, and hashing primitives that TLS combines to provide confidentiality and integrity.",
+    "objectives": [
+      "Contrast symmetric and asymmetric encryption",
+      "Explain key exchange and hashing",
+      "Understand forward secrecy"
+    ],
+    "takeaways": [
+      "Symmetric ciphers protect bulk data",
+      "Public-key crypto establishes shared secrets",
+      "Hashes and MACs provide integrity"
+    ],
+    "practice": "In your lab, use OpenSSL to list available ciphers and generate a key pair, then inspect their properties.",
+    "sources": [],
+    "content": "## Core idea\nTLS combines several cryptographic tools to solve different problems. The mental model: asymmetric encryption is like mailing a locked box with a public key lock that only the recipient can open — useful for establishing a shared secret; symmetric encryption is like a fast, shared codebook for the actual conversation. Hashing and message authentication codes detect tampering, while digital signatures prove identity. Diffie-Hellman (especially its elliptic-curve form) lets two parties agree on a secret over a public channel, and ephemeral keys provide forward secrecy so past sessions remain secure even if a long-term key is later stolen.\n\n## Method\n1. Identify the three goals: confidentiality, integrity, and authentication.\n2. Use symmetric ciphers (such as AES-GCM or ChaCha20) for bulk data because they are fast.\n3. Use public-key algorithms (RSA or ECDHE) to authenticate and establish the session key.\n4. Use hash functions and MACs to detect modification, and ephemeral keys for forward secrecy.\n\n## Example\nExplore primitives in your lab:\n```bash\nopenssl list -cipher-algorithms | head          # <LAB> examine available ciphers\nopenssl genpkey -algorithm RSA -out <LAB_KEY>   # <LAB> generate a lab key pair\nopenssl pkey -in <LAB_KEY> -text -noout | head  # <LAB> inspect key details\n```\n\n## Comparison\n| Primitive | Purpose | Speed |\n|---|---|---|\n| Symmetric cipher | Bulk confidentiality | Fast |\n| Public-key cipher | Key exchange and signatures | Slow |\n| Hash/MAC | Integrity | Fast |\n\n## Common mistakes\n- Trying to encrypt bulk traffic with asymmetric algorithms; they are far too slow.\n- Confusing encoding (base64) with encryption.\n- Reusing ephemeral parameters, which destroys forward secrecy.\n\n## Defense / verification\nUse `openssl s_client` to inspect which cipher suite and key exchange a lab server negotiated. Prefer AEAD ciphers and ECDHE for forward secrecy.\n\n## Knowledge check\nQ: Which primitive provides forward secrecy in modern TLS?\nA: Ephemeral Diffie-Hellman key exchange, typically ECDHE."
+  },
+  {
+    "id": "networking-34",
+    "topic": "networking",
+    "number": 34,
+    "title": "TLS Certificate Chains and Trust",
+    "level": "Advanced",
+    "minutes": 45,
+    "summary": "Learn what an X.509 certificate contains, how certificate chains link a leaf to a trusted root, and how hosts decide whether to trust a server.",
+    "objectives": [
+      "Parse an X.509 certificate",
+      "Explain chain construction and validation",
+      "Identify hostname and expiration checks"
+    ],
+    "takeaways": [
+      "A chain links leaf, intermediates, and root",
+      "Trust anchors are preinstalled in clients",
+      "Validation checks signature, validity dates, and hostname"
+    ],
+    "practice": "In your lab, create a private CA, issue a leaf certificate, and verify the chain with OpenSSL on a client host.",
+    "sources": [],
+    "content": "## Core idea\nA TLS certificate binds a public key to an identity. The mental model: a certificate is a passport — it states who you are, is signed by an authority, and has an expiration date. Browsers and clients trust a small set of root certificate authorities; most servers present a leaf certificate plus intermediate certificates that link back to a root. Validation walks this chain, checks each signature, confirms dates are valid, verifies the name matches the requested host, and consults revocation information. A self-signed or private CA certificate is only trusted if the client explicitly installs that CA.\n\n## Method\n1. Examine the certificate fields: subject, issuer, serial, validity, public key, and subject alternative names.\n2. Build the chain from leaf through intermediates to a trusted root.\n3. Verify each signature and ensure all dates are current.\n4. Confirm the requested hostname matches a subject alternative name.\n\n## Example\nInspect a lab certificate chain:\n```bash\nopenssl x509 -in <LAB_CERT> -noout -subject -issuer -dates\nopenssl verify -CAfile <LAB_CA_BUNDLE> <LAB_CERT>    # <LAB> validate the chain\nopenssl s_client -connect <LAB_HOST>:<LAB_PORT> -showcerts\n```\n\n## Comparison\n| Certificate | Role |\n|---|---|\n| Root | Trust anchor installed in clients |\n| Intermediate | Delegates signing, limits root exposure |\n| Leaf | Presented by the server for its hostname |\n\n## Common mistakes\n- Forgetting to send intermediate certificates, leaving the client unable to build the chain.\n- Relying on the deprecated common name instead of subject alternative names.\n- Treating an expired certificate as a minor issue; clients correctly reject it.\n\n## Defense / verification\nUse `openssl verify` with your lab CA bundle and confirm hostname coverage. Monitor expiration dates and automate renewal to avoid outages.\n\n## Knowledge check\nQ: Why do servers send intermediate certificates along with the leaf?\nA: So clients can build a complete chain to a trusted root they already know."
+  },
+  {
+    "id": "networking-35",
+    "topic": "networking",
+    "number": 35,
+    "title": "The TLS Handshake",
+    "level": "Advanced",
+    "minutes": 45,
+    "summary": "Follow the TLS 1.2 handshake step by step, from ClientHello and certificate validation through key exchange and Finished messages.",
+    "objectives": [
+      "Trace the handshake message sequence",
+      "Explain cipher-suite negotiation",
+      "Describe the change to encrypted records"
+    ],
+    "takeaways": [
+      "The handshake negotiates parameters and authenticates the server",
+      "The premaster secret derives session keys",
+      "Finished messages verify the handshake was not tampered with"
+    ],
+    "practice": "In your lab, capture a TLS handshake and identify each message from ClientHello to Finished.",
+    "sources": [],
+    "content": "## Core idea\nThe TLS handshake establishes a secure session before application data is sent. The mental model: two strangers agree on a shared language, exchange credentials, and then switch to a private code. In TLS 1.2, the client sends a ClientHello listing supported versions, cipher suites, and a random value. The server replies with ServerHello, its certificate, and key-exchange parameters, then ends its hello messages. The client validates the certificate, generates a premaster secret, encrypts it to the server's public key (or performs Diffie-Hellman), and both derive identical session keys. ChangeCipherSpec signals the switch to encrypted records, and Finished messages confirm integrity.\n\n## Method\n1. Read the ClientHello: version, random, cipher suites, extensions such as SNI and ALPN.\n2. Read the ServerHello: chosen cipher suite and server random.\n3. Follow certificate validation and key exchange (RSA or ECDHE).\n4. Observe ChangeCipherSpec and the encrypted Finished messages.\n\n## Example\nGenerate and inspect a lab handshake:\n```bash\nopenssl s_client -connect <LAB_HOST>:<LAB_PORT> -tls1_2 -msg < /dev/null\nsudo tcpdump -i <LAB_IFACE> 'tcp port <LAB_PORT>' -c 20   # <LAB> capture the exchange\n```\n\n## Comparison\n| Phase | Messages |\n|---|---|\n| Negotiation | ClientHello, ServerHello |\n| Authentication | Certificate, ServerKeyExchange |\n| Key establishment | ClientKeyExchange |\n| Switch to encryption | ChangeCipherSpec, Finished |\n\n## Common mistakes\n- Assuming the certificate itself encrypts application data; it only carries the public key.\n- Ignoring Server Name Indication, which lets a server choose the right certificate for a hostname.\n- Treating a handshake failure as always a certificate problem; cipher mismatch is common.\n\n## Defense / verification\nCapture the handshake in your lab and verify the chosen cipher suite and certificate chain. Use `openssl s_client` to reproduce failures with verbose messages.\n\n## Knowledge check\nQ: Which extension lets a client tell a server which hostname it is connecting to?\nA: Server Name Indication (SNI)."
+  },
+  {
+    "id": "networking-36",
+    "topic": "networking",
+    "number": 36,
+    "title": "TLS 1.3 and Session Resumption",
+    "level": "Advanced",
+    "minutes": 45,
+    "summary": "Learn how TLS 1.3 simplifies the handshake, removes obsolete algorithms, and speeds up repeat connections with resumption and 0-RTT.",
+    "objectives": [
+      "Contrast TLS 1.3 with TLS 1.2",
+      "Explain 1-RTT and 0-RTT",
+      "Understand resumption tickets and PSKs"
+    ],
+    "takeaways": [
+      "TLS 1.3 removes RSA key transport and mandates forward secrecy",
+      "The handshake is shorter and mostly encrypted",
+      "Resumption uses PSKs from tickets"
+    ],
+    "practice": "In your lab, connect with openssl using TLS 1.3 and compare the handshake message count with TLS 1.2.",
+    "sources": [],
+    "content": "## Core idea\nTLS 1.3 redesigns the handshake for speed and security. The mental model: TLS 1.2 negotiated everything in a long public conversation; TLS 1.3 folds most parameters into the initial messages and encrypts them almost immediately. Obsolete algorithms such as RSA key transport, static Diffie-Hellman, CBC ciphers, and SHA-1 signatures are removed, and all key exchange is ephemeral for forward secrecy. A full handshake completes in one round trip (1-RTT). For repeat connections, the server issues a session ticket containing a pre-shared key; the client can resume in 1-RTT or even send early data in 0-RTT, at the cost of weaker replay protection for that early data.\n\n## Method\n1. Compare message flows: TLS 1.2 requires more round trips than TLS 1.3.\n2. Note that most TLS 1.3 handshake messages after ServerHello are encrypted.\n3. Understand that resumption uses a PSK from a NewSessionTicket rather than renegotiation.\n4. Weigh 0-RTT's latency benefit against replay risk for non-idempotent requests.\n\n## Example\nCompare protocol versions in the lab:\n```bash\nopenssl s_client -connect <LAB_HOST>:<LAB_PORT> -tls1_3 -msg < /dev/null\nopenssl s_client -connect <LAB_HOST>:<LAB_PORT> -tls1_2 -msg < /dev/null\n# <LAB> compare message counts on your own test server\n```\n\n## Comparison\n| Feature | TLS 1.2 | TLS 1.3 |\n|---|---|---|\n| Handshake | 2-RTT typical | 1-RTT typical |\n| Key exchange | RSA or DH | Ephemeral DH only |\n| Obsolete ciphers | Allowed | Removed |\n| Resumption | Session IDs/tickets | PSK tickets |\n\n## Common mistakes\n- Enabling 0-RTT for state-changing operations without replay protection.\n- Assuming TLS 1.3 still supports renegotiation; it was removed.\n- Forgetting that middleboxes may block unknown TLS 1.3 record content types.\n\n## Defense / verification\nUse `openssl s_client` to confirm the negotiated protocol and cipher. In your lab, test resumption by inspecting ticket reuse and verify that applications do not send sensitive state-changing data as early data.\n\n## Knowledge check\nQ: What security tradeoff does 0-RTT early data introduce?\nA: It is replayable, so an attacker can resend the early data."
+  },
+  {
+    "id": "networking-37",
+    "topic": "networking",
+    "number": 37,
+    "title": "Forward and Reverse Proxies",
+    "level": "Intermediate",
+    "minutes": 40,
+    "summary": "Understand how proxy servers mediate client traffic, distinguishing forward proxies for clients from reverse proxies for servers.",
+    "objectives": [
+      "Explain forward and reverse proxy roles",
+      "Identify common use cases",
+      "Recognize proxy header effects"
+    ],
+    "takeaways": [
+      "A forward proxy acts on behalf of clients",
+      "A reverse proxy acts on behalf of servers",
+      "Both can cache, filter, and hide addresses"
+    ],
+    "practice": "In your lab, configure a simple forward proxy for a test client and a reverse proxy in front of a local web service, then inspect headers.",
+    "sources": [],
+    "content": "## Core idea\nA proxy is an intermediary that terminates one connection and creates another. The mental model: a forward proxy is a personal assistant who makes requests on your behalf, while a reverse proxy is a receptionist who receives all visitors and routes them to the right back-end office. Forward proxies sit near clients and are used for caching, access control, and anonymity within an organization. Reverse proxies sit near servers and provide load balancing, TLS termination, caching, and hiding of back-end topology. Because the proxy originates the second connection, the back end sees the proxy's address unless headers such as X-Forwarded-For preserve client information.\n\n## Method\n1. Determine which side the proxy represents: clients (forward) or servers (reverse).\n2. Identify the functions it performs: caching, filtering, TLS termination, or load balancing.\n3. Check how client identity is propagated with forwarding headers.\n4. Verify that trust boundaries account for headers that clients could spoof.\n\n## Example\nInspect proxy behavior in the lab:\n```bash\ncurl -x <LAB_PROXY> http://<LAB_TARGET>/        # <LAB> use a forward proxy\ncurl http://<LAB_REVERSE_PROXY>/                # <LAB> reach a service via reverse proxy\nsudo tcpdump -i <LAB_IFACE> 'tcp port <LAB_PORT>' -c 10\n```\n\n## Comparison\n| Aspect | Forward proxy | Reverse proxy |\n|---|---|---|\n| Acts for | Clients | Servers |\n| Typical location | Client network edge | Server network edge |\n| Common use | Caching, access control | TLS termination, load balancing |\n\n## Common mistakes\n- Trusting X-Forwarded-For from an untrusted client without sanitizing it.\n- Assuming end-to-end TLS exists when the proxy terminates TLS and re-encrypts or forwards in cleartext.\n- Forgetting that proxies change source addresses in server logs.\n\n## Defense / verification\nConfirm which headers your proxy strips or adds, and log the real client IP from a trusted header chain. In your lab, verify that direct back-end access is blocked so the proxy cannot be bypassed.\n\n## Knowledge check\nQ: Which kind of proxy terminates TLS for a web service and balances requests among back-end servers?\nA: A reverse proxy."
+  },
+  {
+    "id": "networking-38",
+    "topic": "networking",
+    "number": 38,
+    "title": "CDNs and Load Balancers",
+    "level": "Intermediate",
+    "minutes": 40,
+    "summary": "Learn how content delivery networks and load balancers distribute traffic, improve latency, and increase availability.",
+    "objectives": [
+      "Explain CDN edge delivery",
+      "Compare L4 and L7 load balancing",
+      "Describe health checks and persistence"
+    ],
+    "takeaways": [
+      "CDNs cache content close to users",
+      "Layer 4 balances by connection, Layer 7 by request content",
+      "Health checks remove failing back ends"
+    ],
+    "practice": "In your lab, place a load balancer in front of two local web servers and verify request distribution and failover.",
+    "sources": [],
+    "content": "## Core idea\nCDNs and load balancers solve scale and availability problems by spreading work across many machines. The mental model: a CDN is a chain of local warehouses that stock popular goods near customers, while a load balancer is a dispatcher that hands incoming jobs to whichever worker is healthy and available. CDNs cache static content at edge sites close to users, reducing latency and origin load. Load balancers operate at Layer 4 (distributing TCP connections) or Layer 7 (routing based on HTTP headers, paths, or cookies). Health checks periodically test back ends and remove failing ones; persistence or sticky sessions keep a user pinned to one back end when required.\n\n## Method\n1. Identify what is being distributed: cached content (CDN) or live requests (load balancer).\n2. Choose Layer 4 for simple throughput or Layer 7 for content-aware routing.\n3. Configure health checks with sensible intervals and thresholds.\n4. Decide whether session persistence is needed or whether sessions should be externalized.\n\n## Example\nVerify lab distribution:\n```bash\nfor i in 1 2 3 4; do curl -s <LAB_LB_URL>/whoami; done   # <LAB> observe alternating back ends\ncurl -I <LAB_CDN_URL>/<LAB_OBJECT>                      # <LAB> inspect cache headers\n```\n\n## Comparison\n| Aspect | Layer 4 LB | Layer 7 LB |\n|---|---|---|\n| Decision basis | IP and port | URL, headers, cookies |\n| TLS termination | Usually no | Usually yes |\n| Flexibility | Low | High |\n\n## Common mistakes\n- Depending on sticky sessions when a shared session store would be more resilient.\n- Setting health checks too aggressive so transient delays remove healthy servers.\n- Assuming CDN caching applies to personalized responses without proper cache keys.\n\n## Defense / verification\nConfirm distribution with repeated requests and watch back-end logs. Test failover by stopping one lab back end and verifying traffic shifts entirely to the healthy node.\n\n## Knowledge check\nQ: Which layer does a load balancer use when routing by URL path?\nA: Layer 7 (application layer)."
+  },
+  {
+    "id": "networking-39",
+    "topic": "networking",
+    "number": 39,
+    "title": "Wireshark Capture and Display Filters",
+    "level": "Intermediate",
+    "minutes": 40,
+    "summary": "Learn to capture packets safely on an owned network and use Wireshark display filters to isolate relevant conversations.",
+    "objectives": [
+      "Choose a capture interface and snaplen",
+      "Use capture and display filters",
+      "Follow streams and interpret coloring"
+    ],
+    "takeaways": [
+      "Capture filters use BPF syntax before capture",
+      "Display filters use Wireshark syntax after capture",
+      "Follow TCP stream reconstructs a conversation"
+    ],
+    "practice": "In your lab, capture a short session and build display filters isolating one host's DNS and TCP traffic.",
+    "sources": [],
+    "content": "## Core idea\nWireshark turns raw frames into readable protocol trees. The mental model: a capture is a crime scene and filters are your search warrants — capture filters decide what to record, while display filters decide what to show. Capture filters use BPF syntax and cannot be widened later, so keep them broad. Display filters use Wireshark's own language and can be changed freely. Useful primitives include `ip.addr`, `tcp.port`, `udp.port`, `dns`, `http`, and `frame.contains`. Right-click a packet and use Follow TCP Stream to reassemble a conversation, and use coloring rules to spot protocols quickly.\n\n## Method\n1. Select the correct interface and set a sensible snaplen; use promiscuous mode only on your own lab segment.\n2. Apply a broad capture filter such as `host <LAB_IP>`.\n3. Narrow with display filters like `dns || tcp.port == <LAB_PORT>`.\n4. Follow streams and inspect protocol fields in the detail pane.\n\n## Example\nCommands and filters for the lab:\n```bash\ndumpcap -i <LAB_IFACE> -w <LAB_CAPTURE>.pcapng -f \"host <LAB_IP>\"\n# <LAB> choose an interface on your own lab segment\n```\n```\nDisplay filters:\n  ip.addr == <LAB_IP>\n  dns && ip.src == <LAB_CLIENT>\n  tcp.flags.syn == 1 && tcp.flags.ack == 0\n```\n\n## Comparison\n| Filter type | Syntax | When applied |\n|---|---|---|\n| Capture filter | BPF (e.g., `tcp port 443`) | Before recording |\n| Display filter | Wireshark (e.g., `tcp.port == 443`) | After recording |\n\n## Common mistakes\n- Using display-filter syntax in the capture box, which captures nothing.\n- Capturing on the wrong interface and seeing no traffic.\n- Leaving a capture running too long and filling the disk with irrelevant packets.\n\n## Defense / verification\nStart with a broad capture, then refine display filters iteratively. Check packet counts and timestamps to confirm the capture covers the event of interest.\n\n## Knowledge check\nQ: Which filter syntax does a Wireshark capture filter use?\nA: BPF (Berkeley Packet Filter) syntax."
+  },
+  {
+    "id": "networking-40",
+    "topic": "networking",
+    "number": 40,
+    "title": "tcpdump and Berkeley Packet Filter Syntax",
+    "level": "Intermediate",
+    "minutes": 40,
+    "summary": "Learn to capture packets from the command line with tcpdump and build precise BPF expressions for hosts, networks, ports, and protocols.",
+    "objectives": [
+      "Write BPF primitives and qualifiers",
+      "Save and read capture files",
+      "Combine expressions with logical operators"
+    ],
+    "takeaways": [
+      "BPF uses type, direction, and protocol qualifiers",
+      "Save with -w and read with -r",
+      "Parentheses control precedence"
+    ],
+    "practice": "On your lab host, capture traffic matching one host and one port, save it to a file, and read it back with a refined filter.",
+    "sources": [],
+    "content": "## Core idea\ntcpdump is the command-line packet capture workhorse, and BPF expressions let you select exactly the traffic you want. The mental model: a BPF expression is a sentence with qualifiers — type (host, net, port), direction (src, dst), and protocol (tcp, udp, icmp, arp) — joined by `and`, `or`, and `not`. Captures should be performed only on networks you own or are explicitly authorized to test. tcpdump writes standard pcap files that Wireshark can open, making it useful for headless servers and automation.\n\n## Method\n1. Choose an interface with -i and decide whether to resolve names (-n avoids DNS noise).\n2. Build the BPF expression from type, direction, and protocol qualifiers.\n3. Limit packet count with -c and save with -w to avoid runaway files.\n4. Read back with -r and refine the filter as needed.\n\n## Example\nCapture and review lab traffic:\n```bash\nsudo tcpdump -i <LAB_IFACE> -nn -c 20 'host <LAB_IP> and tcp port <LAB_PORT>' -w <LAB_FILE>.pcap\ntcpdump -nn -r <LAB_FILE>.pcap 'src port 53 or dst port 53'\n# <LAB> substitute your own host and port values\n```\n\n## Comparison\n| Qualifier | Example | Selects |\n|---|---|---|\n| Type | `host 192.168.1.10` | A single host |\n| Direction | `src net 10.0.0.0/8` | Source network |\n| Protocol | `icmp` | ICMP packets only |\n\n## Common mistakes\n- Forgetting `-n`, which triggers reverse DNS lookups that pollute the capture.\n- Using shell quotes incorrectly so the shell expands special characters before tcpdump sees them.\n- Assuming a filter can be broadened after the capture; use -w for a broad capture instead.\n\n## Defense / verification\nConfirm the interface and filter with a short `-c` capture before a long run. Check the file with `tcpdump -r` and verify timestamps and packet counts match the event window.\n\n## Knowledge check\nQ: What does the `-n` flag do in tcpdump?\nA: It disables name resolution, showing numeric addresses and ports."
+  },
+  {
+    "id": "networking-41",
+    "topic": "networking",
+    "number": 41,
+    "title": "Packet Dissection: Reading a Frame From Bytes to Application",
+    "level": "Intermediate",
+    "minutes": 40,
+    "summary": "Practice reading a captured frame layer by layer, from the Ethernet header through IP and TCP to the application payload.",
+    "objectives": [
+      "Decode nested headers",
+      "Locate addresses, ports, and flags",
+      "Correlate fields across layers"
+    ],
+    "takeaways": [
+      "Each layer's header points to the next",
+      "Offsets and length fields bound each header",
+      "Checksums verify integrity at their layer"
+    ],
+    "practice": "In your lab, open one captured HTTP frame in Wireshark and annotate every field from Ethernet through HTTP.",
+    "sources": [],
+    "content": "## Core idea\nPacket dissection means reading a frame as a stack of nested headers. The mental model: each protocol header is a labeled box that contains a smaller box; the EtherType says what is inside the frame, the IP protocol field says what is inside the packet, and the port numbers say which application waits inside the segment. Starting from the outer Ethernet header, you read destination and source MAC, then IPv4 version, TTL, and addresses, then TCP ports, flags, sequence number, and finally the application bytes. Length and offset fields tell you where each header begins and ends, and checksums let you judge whether the bytes were corrupted in transit.\n\n## Method\n1. Read the Ethernet header: MACs and EtherType (0x0800 for IPv4).\n2. Read the IP header: version, IHL, total length, TTL, protocol (6 for TCP), and addresses.\n3. Read the TCP header: ports, sequence, acknowledgment, data offset, flags, and window.\n4. Read the application payload and note how its length relates to IP total length minus header sizes.\n\n## Example\nDissect a lab frame from the command line:\n```bash\nsudo tcpdump -i <LAB_IFACE> -nn -vvv -c 1 'tcp port <LAB_PORT>'\ntshark -r <LAB_CAPTURE>.pcapng -T fields -e ip.src -e ip.dst -e tcp.flags\n# <LAB> annotate each header field from your own capture\n```\n\n## Comparison\n| Layer | Key fields | Next layer pointer |\n|---|---|---|\n| Ethernet | MAC addresses | EtherType |\n| IPv4 | Addresses, TTL | Protocol field |\n| TCP | Ports, flags | Destination port |\n\n## Common mistakes\n- Assuming header sizes are fixed; IP and TCP options change lengths.\n- Confusing the frame length with the IP total length, which excludes the Ethernet header.\n- Ignoring VLAN tags that add four bytes before the EtherType.\n\n## Defense / verification\nCross-check your manual reading with Wireshark's protocol tree. In the lab, verify that computed payload lengths match the bytes shown; mismatches suggest truncation or capture snaplen issues.\n\n## Knowledge check\nQ: Which IP header field indicates that the payload is TCP?\nA: The Protocol field, with value 6."
+  },
+  {
+    "id": "networking-42",
+    "topic": "networking",
+    "number": 42,
+    "title": "Flow and Conversation Analysis",
+    "level": "Intermediate",
+    "minutes": 40,
+    "summary": "Learn to group packets into flows and conversations, reconstruct sessions, and reason about who talked to whom and when.",
+    "objectives": [
+      "Define a flow by its five-tuple",
+      "Use conversation statistics",
+      "Reconstruct a TCP stream"
+    ],
+    "takeaways": [
+      "A flow is identified by protocol, both addresses, and both ports",
+      "Conversations reveal endpoints and volume",
+      "Streams reassemble ordered payload bytes"
+    ],
+    "practice": "In your lab, open a capture, list conversations, and follow one TCP stream to recover the exchanged text.",
+    "sources": [],
+    "content": "## Core idea\nIndividual packets are rarely meaningful alone; grouping them into flows turns noise into a story. The mental model: packets are individual sentences, a flow is one phone call, and conversation analysis is the call log showing who called whom, for how long, and how much was said. A flow is usually defined by a five-tuple: protocol, source IP, source port, destination IP, and destination port. Wireshark's Conversations window aggregates packets by these tuples and by MAC addresses, letting you find the loudest talkers. Follow TCP Stream reassembles the byte stream in sequence order, making application data readable even across many packets.\n\n## Method\n1. Open Statistics > Conversations and sort by packets or bytes.\n2. Identify the most significant endpoints and protocols.\n3. Apply a display filter for one conversation and follow the TCP stream.\n4. Note timing gaps and retransmissions that explain application behavior.\n\n## Example\nList and extract flows in the lab:\n```bash\ntshark -r <LAB_CAPTURE>.pcapng -q -z conv,tcp\ntshark -r <LAB_CAPTURE>.pcapng -Y 'ip.addr == <LAB_IP>' -q -z follow,tcp,ascii,0\n# <LAB> use a capture taken on your own lab segment\n```\n\n## Comparison\n| View | Granularity | Best for |\n|---|---|---|\n| Packet list | Single frame | Header details |\n| Conversations | Five-tuple pair | Who talked to whom |\n| Follow stream | One session | Application content |\n\n## Common mistakes\n- Treating each TCP packet as an independent request; most are parts of one stream.\n- Ignoring that NAT can make one internal host appear as several flows.\n- Forgetting that UDP has no stream, so \"following\" it only shows datagrams in order.\n\n## Defense / verification\nVerify conversation endpoints against asset inventories in your lab. Confirm that unusual high-volume flows correspond to legitimate transfers rather than capture artifacts.\n\n## Knowledge check\nQ: What five values typically define a TCP flow?\nA: Protocol, source IP, source port, destination IP, and destination port."
+  },
+  {
+    "id": "networking-43",
+    "topic": "networking",
+    "number": 43,
+    "title": "Protocol Statistics and Hierarchical Traffic Views",
+    "level": "Advanced",
+    "minutes": 40,
+    "summary": "Use protocol hierarchy, endpoint, and I/O statistics to summarize a capture and spot what dominates network traffic.",
+    "objectives": [
+      "Read the protocol hierarchy",
+      "Identify top endpoints",
+      "Interpret I/O and round-trip graphs"
+    ],
+    "takeaways": [
+      "Protocol hierarchy shows percentage breakdown by layer",
+      "Endpoint lists reveal chatty hosts",
+      "Graphs expose timing patterns and stalls"
+    ],
+    "practice": "In your lab, open a long capture and use protocol hierarchy and I/O graphs to identify the busiest protocol and host.",
+    "sources": [],
+    "content": "## Core idea\nSummarizing a capture before reading individual packets saves time. The mental model: the protocol hierarchy is a pie chart of the whole conversation, endpoint lists are a leaderboard of participants, and I/O graphs are a timeline showing when activity spiked or stalled. Wireshark's Protocol Hierarchy shows how packets distribute across layers and protocols as percentages, which immediately reveals whether DNS, TLS, or bulk transfers dominate. Endpoint statistics list hosts by packets and bytes, helping you find scanners or backup jobs. I/O graphs plot packet rates over time and can reveal periodic beaconing or retransmission bursts.\n\n## Method\n1. Open Statistics > Protocol Hierarchy and note the dominant protocols.\n2. Open Statistics > Endpoints and sort by bytes to find top talkers.\n3. Generate an I/O graph and adjust the interval to see bursts and gaps.\n4. Use round-trip time graphs to detect latency or retransmission patterns in TCP streams.\n\n## Example\nGenerate summaries in the lab:\n```bash\ntshark -r <LAB_CAPTURE>.pcapng -q -z io,phs\ntshark -r <LAB_CAPTURE>.pcapng -q -z endpoints,ip\n# <LAB> summarize a capture from your own lab network\n```\n\n## Comparison\n| View | Answers |\n|---|---|\n| Protocol hierarchy | What protocols are present |\n| Endpoints | Which hosts are busiest |\n| I/O graph | When traffic changed |\n\n## Common mistakes\n- Drawing conclusions from a short capture that misses daily patterns.\n- Confusing bytes with packets; a few large transfers can dominate bytes while many small chats dominate packets.\n- Ignoring encrypted traffic that appears only as TLS on a high port.\n\n## Defense / verification\nCross-check summaries against interface counters and server logs. In your lab, generate a known bulk transfer and confirm it appears as expected in the hierarchy and endpoints.\n\n## Knowledge check\nQ: Which Wireshark view shows the percentage breakdown of protocols by layer?\nA: Protocol Hierarchy."
+  },
+  {
+    "id": "networking-44",
+    "topic": "networking",
+    "number": 44,
+    "title": "Traffic Baselining and Anomaly Spotting",
+    "level": "Advanced",
+    "minutes": 45,
+    "summary": "Learn to build a baseline of normal network behavior and recognize deviations such as unusual protocols, volumes, timings, or destinations.",
+    "objectives": [
+      "Define a baseline and its dimensions",
+      "Compare current traffic to normal",
+      "Prioritize suspicious deviations"
+    ],
+    "takeaways": [
+      "Baselines describe normal by host, protocol, volume, and time",
+      "Anomalies are deviations from that baseline",
+      "Context prevents false positives"
+    ],
+    "practice": "In your lab, collect a week-like sample of normal traffic, then introduce a controlled anomaly and identify it in summaries.",
+    "sources": [],
+    "content": "## Core idea\nA baseline is a documented picture of normal network behavior. The mental model: you cannot recognize strange behavior until you know what ordinary looks like, just as a guard learns the usual routine before noticing a stranger. Baselines are built across dimensions: which hosts communicate, which protocols they use, typical byte and packet volumes, common destinations, and normal time-of-day patterns. Anomalies are deviations — a host using a new protocol, a sudden volume spike, connections at odd hours, or traffic to unfamiliar external addresses. Context matters: a backup window legitimately spikes traffic, so correlate changes with schedules and asset roles.\n\n## Method\n1. Collect representative traffic over enough time to capture normal cycles.\n2. Summarize by protocol, endpoint, volume, and time using statistics views or NetFlow.\n3. Record expected patterns for critical hosts and services.\n4. Compare new captures to the baseline and investigate deviations with targeted filters.\n\n## Example\nCompare baselines in the lab:\n```bash\ntshark -r <LAB_BASELINE> -q -z endpoints,ip\ntshark -r <LAB_TODAY> -q -z endpoints,ip\n# <LAB> compare endpoint byte counts and investigate new destinations\n```\n\n## Comparison\n| Dimension | Normal example | Suspicious deviation |\n|---|---|---|\n| Protocol | DNS, HTTPS | Rare protocol from a workstation |\n| Volume | Steady backups at night | Sudden sustained upload midday |\n| Timing | Business hours | Repeated connections at 03:00 |\n\n## Common mistakes\n- Treating every deviation as malicious without checking legitimate changes.\n- Building a baseline during an incident and enshrining abnormal behavior.\n- Ignoring encryption, which hides payload but not metadata such as timing and volume.\n\n## Defense / verification\nValidate anomalies with a second data source such as logs or flow records. In your lab, document the controlled anomaly you introduced and confirm your baseline comparison would have flagged it.\n\n## Knowledge check\nQ: Why must context accompany a baseline comparison?\nA: Because legitimate scheduled activity can look anomalous without knowing the schedule and host role."
+  },
+  {
+    "id": "networking-45",
+    "topic": "networking",
+    "number": 45,
+    "title": "Authorized Lab Attack Patterns: Scanning and Sniffing",
+    "level": "Advanced",
+    "minutes": 45,
+    "summary": "Understand common reconnaissance techniques — port scanning and packet sniffing — strictly within an owned lab or an explicitly in-scope engagement.",
+    "objectives": [
+      "Explain how port scans reveal open services",
+      "Describe passive sniffing",
+      "Observe both in a lab capture"
+    ],
+    "takeaways": [
+      "All offensive steps here are lab-only or in-scope",
+      "Scanning maps services, sniffing observes traffic",
+      "Each technique has a defensive counterpart"
+    ],
+    "practice": "In your isolated lab, scan a host you own with a connector tool and capture the resulting traffic, then verify your IDS notices it.",
+    "sources": [],
+    "content": "## Core idea\nUnderstanding offensive techniques is essential for defense, but they must only be used on networks you own or engagements with written authorization. This module covers two lab-only patterns. Port scanning sends probes to many ports to learn which services are listening; a SYN scan sends a SYN and interprets the response without completing a connection. Sniffing passively captures traffic visible on a segment, revealing protocols and metadata. The mental model: scanning knocks on doors, sniffing listens in the hallway. Both are routine for an authorized defender testing their own environment and produce distinctive traffic that detection systems can identify.\n\n## Method\n1. Confirm scope and authorization before any probing; in this lab, the target is a host you own.\n2. Use a lab-only connector to enumerate open ports and record the responses.\n3. Capture the probing traffic to see SYN, RST, and ICMP unreachable patterns.\n4. Separately, sniff your lab segment to inventory protocols and compare against the baseline.\n\n## Example\nLab-only exercise on your own hosts:\n```bash\nnc -vz <LAB_TARGET> 1-1024                  # <LAB> authorized scan of your own host\nsudo tcpdump -i <LAB_IFACE> -nn -c 30 'tcp[tcpflags] & tcp-syn != 0'\n```\n\n## Comparison\n| Technique | Active/Passive | Reveals |\n|---|---|---|\n| SYN scan | Active | Open, closed, filtered ports |\n| Sniffing | Passive | Protocols, endpoints, volumes |\n\n## Common mistakes\n- Scanning or sniffing networks outside the authorized scope; never do this on third parties.\n- Assuming a closed port means no service; filtering can hide services behind a firewall.\n- Ignoring that switched networks limit what passive sniffing can see without a span port.\n\n## Defense / verification\nVerify your lab IDS or logs record the scan, then tune rules to reduce noise. Defensively, use firewall rules, port-security, and monitoring of connection rates to detect scanning on owned networks.\n\n## Knowledge check\nQ: What response typically indicates an open port during a SYN scan?\nA: A SYN-ACK, which the scanner acknowledges or resets without completing the handshake."
+  },
+  {
+    "id": "networking-46",
+    "topic": "networking",
+    "number": 46,
+    "title": "Network Segmentation and Firewall Fundamentals",
+    "level": "Advanced",
+    "minutes": 45,
+    "summary": "Learn how VLANs, subnets, firewalls, and ACLs divide a network into trust zones and limit lateral movement.",
+    "objectives": [
+      "Design trust zones and boundaries",
+      "Write basic firewall rules",
+      "Verify segmentation in a lab"
+    ],
+    "takeaways": [
+      "Segmentation limits blast radius",
+      "Default-deny is stronger than default-allow",
+      "Verify both allowed and denied paths"
+    ],
+    "practice": "In your lab, place a test server in a separate VLAN and write firewall rules permitting only required ports, then test allowed and blocked traffic.",
+    "sources": [],
+    "content": "## Core idea\nSegmentation divides a network into zones so a compromise in one area does not automatically spread. The mental model: a ship with watertight compartments survives a breach better than one open hall. Boundaries are built from VLANs and subnets at Layer 2 and 3, and enforced by firewalls or access control lists that permit or deny flows between zones. A default-deny stance permits only explicitly required traffic, which reduces attack surface. Micro-segmentation applies policy down to individual workloads. Effective design requires knowing which flows are necessary, documenting them, and testing that unintended paths are actually blocked.\n\n## Method\n1. Identify assets and group them into trust zones by role and sensitivity.\n2. Define the minimum flows required between zones.\n3. Implement VLANs, subnets, and firewall rules that permit only those flows.\n4. Test allowed traffic and verify denied traffic fails, then log and review.\n\n## Example\nCreate and test a lab rule set:\n```bash\nsudo iptables -A FORWARD -s <LAB_LAN> -d <LAB_SERVER_NET> -p tcp --dport <LAB_PORT> -j ACCEPT\nsudo iptables -A FORWARD -s <LAB_LAN> -d <LAB_SERVER_NET> -j DROP\ncurl --max-time 3 http://<LAB_SERVER>:<LAB_PORT>/   # <LAB> allowed path\ncurl --max-time 3 http://<LAB_SERVER>:<BLOCKED_PORT>/ # <LAB> must fail\n```\n\n## Comparison\n| Approach | Granularity | Strength |\n|---|---|---|\n| Flat network | None | Weak |\n| VLAN segmentation | Broadcast domain | Moderate |\n| Micro-segmentation | Per workload | Strong |\n\n## Common mistakes\n- Allowing broad any-any rules that defeat segmentation.\n- Forgetting return traffic and inadvertently breaking legitimate flows.\n- Assuming segmentation alone replaces patching and monitoring.\n\n## Defense / verification\nTest each policy from both directions and confirm denies generate logs. Review firewall rules periodically for stale allows and document the business reason for each exception.\n\n## Knowledge check\nQ: Why is default-deny generally stronger than default-allow?\nA: It only permits explicitly identified necessary traffic, so unexpected flows are blocked automatically."
+  },
+  {
+    "id": "networking-47",
+    "topic": "networking",
+    "number": 47,
+    "title": "Detection Engineering With IDS Signatures",
+    "level": "Advanced",
+    "minutes": 45,
+    "summary": "Learn how intrusion detection systems use signatures and anomalies to flag suspicious traffic, and how to write and tune a lab rule.",
+    "objectives": [
+      "Explain signature versus anomaly detection",
+      "Write a simple lab rule",
+      "Tune to reduce false positives"
+    ],
+    "takeaways": [
+      "Signatures match known patterns",
+      "Anomaly detection flags deviations from baseline",
+      "Tuning balances coverage and noise"
+    ],
+    "practice": "In your lab, write an IDS rule that alerts on repeated connection attempts to a closed port, then trigger and refine it.",
+    "sources": [],
+    "content": "## Core idea\nAn IDS inspects traffic or logs and raises alerts when it sees suspicious patterns. The mental model: a signature-based IDS is a wanted-poster matcher — it recognizes known bad patterns precisely; an anomaly-based IDS is a neighborhood watch that notices unusual behavior. Signatures describe conditions such as protocol, direction, ports, payload strings, and thresholds. Good detection engineering writes rules that are specific enough to avoid false positives yet broad enough to catch variants, then tunes them against real lab traffic. Alert fatigue is a real risk, so measured coverage matters more than sheer rule count.\n\n## Method\n1. Define the behavior to detect and what evidence distinguishes it from normal traffic.\n2. Write a rule with appropriate header and content matches and a threshold.\n3. Test the rule with an authorized lab trigger and confirm it fires.\n4. Tune by adding exclusions or adjusting thresholds, then retest.\n\n## Example\nLab-only rule example:\n```\nalert tcp <LAB_LAN> any -> <LAB_TARGET> any \\\n  (flags:S; threshold: type threshold, track by_src, count 20, seconds 10; \\\n   msg:\" LAB scan-like SYN rate \"; sid:1000001; rev:1;)\n```\n```bash\nsudo snort -c <LAB_CONF> -i <LAB_IFACE>     # <LAB> run in your test environment\n```\n\n## Comparison\n| Detection type | Strength | Weakness |\n|---|---|---|\n| Signature | Precise on known patterns | Misses new variants |\n| Anomaly | Can spot unknown behavior | Higher false positives |\n\n## Common mistakes\n- Alerting on single packets when a rate threshold is what matters.\n- Ignoring baseline traffic, producing constant false alarms.\n- Deploying rules without testing them against an authorized trigger.\n\n## Defense / verification\nVerify the rule fires on the controlled lab trigger and stays quiet under normal load. Track false-positive rates and document each rule's intent and owner.\n\n## Knowledge check\nQ: What does a threshold clause with `track by_src` accomplish?\nA: It counts matching events per source address over a time window before alerting."
+  },
+  {
+    "id": "networking-48",
+    "topic": "networking",
+    "number": 48,
+    "title": "Logging, NetFlow, and Network Telemetry",
+    "level": "Advanced",
+    "minutes": 45,
+    "summary": "Learn what network devices log, how flow records summarize conversations, and how telemetry supports detection and investigation.",
+    "objectives": [
+      "Identify useful log sources",
+      "Read a NetFlow record",
+      "Correlate logs with captures"
+    ],
+    "takeaways": [
+      "Logs record events, flows record conversations",
+      "NetFlow gives metadata without full payloads",
+      "Centralized time-synced data enables correlation"
+    ],
+    "practice": "In your lab, export flow records from a router or host and correlate one conversation with a packet capture and firewall log.",
+    "sources": [],
+    "content": "## Core idea\nTelemetry is the evidence network defenders rely on after an event. The mental model: packet captures are video footage, logs are witness statements, and flow records are the traffic camera log — each gives a different view. Device logs record events such as interface changes, firewall denies, and authentication attempts. NetFlow or IPFIX summarizes conversations with fields such as source and destination, ports, protocol, bytes, packets, start and end time, and direction, without storing payloads. This makes flows scalable for long-term retention. Centralized collection with synchronized time (NTP) lets you correlate a flow, a firewall log, and a capture into one timeline.\n\n## Method\n1. Identify sources: routers, switches, firewalls, servers, and DHCP or DNS logs.\n2. Export flows with NetFlow/IPFIX and ensure devices use a consistent time source.\n3. Query flows by endpoint, port, and time window to find candidate conversations.\n4. Correlate with device logs and targeted packet captures.\n\n## Example\nInspect lab telemetry:\n```bash\nipflow -r <LAB_FLOW_FILE>          # <LAB> read exported flow records (if available)\njournalctl -u <LAB_SERVICE> --since \"1 hour ago\"   # <LAB> review host logs\n```\n\n## Comparison\n| Source | Detail | Retention |\n|---|---|---|\n| Packet capture | Full packets | Short |\n| NetFlow/IPFIX | Conversation metadata | Long |\n| Device logs | Events | Long |\n\n## Common mistakes\n- Assuming flows contain payloads; they carry metadata only.\n- Ignoring clock skew, which breaks correlation across devices.\n- Collecting logs without reviewing them, so evidence ages out unnoticed.\n\n## Defense / verification\nConfirm NTP synchronization across devices and verify flow exports arrive in the collector. In your lab, reconstruct one conversation from flow data and validate it against a capture.\n\n## Knowledge check\nQ: What key advantage does NetFlow offer over full packet capture?\nA: It records conversation metadata at far lower storage cost, enabling long retention."
+  },
+  {
+    "id": "networking-49",
+    "topic": "networking",
+    "number": 49,
+    "title": "Capstone: Full Network Investigation in a Lab",
+    "level": "Advanced",
+    "minutes": 60,
+    "summary": "Integrate addressing, routing, DNS, TLS, capture analysis, and detection skills to investigate a simulated incident in your own lab.",
+    "objectives": [
+      "Scope and plan an investigation",
+      "Collect and correlate evidence",
+      "Report findings with confidence levels"
+    ],
+    "takeaways": [
+      "Start with a hypothesis and verify it with multiple sources",
+      "Timeline construction reveals cause and effect",
+      "Document uncertainty explicitly"
+    ],
+    "practice": "In your isolated lab, stage a simulated service failure, then investigate using captures, flows, logs, and configuration checks and write a short report.",
+    "sources": [],
+    "content": "## Core idea\nA real investigation combines every skill in this curriculum. The mental model: you are a detective reconstructing a timeline from several imperfect witnesses. Start by defining the question and scope, then collect evidence — configuration state, routing and DNS behavior, packet captures, flow records, and logs. Build a timeline of events and test a hypothesis against each source. A conclusion is only as strong as the evidence behind it, so state confidence levels and open questions. Everything here is performed in your own lab or an explicitly authorized engagement; no step targets third-party systems.\n\n## Method\n1. Define the question: what failed, for whom, and when?\n2. Snapshot current state with `ip addr`, `ip route`, `dig`, and `ss`.\n3. Collect captures and flows around the event window, then correlate with logs.\n4. Build a timeline, test the leading hypothesis, and document alternatives.\n\n## Example\nLab investigation workflow:\n```bash\nip addr show <LAB_IFACE>; ip route get <LAB_TARGET>\ndig <LAB_NAME> A\nsudo tcpdump -i <LAB_IFACE> -nn -w <LAB_CASE>.pcap &\ntshark -r <LAB_CASE>.pcap -q -z conv,tcp\n# <LAB> perform all steps on your own isolated lab network\n```\n\n## Comparison\n| Evidence | Confirms |\n|---|---|\n| Config snapshot | Intended state |\n| Capture | On-the-wire behavior |\n| Logs | Device and application events |\n\n## Common mistakes\n- Fixing symptoms before preserving evidence.\n- Relying on a single source when correlation is available.\n- Overstating certainty when data is incomplete.\n\n## Defense / verification\nHave a peer review your report and challenge the conclusion with alternate explanations. Verify that the corrective action actually resolves the simulated failure in your lab and does not introduce new issues.\n\n## Knowledge check\nQ: Why build a timeline during an investigation?\nA: It establishes ordering so causes can be distinguished from coincidental events."
+  },
+  {
+    "id": "networking-50",
+    "topic": "networking",
+    "number": 50,
+    "title": "Mastery Checklist and the Path Ahead",
+    "level": "Advanced",
+    "minutes": 30,
+    "summary": "Consolidate the full curriculum into a self-assessment checklist and outline the next specializations for continued learning.",
+    "objectives": [
+      "Self-assess each domain",
+      "Identify weak areas to revisit",
+      "Plan the next learning steps"
+    ],
+    "takeaways": [
+      "Mastery means explaining and verifying, not just recognizing",
+      "Revisit weak areas with deliberate lab practice",
+      "Networking is a foundation for security, cloud, and SRE paths"
+    ],
+    "practice": "In your lab, pick your three weakest checklist items and design a small exercise that proves each one, then re-test yourself.",
+    "sources": [],
+    "content": "## Core idea\nMastery is the ability to explain a concept, predict behavior, and verify it with evidence. The mental model: this curriculum is a map, and the checklist tells you which roads you have actually traveled. Work through each domain honestly: can you derive a subnet, trace a handshake, read a capture, and design segmentation without notes? Where you hesitate, return to the relevant module and run the lab exercise again. Networking is a foundation, not a destination; the natural next paths are defensive security operations, cloud networking, wireless, or site reliability engineering.\n\n## Method\n1. Rate each domain as recall, apply, or teach — the last being true mastery.\n2. List the modules where you could only recall, and schedule deliberate practice.\n3. Re-run the associated lab exercise and retest without notes.\n4. Choose a specialization and build a project that combines several domains.\n\n## Example\nSelf-assessment checklist for the lab notebook:\n```\n[ ] Binary, masks, and VLSM by hand\n[ ] ARP/NDP and DHCP/DORA flows\n[ ] TCP handshake, states, and retransmission\n[ ] DNS hierarchy, records, caching, DNSSEC\n[ ] TLS chain, handshake, proxies, CDNs\n[ ] Wireshark/tcpdump filters and flow analysis\n[ ] Segmentation, IDS rules, and telemetry\n[ ] <LAB> notebook entry proving each item with command output\n```\n\n## Comparison\n| Level | Meaning |\n|---|---|\n| Recall | I recognize the term |\n| Apply | I can use it in a lab |\n| Teach | I can explain and verify it |\n\n## Common mistakes\n- Mistaking familiarity for competence because a concept looks simple in text.\n- Skipping verification and trusting memory alone.\n- Stopping at one specialization instead of reinforcing foundations.\n\n## Defense / verification\nKeep a lab notebook with command outputs and short explanations. Revisit it after a month and re-run exercises to confirm durable understanding.\n\n## Knowledge check\nQ: What distinguishes true mastery from recall in this checklist?\nA: The ability to apply the concept in a lab and teach it with verification, not just recognize the term."
+  }
+]

@@ -1,0 +1,1102 @@
+[
+  {
+    "id": "linux-windows-01",
+    "topic": "linux-windows",
+    "number": 1,
+    "title": "Bits, Bytes, and Number Bases",
+    "level": "Beginner",
+    "minutes": 25,
+    "summary": "Build the mental model of binary, hexadecimal, and byte ordering that every later security concept rests on.",
+    "objectives": [
+      "Convert between binary, decimal, and hex",
+      "Explain bytes, words, and address units",
+      "Read a hex dump of a file"
+    ],
+    "takeaways": [
+      "Computers store information as bits grouped into bytes",
+      "Hex is compact notation for binary",
+      "Addresses and masks are just numbers in a chosen base"
+    ],
+    "practice": "In your own VM, create a file with known bytes and inspect it with xxd/Format-Hex, then decode each byte by hand.",
+    "sources": [],
+    "content": "## Core idea\nEvery value a computer touches is ultimately a pattern of bits. A bit is one of two states, 0 or 1; eight bits form a byte, which can hold 256 distinct values (0–255). Because binary strings are long, we group four bits into one hexadecimal (base-16) digit, so a byte is exactly two hex digits. Security work constantly uses hex: file signatures, hashes, MAC addresses, subnet masks, and packet bytes are all written in hex. The central mental model is that the base is only notation — the underlying quantity never changes. Once you internalize that, reading a hex dump or a permission mask becomes mechanical rather than mysterious.\n\n## Method\n1. Decide the unit being discussed: bit (b) or byte (B), and watch the case.\n2. Convert binary to hex by splitting into groups of four bits from the right.\n3. Convert hex to decimal by multiplying each digit by 16^n and summing.\n4. Read a hex dump: the left column is the byte offset, the middle columns are the bytes, the right column shows printable ASCII.\n5. When a field spans several bytes, consult the format spec for its byte order (endianness).\n\n## Example (lab only)\n```bash\nprintf 'A\\x7f\\x00\\xff' > <LAB_FILE>\nxxd <LAB_FILE>\npython3 -c 'print(hex(0b01000001))'\n```\nOn your own Windows VM, `Format-Hex <LAB_FILE>` shows the same bytes.\n\n| Base | Digits | One byte |\n|------|--------|----------|\n| Binary | 0-1 | 01000001 |\n| Decimal | 0-9 | 65 |\n| Hex | 0-F | 41 |\n\n## Common mistakes\nConfusing Mbit with MB (1 MB = 8 Mbit). Assuming every multi-byte field is little-endian. Forgetting that a printable character is just a byte with a particular value, not a different kind of data.\n\n## Defense / verification\nCross-check conversions in two independent tools (`xxd` and Python) before trusting a byte offset in a report. Record the exact hex of evidence files so later changes are detectable.\n\n## Knowledge check\n**Q:** What is 0x41 in decimal, and how many bits is it?\n**A:** 65, and eight bits (one byte): 4×16 + 1 = 65."
+  },
+  {
+    "id": "linux-windows-02",
+    "topic": "linux-windows",
+    "number": 2,
+    "title": "CPU Registers and the Instruction Cycle",
+    "level": "Beginner",
+    "minutes": 30,
+    "summary": "Understand the fetch-decode-execute loop and the register set, the foundation for reasoning about program state and exploits.",
+    "objectives": [
+      "Trace the fetch-decode-execute cycle",
+      "Name the roles of PC, SP, and flags",
+      "Inspect registers in a debugger"
+    ],
+    "takeaways": [
+      "The CPU is a state machine driven by registers",
+      "The program counter points to the next instruction",
+      "Flags gate conditional branches"
+    ],
+    "practice": "In a disposable Linux VM, load a tiny binary in gdb and step through three instructions while printing registers.",
+    "sources": [],
+    "content": "## Core idea\nA CPU repeats one loop: fetch an instruction from the address in the program counter (PC), decode it, execute it, then advance the PC. Registers are small, fast storage inside the processor that hold this working state. General-purpose registers hold operands; the stack pointer (SP) tracks the top of the call stack; the flags register records outcomes such as zero or carry from the last operation. Conditional jumps read those flags, so control flow is a direct function of arithmetic state. The mental model: a program is data plus a register state machine, and every instruction deterministically transforms that state. Debuggers expose exactly this view.\n\n## Method\n1. Identify the architecture and its register width (32-bit vs 64-bit).\n2. Note the PC (called RIP on x86-64) and the current instruction it points to.\n3. Examine SP (RSP) to find the active stack frame.\n4. Read the flags (RFLAGS) to understand why a branch was taken.\n5. Single-step and observe which registers change.\n\n## Example (lab only)\n```bash\ngdb -q <LAB_BINARY>\n(gdb) start\n(gdb) info registers rip rsp rflags\n(gdb) stepi\n```\nOn Windows, `wtfdbg` or WinDbg `r` prints registers (`rip`, `rsp`, `eflags`).\n\n| Register | Role |\n|----------|------|\n| RIP / PC | Address of next instruction |\n| RSP / SP | Top of stack |\n| RFLAGS | Condition and status bits |\n\n## Common mistakes\nAssuming root or Administrator implies kernel execution — it does not. Confusing a register's name with its size (`eax` is the low 32 bits of `rax`). Ignoring flags when a branch behaves unexpectedly.\n\n## Defense / verification\nVerify and document register state when analyzing a crash in your own binary. Understand that defenses such as stack canaries and non-executable stacks are built on these hardware details.\n\n## Knowledge check\n**Q:** Which register holds the address of the next instruction, and which holds the stack top?\n**A:** RIP/PC holds the next instruction address; RSP/SP holds the stack top."
+  },
+  {
+    "id": "linux-windows-03",
+    "topic": "linux-windows",
+    "number": 3,
+    "title": "CPU Privilege Rings and Mode Transitions",
+    "level": "Intermediate",
+    "minutes": 35,
+    "summary": "Learn how hardware privilege levels separate user code from the kernel and how system calls cross that boundary safely.",
+    "objectives": [
+      "Explain ring 0 versus ring 3",
+      "Trace a system call transition",
+      "Distinguish root from kernel mode"
+    ],
+    "takeaways": [
+      "Rings are hardware-enforced privilege levels",
+      "System calls are the controlled gateway to kernel services",
+      "Being root does not mean running in ring 0"
+    ],
+    "practice": "On your own Linux VM, use strace to capture the syscalls made by a simple command and identify the transition points.",
+    "sources": [],
+    "content": "## Core idea\nModern CPUs define privilege levels called rings. Ring 0 is the kernel: it can execute any instruction and touch any memory. Ring 3 is user mode: privileged instructions and kernel memory are forbidden. This boundary is enforced by hardware, not by software convention. User programs request kernel services through a controlled mechanism — the `syscall`/`sysenter` instruction on x86-64, or `svc` on ARM — which atomically switches to ring 0 at a vetted entry point. The mental model: user code is a guest that must ask a trusted supervisor through a single, audited doorway. Even the root account runs in ring 3; root is an operating-system authorization concept, not a CPU mode. Confusing these two is a classic error.\n\n## Method\n1. Classify each component as user space (ring 3) or kernel space (ring 0).\n2. List the services a program needs from the kernel (files, network, time).\n3. Trace the program and identify each system call and its arguments.\n4. Observe the return value and error code (`errno` / `GetLastError`).\n5. Note where the kernel validates arguments before acting.\n\n## Example (lab only)\n```bash\nstrace -f -e trace=openat,read,write <LAB_CMD> 2> <LAB_TRACE>\ngrep openat <LAB_TRACE>\n```\nOn Windows, Sysinternals `Procmon` shows equivalent `NtCreateFile` calls.\n\n| Concept | Ring 3 | Ring 0 |\n|---------|--------|--------|\n| Who runs here | Applications | Kernel, drivers |\n| Privileged instructions | Blocked | Allowed |\n| Memory access | Own address space | All physical memory |\n\n## Common mistakes\nBelieving a root-owned process runs in ring 0. Assuming syscall arguments are trusted — the kernel must copy and validate them. Forgetting that a driver bug runs in ring 0 and can compromise the whole machine.\n\n## Defense / verification\nPrefer minimal kernel attack surface: fewer drivers, verified signatures. Verify syscall behavior with `strace` and confirm your process's mode cannot be elevated by user code alone.\n\n## Knowledge check\n**Q:** Does the root user execute in ring 0? Why or why not?\n**A:** No. Root is a user-space identity; the CPU mode remains ring 3 until a system call switches it."
+  },
+  {
+    "id": "linux-windows-04",
+    "topic": "linux-windows",
+    "number": 4,
+    "title": "Memory Addresses, Endianness, and Layout",
+    "level": "Beginner",
+    "minutes": 30,
+    "summary": "Map out a process's address space and understand endianness so byte-level observations are interpreted correctly.",
+    "objectives": [
+      "Describe the classic process memory layout",
+      "Explain little- versus big-endian",
+      "Interpret an address and an offset"
+    ],
+    "takeaways": [
+      "Addresses identify locations in a virtual address space",
+      "Multi-byte values have a defined byte order",
+      "Text, data, heap, and stack occupy distinct regions"
+    ],
+    "practice": "In your own VM, print a few integers packed in both byte orders and compare the resulting hex bytes.",
+    "sources": [],
+    "content": "## Core idea\nA process sees a contiguous range of virtual addresses, conventionally drawn with the stack at the high end and the program image at the low end. The read-only text segment holds code; the data segment holds initialized globals; the heap grows as memory is allocated; the stack grows downward as functions are called. Endianness defines how a multi-byte value is stored: little-endian puts the least significant byte first (x86 and most Windows/Linux desktops), big-endian puts the most significant byte first (many network protocols, historically called network byte order). The mental model: an address tells you where, endianness tells you how to read the bytes there. Confusing the two produces plausible but wrong conclusions.\n\n## Method\n1. State the width of the value you are reading (8, 16, 32, or 64 bits).\n2. Determine the endianness of the source (CPU, file format, or protocol).\n3. Identify which memory region an address falls into.\n4. Check whether the region should be writable or executable.\n5. Translate raw bytes into the intended numeric value.\n\n## Example (lab only)\n```bash\npython3 -c 'import struct; print(struct.pack(\"<I\", 0x41424344).hex())'\npython3 -c 'import struct; print(struct.pack(\">I\", 0x41424344).hex())'\n```\nExpected: `44434241` (little) versus `41424344` (big).\n\n| Region | Typical permissions |\n|--------|---------------------|\n| Text | Read + execute |\n| Data | Read + write |\n| Heap | Read + write |\n| Stack | Read + write |\n\n## Common mistakes\nReading a little-endian value as big-endian and getting a reversed result. Assuming the stack always grows downward on every architecture. Treating an address as the value stored at that address.\n\n## Defense / verification\nUse `xxd` plus a known constant to confirm byte order before parsing binaries. Verify region permissions with `/proc/<LAB_PID>/maps` or VMMap on Windows.\n\n## Knowledge check\n**Q:** A little-endian 32-bit value 0x41424344 is stored as which byte sequence?\n**A:** `44 42 41 43` — least significant byte first."
+  },
+  {
+    "id": "linux-windows-05",
+    "topic": "linux-windows",
+    "number": 5,
+    "title": "Processes and the Process Image",
+    "level": "Beginner",
+    "minutes": 25,
+    "summary": "Define what a process actually is and learn to inspect its identity, state, and memory image on Linux and Windows.",
+    "objectives": [
+      "Define a process and its components",
+      "Read process metadata from the OS",
+      "Distinguish processes from threads"
+    ],
+    "takeaways": [
+      "A process is an address space plus register and kernel state",
+      "The PID is the kernel's handle for it",
+      "Threads share an address space"
+    ],
+    "practice": "In your own VM, list all processes and inspect one process's directory under /proc, noting its key files.",
+    "sources": [],
+    "content": "## Core idea\nA process is the OS's unit of resource ownership: a private virtual address space, a set of register values, open file descriptors, security credentials, and kernel bookkeeping. The kernel tracks it by a process ID (PID). Threads are execution contexts inside a process that share the address space and credentials but have their own registers and stack. This distinction matters for security because access tokens and credentials are usually process-wide. On Linux, `/proc/<pid>` exposes a live textual view of this state; on Windows, Task Manager and Sysinternals Process Explorer provide the equivalent. The mental model: a process is a container of state, and threads are the workers running inside it.\n\n## Method\n1. Enumerate processes and note PID, parent PID (PPID), owner, and state.\n2. Follow the parent chain to understand process ancestry.\n3. Inspect the executable path and command line.\n4. List open handles or file descriptors.\n5. Identify the security identity (UID or token) the process runs under.\n\n## Example (lab only)\n```bash\nps -eo pid,ppid,user,stat,cmd | head -20\nls /proc/<LAB_PID>\ncat /proc/<LAB_PID>/status | grep -E 'Name|Uid|Gid|State'\n```\nOn Windows: `Get-Process <LAB_NAME> | Format-List Id,Path,StartTime`.\n\n| Attribute | Linux source | Windows source |\n|-----------|--------------|----------------|\n| PID | `ps`, `/proc` | Task Manager |\n| Owner | `Uid` in status | Process token |\n| Image | `/proc/pid/exe` | `Path` |\n\n## Common mistakes\nTreating a thread as a separate process when reasoning about permissions. Assuming the displayed command line is trustworthy — it can be altered by the process itself. Forgetting the parent chain when tracing how a process was launched.\n\n## Defense / verification\nVerify unexpected processes by checking image path, signature, and parent. In your lab, record a baseline process list so deviations are visible.\n\n## Knowledge check\n**Q:** Do two threads of one process share credentials and address space?\n**A:** Yes. They share the address space and token/credentials; only registers and stacks differ."
+  },
+  {
+    "id": "linux-windows-06",
+    "topic": "linux-windows",
+    "number": 6,
+    "title": "Virtual Memory, Paging, and Protection",
+    "level": "Intermediate",
+    "minutes": 40,
+    "summary": "Understand how virtual addresses are translated and how page-level permissions and ASLR form core memory defenses.",
+    "objectives": [
+      "Explain virtual-to-physical translation",
+      "Interpret /proc/pid/maps",
+      "Describe NX, ASLR, and W^X"
+    ],
+    "takeaways": [
+      "The MMU maps virtual pages to physical frames",
+      "Each page carries permissions",
+      "ASLR and non-executable pages raise exploitation cost"
+    ],
+    "practice": "In your own Linux VM, inspect the memory maps of a running process and identify executable and writable regions.",
+    "sources": [],
+    "content": "## Core idea\nProcesses never address physical memory directly. The memory management unit (MMU) translates virtual addresses to physical frames using page tables maintained by the kernel, in fixed-size pages (commonly 4 KiB). Each page entry also encodes permissions: read, write, and execute. This is the hardware basis for memory protection. Two defenses build directly on it: address space layout randomization (ASLR) shifts base addresses so guesses fail, and non-executable (NX / DEP) pages prevent data from being run as code. The combined rule W^X — no page is both writable and executable — removes the simplest injection path. The mental model: every memory access is checked by hardware against a permission table, and defenses tune that table.\n\n## Method\n1. Identify the virtual address regions of a process.\n2. Read the permission string for each region (`r`, `w`, `x`, `p`/`s`).\n3. Flag any writable-and-executable region as suspicious.\n4. Check whether repeated runs show different base addresses (ASLR).\n5. Confirm that code and data live in separate regions.\n\n## Example (lab only)\n```bash\ncat /proc/self/maps | head -20\ngrep -E 'rwx' /proc/self/maps\ncat /proc/sys/kernel/randomize_va_space\n```\nOn Windows, Process Explorer's \"Memory\" tab or VMMap shows comparable regions.\n\n| Flag | Meaning |\n|------|---------|\n| r / w / x | Read / write / execute allowed |\n| p / s | Private / shared mapping |\n\n## Common mistakes\nBelieving virtual addresses equal physical addresses. Assuming ASLR alone stops all memory corruption. Overlooking that JIT compilers legitimately create writable-executable memory.\n\n## Defense / verification\nEnable full ASLR (`randomize_va_space=2`), keep DEP/NX on, and audit your own binaries for `rwx` mappings. Verify by running twice and comparing map base addresses.\n\n## Knowledge check\n**Q:** What does a `rwxp` mapping indicate, and why is it a concern?\n**A:** A private writable-and-executable page; it allows data to be written and then executed, violating W^X."
+  },
+  {
+    "id": "linux-windows-07",
+    "topic": "linux-windows",
+    "number": 7,
+    "title": "Linux Filesystem Hierarchy and Inodes",
+    "level": "Beginner",
+    "minutes": 30,
+    "summary": "Learn how Linux organizes files, what inodes are, and how directory entries, hard links, and symlinks resolve to data.",
+    "objectives": [
+      "Navigate the FHS directory tree",
+      "Explain inodes and directory entries",
+      "Differentiate hard and soft links"
+    ],
+    "takeaways": [
+      "An inode holds metadata and block pointers, not the filename",
+      "Directories map names to inode numbers",
+      "Symlinks are files containing a path"
+    ],
+    "practice": "In your own VM, create a file and both kinds of links, then compare inode numbers and observe what happens when the original is removed.",
+    "sources": [],
+    "content": "## Core idea\nLinux presents a single tree rooted at `/`, standardized by the Filesystem Hierarchy Standard: `/etc` for configuration, `/var` for variable data and logs, `/home` for users, `/bin` and `/usr/bin` for commands, `/proc` and `/sys` for kernel-generated views. A file's name is not stored in the file; a directory is a table mapping names to inode numbers. The inode holds permissions, ownership, timestamps, size, and pointers to data blocks. A hard link is another directory entry pointing to the same inode; a symbolic link is a distinct file whose contents are a target path. The mental model: names are labels, inodes are the actual objects, and paths are resolved label by label.\n\n## Method\n1. Explain each path component as a directory lookup.\n2. Use `stat` to reveal inode number, links count, and timestamps.\n3. Compare inode numbers to detect hard links.\n4. Use `readlink -f` to resolve a symlink chain.\n5. Check mount boundaries before creating hard links, since they cannot cross filesystems.\n\n## Example (lab only)\n```bash\necho lab > <LAB_FILE>\nln <LAB_FILE> <LAB_HARD>\nln -s <LAB_FILE> <LAB_SOFT>\nstat -c '%n inode=%i links=%h' <LAB_FILE> <LAB_HARD>\nreadlink -f <LAB_SOFT>\n```\n\n| Link type | Inode | Survives source deletion |\n|-----------|-------|--------------------------|\n| Hard | Shared | Yes |\n| Symbolic | New | No (dangling) |\n\n## Common mistakes\nAssuming renaming a file changes its inode — it does not. Creating symlinks with absolute paths when relative ones are needed for portability. Forgetting that `/proc` entries are generated, not stored on disk.\n\n## Defense / verification\nInspect symlink targets before following them, and verify critical config files have a single expected inode. Use `namei -l <LAB_PATH>` to audit every component's permissions.\n\n## Knowledge check\n**Q:** After `rm <LAB_FILE>`, which link still reaches the data?\n**A:** The hard link — the inode persists while any directory entry references it; the symlink is now dangling."
+  },
+  {
+    "id": "linux-windows-08",
+    "topic": "linux-windows",
+    "number": 8,
+    "title": "Linux Users, Groups, and Identity",
+    "level": "Beginner",
+    "minutes": 30,
+    "summary": "Understand UIDs, GIDs, and the identity files that the kernel and user-space tools use for authorization decisions.",
+    "objectives": [
+      "Interpret /etc/passwd and /etc/group",
+      "Explain real, effective, and saved IDs",
+      "Identify the root account"
+    ],
+    "takeaways": [
+      "Identity is numeric: UID and GIDs",
+      "Passwords live in /etc/shadow, not /etc/passwd",
+      "Effective UID controls most access checks"
+    ],
+    "practice": "In your own VM, create a user and group, then inspect the resulting entries and switch users with su to observe identity changes.",
+    "sources": [],
+    "content": "## Core idea\nLinux authorization is built on numbers, not names. Each user has a UID and a primary GID; users may belong to supplementary groups. `/etc/passwd` maps names to UIDs, home directories, and shells; `/etc/group` maps group names to GIDs and members; `/etc/shadow` holds password hashes and aging policy and is readable only by root. A process carries a real UID (who launched it), an effective UID (used for most permission checks), and a saved set-user-ID (allowing temporary switching). The mental model: names are conveniences for humans; the kernel only compares numeric IDs. UID 0 is root and bypasses standard permission checks. Understanding these layers is essential before studying SUID or sudo.\n\n## Method\n1. Look up a user with `id` and `getent passwd`.\n2. Identify primary versus supplementary groups.\n3. Inspect the shadow entry's hash prefix to see the algorithm.\n4. Switch users and re-run `id` to confirm real and effective IDs.\n5. Confirm that group membership changes require a new login to take effect.\n\n## Example (lab only)\n```bash\nsudo useradd -m -s /bin/bash <LAB_USER>\nsudo usermod -aG <LAB_GROUP> <LAB_USER>\nid <LAB_USER>\nsudo grep '^<LAB_USER>:' /etc/shadow\nsu - <LAB_USER> -c 'id'\n```\n\n| File | Contains | Readable by |\n|------|----------|-------------|\n| /etc/passwd | UID, GID, home, shell | Everyone |\n| /etc/shadow | Hashes, aging | Root |\n| /etc/group | Group membership | Everyone |\n\n## Common mistakes\nEditing `/etc/passwd` by hand and breaking formatting. Expecting a new group to apply in an existing shell. Assuming a locked account (`!` or `*` in shadow) can still log in with a password.\n\n## Defense / verification\nUse `useradd`/`usermod` rather than manual edits, and audit for UID 0 duplicates with `awk -F: '$3==0' /etc/passwd`. Verify shadow permissions are `000` owned by root.\n\n## Knowledge check\n**Q:** Which UID is root, and which file stores the password hash?\n**A:** UID 0; the hash is in `/etc/shadow`, readable only by root."
+  },
+  {
+    "id": "linux-windows-09",
+    "topic": "linux-windows",
+    "number": 9,
+    "title": "Permission Bits, Ownership, and Access Checks",
+    "level": "Beginner",
+    "minutes": 30,
+    "summary": "Master the rwx permission model for files and directories, the three permission classes, and how access decisions are made.",
+    "objectives": [
+      "Read a symbolic permission string",
+      "Explain rwx differences on files vs directories",
+      "Predict an access check outcome"
+    ],
+    "takeaways": [
+      "Three classes (user, group, other) each have r, w, x bits",
+      "Directory execute means traverse",
+      "The first matching class wins"
+    ],
+    "practice": "In your own VM, create files and directories with varied modes and verify access as two different users.",
+    "sources": [],
+    "content": "## Core idea\nEvery filesystem object carries three permission classes: owner (u), group (g), and others (o), each with read, write, and execute bits. For a regular file, `r` allows reading contents, `w` allows modification, and `x` allows execution. For a directory, `r` lists names, `w` creates or removes entries, and `x` permits traversal through it to reach children. The kernel evaluates the class that matches the process first — owner, then group, then other — and stops; there is no union of permissions across classes. The mental model: permissions are a small decision tree evaluated top-down, and directories are gates you must pass through to reach anything inside. Missing `x` on a directory makes its contents unreachable even if the files themselves are world-readable.\n\n## Method\n1. Read the ten-character mode string: type bit plus three triples.\n2. Determine which class the accessing process falls into.\n3. Apply the effect of `r`, `w`, and `x` for that object type.\n4. Check every directory along the full path for traversal permission.\n5. Change modes with `chmod` (symbolic or octal) and ownership with `chown`.\n\n## Example (lab only)\n```bash\ntouch <LAB_FILE>; chmod 640 <LAB_FILE>\nmkdir <LAB_DIR>; chmod 750 <LAB_DIR>\nls -ld <LAB_FILE> <LAB_DIR>\nnamei -l /<LAB_PATH>/<LAB_FILE>\n```\n\n| Octal | Symbolic | Meaning |\n|-------|----------|---------|\n| 7 | rwx | Full |\n| 6 | rw- | Read/write |\n| 5 | r-x | Read/execute |\n| 0 | --- | None |\n\n## Common mistakes\nRemoving `x` from a directory and wondering why files vanish. Expecting group and other permissions to combine. Granting `w` on a directory without realizing it allows deleting entries regardless of the file's own mode.\n\n## Defense / verification\nAudit with `find <LAB_PATH> -perm -0002 -type f` for world-writable files and verify directory traversal with `namei -l`. Prefer least privilege modes.\n\n## Knowledge check\n**Q:** A directory is mode 644. Can a user traverse it to open a known filename?\n**A:** No — execute (traversal) is missing for all classes, so the path cannot be resolved."
+  },
+  {
+    "id": "linux-windows-10",
+    "topic": "linux-windows",
+    "number": 10,
+    "title": "umask and Default Permissions",
+    "level": "Beginner",
+    "minutes": 25,
+    "summary": "Learn how the umask shapes newly created file and directory permissions and where it is configured.",
+    "objectives": [
+      "Explain how umask masks creation modes",
+      "Compute resulting permissions",
+      "Set umask persistently"
+    ],
+    "takeaways": [
+      "umask removes bits from a default mode",
+      "Files typically start at 666, directories at 777",
+      "A secure default prevents accidental exposure"
+    ],
+    "practice": "In your own VM, change umask, create a file and directory, and confirm the resulting modes match your calculation.",
+    "sources": [],
+    "content": "## Core idea\nWhen a program creates a file, the kernel starts from a base mode — usually 0666 for files and 0777 for directories — and removes the bits set in the process's umask. The umask is therefore a mask of bits to deny, expressed in octal. A umask of 022 yields files at 0644 and directories at 0755, the common default. A stricter umask of 027 yields 0640 and 0750, hiding content from other users. The mental model: creation modes are a request, and umask is a mandatory subtraction applied before the object appears. Because it is inherited by child processes, a single setting at login or service startup shapes everything a session creates. Note that the execute bit is never granted to new files by this mechanism regardless of umask.\n\n## Method\n1. Read the current umask with `umask`.\n2. Write the base mode in octal (666 for files, 777 for directories).\n3. Clear the bits present in the umask to get the effective mode.\n4. Create a file and directory and verify with `stat` or `ls -l`.\n5. Persist the setting in a shell profile or a systemd unit.\n\n## Example (lab only)\n```bash\numask 027\ntouch <LAB_FILE>; mkdir <LAB_DIR>\nstat -c '%a %n' <LAB_FILE> <LAB_DIR>\n```\nResult: file `640`, directory `750`.\n\n| umask | New file | New directory |\n|-------|----------|---------------|\n| 022 | 644 | 755 |\n| 027 | 640 | 750 |\n| 077 | 600 | 700 |\n\n## Common mistakes\nTreating umask as an addition rather than a subtraction. Expecting new files to be executable. Forgetting that daemons started by systemd have their own `UMask=` setting, independent of your shell.\n\n## Defense / verification\nSet a restrictive umask (`027` or `077`) for privileged sessions and services, then verify with `stat` on newly created artifacts. Audit service units for explicit `UMask=` values.\n\n## Knowledge check\n**Q:** With umask 027, what mode does a newly created file get?\n**A:** 0640 — 666 with the group write and other bits removed."
+  },
+  {
+    "id": "linux-windows-11",
+    "topic": "linux-windows",
+    "number": 11,
+    "title": "SUID, SGID, and the Sticky Bit",
+    "level": "Intermediate",
+    "minutes": 35,
+    "summary": "Understand the three special permission bits and how they create controlled privilege elevation or protect shared directories.",
+    "objectives": [
+      "Explain SUID, SGID, and sticky semantics",
+      "Recognize them in mode strings",
+      "Audit and constrain their use"
+    ],
+    "takeaways": [
+      "SUID runs a program with the file owner's UID",
+      "SGID sets the effective group or inherits a group on directories",
+      "Sticky restricts deletion in shared directories"
+    ],
+    "practice": "In your own VM, audit all SUID/SGID binaries and record a baseline, then test how SGID group inheritance works in a shared directory.",
+    "sources": [],
+    "content": "## Core idea\nBeyond rwx, three special bits modify filesystem semantics. The set-user-ID (SUID) bit causes an executed program to run with the effective UID of the file's owner — this is how a normal user can change their own password through a root-owned helper. Set-group-ID (SGID) similarly grants the file's group as effective GID; on a directory, it makes newly created entries inherit that directory's group. The sticky bit, seen on `/tmp`, allows any user to create files but permits only the owner (or root) to delete or rename them. In mode strings these appear as `s` in the execute position or as leading octal digits 4 (SUID), 2 (SGID), and 1 (sticky). The mental model: these are deliberate, auditable exceptions to normal permission rules, and each one should be justified.\n\n## Method\n1. List special-bit files with `find` and the `-perm` operator.\n2. Note the owner and group of each SUID/SGID executable.\n3. Decide whether the privilege is necessary for the program's function.\n4. Verify SGID group inheritance by creating a file in a setgid directory.\n5. Confirm sticky behavior by trying to remove another user's file in `/tmp`.\n\n## Example (lab only)\n```bash\nls -l /usr/bin/passwd\nfind / -xdev -perm -4000 -type f 2>/dev/null | sort\nchmod g+s <LAB_SHARED_DIR>; ls -ld <LAB_SHARED_DIR>\n```\n\n| Bit | Octal | Effect |\n|-----|-------|--------|\n| SUID | 4000 | Run as file owner |\n| SGID | 2000 | Effective group / group inheritance |\n| Sticky | 1000 | Restrict deletion to owner |\n\n## Common mistakes\nLeaving SUID on custom scripts — most kernels ignore SUID for interpreted scripts, which causes confusion. Combining world-writable permissions with SUID, creating an trivial escalation path. Forgetting that copying a file can clear these bits.\n\n## Defense / verification\nMaintain a baseline of expected SUID/SGID files and alert on additions. Mount writable areas with `nosuid`, and prefer Linux capabilities over broad SUID where possible.\n\n## Knowledge check\n**Q:** Why does `/tmp` use the sticky bit rather than plain 777?\n**A:** Because without it, any user could delete or rename another user's files in the shared directory."
+  },
+  {
+    "id": "linux-windows-12",
+    "topic": "linux-windows",
+    "number": 12,
+    "title": "Linux Capabilities Instead of Blanket Root",
+    "level": "Advanced",
+    "minutes": 40,
+    "summary": "Learn how root's powers are split into fine-grained capabilities and how to grant, bound, and verify them.",
+    "objectives": [
+      "Name common capabilities and their scope",
+      "Set and inspect file capabilities",
+      "Restrict capabilities for services"
+    ],
+    "takeaways": [
+      "Capabilities partition root privileges into named units",
+      "CAP_SYS_ADMIN is effectively root-equivalent",
+      "Service units can bound and drop capabilities"
+    ],
+    "practice": "In your own VM, copy a harmless network tool, grant it CAP_NET_RAW, and observe the capability sets; then remove it.",
+    "sources": [],
+    "content": "## Core idea\nLinux divides the monolithic power of UID 0 into roughly forty independent capabilities, such as `CAP_NET_RAW` (raw sockets), `CAP_NET_BIND_SERVICE` (binding low ports), and `CAP_SYS_ADMIN` (a broad set of administrative operations). Each thread has permitted, effective, inheritable, bounding, and ambient capability sets. The kernel checks the effective set for privileged operations. This design lets a program receive exactly the privilege it needs instead of full root, dramatically reducing the impact of a flaw. The mental model: root is a bundle of powers, and capabilities let you hand out one slice. Because `CAP_SYS_ADMIN` and `CAP_DAC_OVERRIDE` are so broad, granting them is close to granting root and deserves the same scrutiny.\n\n## Method\n1. Identify the specific privileged operation a program needs.\n2. Map it to the narrowest capability that permits it.\n3. Attach file capabilities with `setcap` or restrict a service with systemd directives.\n4. Inspect the resulting sets with `getcap` and `/proc/<pid>/status`.\n5. Drop everything not required using `CapabilityBoundingSet=` and `AmbientCapabilities=`.\n\n## Example (lab only)\n```bash\ncp $(command -v ping) <LAB_COPY>\nsudo setcap cap_net_raw+p <LAB_COPY>\ngetcap <LAB_COPY>\ngrep Cap /proc/<LAB_PID>/status\nsudo setcap -r <LAB_COPY>\n```\n\n| Capability | Grants |\n|------------|--------|\n| CAP_NET_BIND_SERVICE | Bind ports below 1024 |\n| CAP_NET_RAW | Raw sockets and packet crafting |\n| CAP_SYS_ADMIN | Broad admin operations |\n\n## Common mistakes\nGranting `CAP_SYS_ADMIN` as a \"safe\" alternative to SUID. Expecting file capabilities to apply to shell scripts — they generally do not. Forgetting that a `nosuid` mount also disables file capabilities.\n\n## Defense / verification\nAudit file capabilities with `getcap -r /` and remove unexpected grants. Verify service capability sets in `/proc/<pid>/status` and keep bounding sets minimal.\n\n## Knowledge check\n**Q:** Which capability lets a non-root process bind port 80, and why is it preferable to SUID root?\n**A:** `CAP_NET_BIND_SERVICE`; it grants only that one operation rather than all root powers."
+  },
+  {
+    "id": "linux-windows-13",
+    "topic": "linux-windows",
+    "number": 13,
+    "title": "POSIX Access Control Lists",
+    "level": "Intermediate",
+    "minutes": 35,
+    "summary": "Extend the rwx model with named users, named groups, and inheritable default ACLs for fine-grained sharing.",
+    "objectives": [
+      "Read and interpret an ACL",
+      "Set access and default ACLs",
+      "Explain the mask entry"
+    ],
+    "takeaways": [
+      "ACLs add named principals beyond owner/group/other",
+      "A default ACL is inherited by new entries",
+      "The mask caps effective named permissions"
+    ],
+    "practice": "In your own VM, create a shared directory with a default ACL and verify that files created inside inherit the intended permissions.",
+    "sources": [],
+    "content": "## Core idea\nStandard Unix permissions offer only one owner, one group, and everyone else, which is often too coarse. POSIX ACLs extend this with entries for named users and named groups, plus a mask entry that limits the maximum permissions available to those named entries. A plus sign (`+`) at the end of a mode string signals an ACL. Crucially, a directory can carry a default ACL; when a new file or subdirectory is created there, it inherits that ACL as its access ACL. The mental model: an ACL is an expanded permission list attached to an object, with a ceiling (the mask) applied to extra entries, and directories can pass a template to their children. ACLs require filesystem support and the `acl` utilities.\n\n## Method\n1. Read the current ACL with `getfacl` before changing anything.\n2. Add named entries with `setfacl -m u:name:perms` or `g:name:perms`.\n3. Set a default template with `setfacl -d -m ...` on directories.\n4. Use `getfacl` to check the effective permissions column.\n5. Remove entries with `-x` and clear defaults with `-k`.\n\n## Example (lab only)\n```bash\nmkdir <LAB_SHARED>\nsetfacl -m u:<LAB_USER>:rw <LAB_SHARED>\nsetfacl -d -m g:<LAB_GROUP>:rwx <LAB_SHARED>\ngetfacl <LAB_SHARED>\ntouch <LAB_SHARED>/<LAB_FILE>; getfacl <LAB_SHARED>/<LAB_FILE>\n```\n\n| Entry | Purpose |\n|-------|---------|\n| user:: | Owner permissions |\n| user:name: | Named user |\n| mask:: | Ceiling for named entries |\n| default: | Template inherited by children |\n\n## Common mistakes\nIgnoring the mask and wondering why a named user's `rwx` shows as effective `r-x`. Expecting default ACLs to affect files that already existed. Backing up files with tools that discard ACLs.\n\n## Defense / verification\nReview ACLs recursively on shared data with `getfacl -R`, and document expected named principals. Verify inheritance by creating a test file and checking its effective permissions.\n\n## Knowledge check\n**Q:** A named user is granted `rwx` but the mask is `r-x`. What is their effective permission?\n**A:** `r-x` — the mask caps named-user and named-group permissions."
+  },
+  {
+    "id": "linux-windows-14",
+    "topic": "linux-windows",
+    "number": 14,
+    "title": "Path Resolution, Symlinks, and TOCTOU Races",
+    "level": "Advanced",
+    "minutes": 45,
+    "summary": "Learn how paths are resolved component by component and why check-then-use patterns create exploitable race conditions.",
+    "objectives": [
+      "Trace multi-component path resolution",
+      "Explain symlink redirection risks",
+      "Avoid time-of-check to time-of-use bugs"
+    ],
+    "takeaways": [
+      "A path is a sequence of directory lookups, not an identity",
+      "Symlinks can redirect a lookup mid-path",
+      "Use descriptors and atomic flags, not repeated path strings"
+    ],
+    "practice": "In your own VM, write a small program that opens a file safely using O_NOFOLLOW and O_EXCL, contrasting it with a naive name-based approach.",
+    "sources": [],
+    "content": "## Core idea\nWhen the OS resolves a path such as `/a/b/c`, it walks each component, looking up a name in a directory to obtain the next inode. A symbolic link encountered along the way redirects the walk to its stored target. This means a path string is a recipe for reaching an object, not a stable identity for it. A time-of-check to time-of-use (TOCTOU) flaw appears when code checks a property using a path and later uses the same path for an action: an attacker with write access to an intermediate directory can swap a symlink between the two operations. The mental model: between check and use, the filesystem can change, so bind the object once using a file descriptor and operate on that descriptor thereafter.\n\n## Method\n1. Break a path into components and note which directories are writable by others.\n2. Identify any check-then-use sequence in the code.\n3. Replace path-based reuse with an open file descriptor.\n4. Use `O_NOFOLLOW` to refuse symlinks on the final component and `O_EXCL` for atomic creation.\n5. Create temporary files inside a private, mode-0700 directory.\n\n## Example (lab only)\n```bash\nnamei -l /<LAB_PATH>/<LAB_FILE>\nreadlink -f <LAB_LINK>\npython3 -c 'import tempfile; d=tempfile.mkdtemp(); print(d)'\n```\n\n| Pattern | Risk | Safer approach |\n|---------|------|----------------|\n| Check path then open path | TOCTOU | Open once, use fd |\n| Predictable temp name | Symlink attack | mkdtemp / O_EXCL |\n| Follow symlinks blindly | Redirection | O_NOFOLLOW |\n\n## Common mistakes\nAssuming a path that existed during validation still points to the same file. Building temp files in world-writable `/tmp` with predictable names. Using relative paths from an untrusted working directory.\n\n## Defense / verification\nPrefer descriptor-based APIs (`openat`, `fstat`), private temp directories, and atomic flags. Verify by auditing your own code for repeated filename lookups between checks and actions.\n\n## Knowledge check\n**Q:** Why does `stat(path)` followed by `open(path)` have a race, and what is the fix?\n**A:** The path may be swapped for a symlink between calls; open once into a descriptor and validate that descriptor."
+  },
+  {
+    "id": "linux-windows-15",
+    "topic": "linux-windows",
+    "number": 15,
+    "title": "Mounts, Filesystems, and Kernel Views",
+    "level": "Intermediate",
+    "minutes": 35,
+    "summary": "Understand how filesystems attach to the tree and how mount options and virtual filesystems support defense and inspection.",
+    "objectives": [
+      "Interpret mount options and their security effect",
+      "Navigate /proc and /sys",
+      "Verify effective mounts"
+    ],
+    "takeaways": [
+      "Mount options like noexec, nosuid, and nodev are enforcement controls",
+      "/proc and /sys expose kernel state as files",
+      "findmnt reveals the active mount table"
+    ],
+    "practice": "In your own VM, inspect the mount table and identify which writable locations lack noexec or nosuid protections.",
+    "sources": [],
+    "content": "## Core idea\nA filesystem becomes visible when it is mounted at a directory, called the mount point. Mount options shape security behavior: `noexec` prevents executing binaries from that filesystem, `nosuid` ignores SUID/SGID bits and file capabilities, and `nodev` blocks device files. These options are a primary defense for writable areas such as `/tmp` and `/home`. Two special filesystems are not stored on disk: `/proc` exposes process and kernel state as readable text, and `/sys` exposes device and driver attributes. The mental model: the directory tree is an assembly of independently governed regions, and some regions are live windows into kernel data rather than stored files. Understanding mounts explains why a permission change may not behave as expected across a boundary.\n\n## Method\n1. List mounts with `findmnt` and locate writable filesystems.\n2. Check for `noexec`, `nosuid`, and `nodev` on each.\n3. Recognize bind mounts that expose the same data at another path.\n4. Use `/proc` to inspect processes and `/sys` to inspect hardware settings.\n5. Treat virtual files as read-mostly interfaces governed by the kernel.\n\n## Example (lab only)\n```bash\nfindmnt -o TARGET,SOURCE,FSTYPE,OPTIONS\ngrep -E '/tmp|/home' /proc/mounts\ncat /proc/sys/kernel/randomize_va_space\n```\n\n| Option | Blocks |\n|--------|--------|\n| noexec | Execution of files |\n| nosuid | SUID/SGID and file capabilities |\n| nodev | Device special files |\n\n## Common mistakes\nApplying `noexec` to `/home` but forgetting `/tmp` or `/dev/shm`. Assuming bind-mounted paths inherit options from their original mount. Attempting to chmod entries in `/proc` as if they were regular files.\n\n## Defense / verification\nHarden writable mounts with `noexec,nosuid,nodev` where practical and verify with `findmnt` after reboot. Check `/proc/mounts` rather than relying on stale fstab assumptions.\n\n## Knowledge check\n**Q:** Which single mount option prevents both SUID binaries and file capabilities from taking effect?\n**A:** `nosuid`."
+  },
+  {
+    "id": "linux-windows-16",
+    "topic": "linux-windows",
+    "number": 16,
+    "title": "File Descriptors, Redirection, and Pipes",
+    "level": "Beginner",
+    "minutes": 30,
+    "summary": "Learn that I/O is handled through file descriptors and how shells manipulate them for redirection and pipelines.",
+    "objectives": [
+      "Explain the per-process file descriptor table",
+      "Predict redirection results",
+      "Describe how pipes connect processes"
+    ],
+    "takeaways": [
+      "File descriptors are integer handles to open objects",
+      "0, 1, 2 are stdin, stdout, stderr",
+      "Redirection reassigns descriptors before a command runs"
+    ],
+    "practice": "In your own VM, combine stdout and stderr redirection in different orders and observe why the results differ, then list a shell's open descriptors.",
+    "sources": [],
+    "content": "## Core idea\nEvery process has a table of file descriptors, integer handles that refer to open files, sockets, pipes, or devices. By convention, descriptor 0 is standard input, 1 is standard output, and 2 is standard error. Opening a file returns the lowest free descriptor. The shell performs redirection by duplicating descriptors before launching a command: `>` redirects stdout, `2>` redirects stderr, and `2>&1` makes stderr go where stdout currently points, so order matters. A pipe creates a kernel buffer with a read end and a write end, connecting the stdout of one process to the stdin of the next. The mental model: processes do not name files when writing — they write to handles, and the shell wires those handles up in advance. This also explains why `/proc/<pid>/fd` is such a useful inspection point.\n\n## Method\n1. Identify the default destination of each standard descriptor.\n2. Determine the order of redirection operators left to right.\n3. Trace a pipeline as a chain of descriptor connections.\n4. Inspect a process's open descriptors to find hidden files or sockets.\n5. Close unneeded descriptors to avoid leaking handles to children.\n\n## Example (lab only)\n```bash\n<LAB_CMD> > <LAB_OUT> 2>&1\n<LAB_CMD> 2>&1 > <LAB_OUT>\nls -l /proc/$$/fd\n```\n\n| Operator | Effect |\n|----------|--------|\n| `>` | Redirect stdout |\n| `2>` | Redirect stderr |\n| `2>&1` | Send stderr to stdout's target |\n| `\\|` | Pipe stdout to next stdin |\n\n## Common mistakes\nWriting `2>&1 > file` and expecting both streams in the file. Assuming a pipe carries stderr by default. Forgetting that descriptors are inherited by child processes unless marked close-on-exec.\n\n## Defense / verification\nAudit unexpected open descriptors with `ls -l /proc/<pid>/fd`. Avoid logging sensitive data through broad `2>&1` captures, and close descriptors explicitly in long-running processes.\n\n## Knowledge check\n**Q:** Why does `cmd 2>&1 > out` leave errors on the terminal?\n**A:** `2>&1` is applied first, pointing stderr at the original stdout; then stdout alone is redirected to `out`."
+  },
+  {
+    "id": "linux-windows-17",
+    "topic": "linux-windows",
+    "number": 17,
+    "title": "Process Lifecycle: fork, exec, and Exit",
+    "level": "Intermediate",
+    "minutes": 35,
+    "summary": "Trace how Linux processes are created and replaced, and why the fork-exec model matters for process inspection.",
+    "objectives": [
+      "Describe fork and exec semantics",
+      "Explain copy-on-write and process states",
+      "Interpret parent-child relationships"
+    ],
+    "takeaways": [
+      "fork duplicates a process; exec replaces its program image",
+      "Copy-on-write makes duplication cheap",
+      "A child that exits before being waited for becomes a zombie"
+    ],
+    "practice": "In your own VM, write a tiny script that forks a child, prints both PIDs, and observes the child's state before and after it is reaped.",
+    "sources": [],
+    "content": "## Core idea\nNew Linux processes are created by `fork()`, which produces a near-identical child with its own address space, created efficiently through copy-on-write: pages are shared until one side writes. The child then usually calls `exec()` to replace its image with a new program, preserving its PID and many attributes such as credentials and file descriptors. When a process finishes, it becomes a zombie until its parent calls `wait()` to collect its exit status; if the parent dies, the child is reparented to init or systemd, which reaps it. The mental model: processes are born by duplication, transformed by replacement, and cleaned up by an explicit wait. This is why process ancestry and state columns in `ps` carry real diagnostic meaning.\n\n## Method\n1. Identify the parent of a process and explain how it was launched.\n2. Note that exec preserves PID, credentials, and open descriptors unless changed.\n3. Observe child state transitions with `ps` or `/proc/<pid>/status`.\n4. Confirm that zombies remain until reaped by the parent.\n5. Recognize that shells fork for every external command.\n\n## Example (lab only)\n```bash\nps -eo pid,ppid,stat,cmd | grep <LAB_NAME>\nawk '/State|PPid/' /proc/<LAB_PID>/status\npython3 -c 'import os; pid=os.fork(); print(pid, os.getpid())'\n```\n\n| State | Meaning |\n|-------|---------|\n| R | Running or runnable |\n| S | Interruptible sleep |\n| Z | Zombie, awaiting reap |\n\n## Common mistakes\nExpecting exec to create a new PID — it reuses the caller's. Leaving children unreaped in daemons. Assuming forked children automatically get fresh credentials, which can be a security hazard if the parent is privileged.\n\n## Defense / verification\nVerify that service managers reap children and that `Restart=` policies exist where needed. Use process limits (`ulimit -u`) in your lab to contain accidental fork storms.\n\n## Knowledge check\n**Q:** After `fork()` then `exec()`, is the PID the parent's, the child's, or new?\n**A:** The child keeps its own new PID from fork; exec does not change it."
+  },
+  {
+    "id": "linux-windows-18",
+    "topic": "linux-windows",
+    "number": 18,
+    "title": "Signals, Process States, and Zombies",
+    "level": "Intermediate",
+    "minutes": 35,
+    "summary": "Learn the signal mechanism, default actions, and the process states you will see during incident triage.",
+    "objectives": [
+      "List common signals and their default actions",
+      "Distinguish catchable and uncatchable signals",
+      "Diagnose zombies and uninterruptible sleeps"
+    ],
+    "takeaways": [
+      "Signals are asynchronous software notifications",
+      "SIGKILL and SIGSTOP cannot be caught or ignored",
+      "A zombie has exited but not been reaped"
+    ],
+    "practice": "In your own VM, send SIGTERM and then SIGKILL to a harmless test process and record how its state changes.",
+    "sources": [],
+    "content": "## Core idea\nSignals are short asynchronous notifications delivered to a process. Each signal has a default action — terminate, stop, continue, ignore, or dump core — but most can be caught or ignored by the process. Two exceptions are essential: SIGKILL (9) and SIGSTOP cannot be caught, blocked, or ignored, which makes them reliable last resorts. A process that has exited but whose parent has not yet called `wait()` appears in state Z, a zombie; it consumes only a table entry. State D means uninterruptible sleep, usually waiting on I/O, and even SIGKILL cannot take effect until the kernel call returns. The mental model: signals are requests except for the two unconditional ones, and process state tells you what a process is actually doing.\n\n## Method\n1. Check the process state before acting.\n2. Send a polite termination signal first and allow cleanup.\n3. Verify the process exited and its parent reaped it.\n4. Escalate to SIGKILL only if necessary.\n5. Investigate persistent D-state processes as possible storage or driver problems.\n\n## Example (lab only)\n```bash\nkill -l\nkill -TERM <LAB_PID>; sleep 1; ps -o pid,stat,cmd -p <LAB_PID>\nkill -KILL <LAB_PID>\nps -eo pid,ppid,stat,cmd | awk '$3 ~ /Z/'\n```\n\n| Signal | Number | Default |\n|--------|--------|---------|\n| SIGTERM | 15 | Terminate, catchable |\n| SIGKILL | 9 | Terminate, uncatchable |\n| SIGSTOP | 19 | Stop, uncatchable |\n\n## Common mistakes\nUsing `kill -9` immediately and denying processes a chance to flush data. Mistaking a zombie for a still-running process and repeatedly killing it. Ignoring a D-state process that indicates failing storage.\n\n## Defense / verification\nConfirm termination with `kill -0` or `ps`, and ensure parents reap children. In your lab, prefer SIGTERM and reserve SIGKILL for verification-backed escalation.\n\n## Knowledge check\n**Q:** Which two signals cannot be caught, blocked, or ignored?\n**A:** SIGKILL (9) and SIGSTOP (19)."
+  },
+  {
+    "id": "linux-windows-19",
+    "topic": "linux-windows",
+    "number": 19,
+    "title": "Job Control and Background Execution",
+    "level": "Beginner",
+    "minutes": 25,
+    "summary": "Understand how shells group processes into jobs and manage foreground and background execution tied to a terminal.",
+    "objectives": [
+      "Manage foreground and background jobs",
+      "Explain process groups and SIGHUP",
+      "Keep work running after logout"
+    ],
+    "takeaways": [
+      "A job is a shell-managed process group",
+      "Only the foreground group reads from the terminal",
+      "Background jobs receive SIGHUP when the shell exits"
+    ],
+    "practice": "In your own VM, start a long-running command in the background, suspend and resume it, then disconnect and observe the effect of nohup.",
+    "sources": [],
+    "content": "## Core idea\nAn interactive shell organizes pipelines into jobs, each a process group with an ID. Only the foreground job receives terminal input and can read from the keyboard; background jobs run without it and are stopped if they attempt to read. `Ctrl-Z` stops the foreground job and `bg` resumes it in the background, while `fg` brings it forward. When a terminal disconnects, the shell sends SIGHUP to its jobs, which normally terminates them. `nohup` ignores that signal and `setsid` detaches the process into a new session, while terminal multiplexers such as tmux keep a persistent session alive. The mental model: the terminal is a shared resource governed by a foreground group, and jobs must be explicitly detached to survive disconnection.\n\n## Method\n1. Launch a command with `&` to place it in the background.\n2. List jobs and note their state with `jobs`.\n3. Suspend and resume using `Ctrl-Z`, `bg`, and `fg`.\n4. Use `nohup` or `setsid` for work that must survive logout.\n5. Verify with `ps` that the process persists after the shell exits.\n\n## Example (lab only)\n```bash\nsleep 300 &\njobs\nfg %1\nnohup <LAB_CMD> > <LAB_OUT> 2>&1 &\nsetsid <LAB_CMD> > <LAB_OUT> 2>&1 < /dev/null &\n```\n\n| Command | Effect |\n|---------|--------|\n| `&` | Start in background |\n| `Ctrl-Z` | Stop foreground job |\n| `bg` / `fg` | Resume background / foreground |\n| `nohup` | Ignore hangup on logout |\n\n## Common mistakes\nExpecting a background job to read from stdin. Losing a long task when an SSH session closes. Forgetting to redirect output, leaving a job blocked on a full terminal buffer.\n\n## Defense / verification\nUse tmux or setsid for durable work and verify persistence with `ps` after disconnecting. Avoid leaving privileged background jobs running unattended in shared environments.\n\n## Knowledge check\n**Q:** Why does a plain background job die when you log out, and what prevents it?\n**A:** The shell sends SIGHUP on exit; `nohup` or `setsid` prevents termination."
+  },
+  {
+    "id": "linux-windows-20",
+    "topic": "linux-windows",
+    "number": 20,
+    "title": "systemd Units, Targets, and Service Management",
+    "level": "Intermediate",
+    "minutes": 40,
+    "summary": "Learn the systemd unit model, target goals, and the commands used to inspect and control services safely.",
+    "objectives": [
+      "Explain unit types and target goals",
+      "Read a service unit file",
+      "Start, enable, and verify a service"
+    ],
+    "takeaways": [
+      "systemd manages resources called units",
+      "Targets group units in place of runlevels",
+      "State changes require daemon-reload when unit files change"
+    ],
+    "practice": "In your own VM, create a minimal user service unit, enable it, and verify it starts at boot using systemctl status.",
+    "sources": [],
+    "content": "## Core idea\nsystemd is the init system and service manager on most modern Linux distributions. It manages resources called units, of which the common types are `service` (a process), `socket`, `timer`, `mount`, and `target`. A target is a synchronization point grouping other units, replacing traditional runlevels; `multi-user.target` and `graphical.target` are the familiar ones. A unit file has `[Unit]`, `[Service]` (or the matching type section), and `[Install]` sections describing dependencies, execution, and enablement. The mental model: systemd is a dependency-driven state machine that brings the system to a target by starting the necessary units, and `systemctl` is its control and inspection interface.\n\n## Method\n1. Identify the unit type and the target that pulls it in.\n2. Read the unit file to see `ExecStart`, `User`, and dependencies.\n3. Check current state with `systemctl status`.\n4. After editing a unit, run `daemon-reload`, then restart and enable.\n5. Confirm the unit is both active now and enabled for boot.\n\n## Example (lab only)\n```bash\nsystemctl status <LAB_SERVICE>.service\nsystemctl cat <LAB_SERVICE>.service\nsudo systemctl daemon-reload\nsudo systemctl enable --now <LAB_SERVICE>.service\nsystemctl is-enabled <LAB_SERVICE>.service\n```\n\n| Command | Purpose |\n|---------|---------|\n| `status` | Show active state and recent logs |\n| `cat` | Print effective unit file |\n| `enable --now` | Enable at boot and start |\n| `daemon-reload` | Reread changed unit files |\n\n## Common mistakes\nEditing files under `/usr/lib/systemd` instead of `/etc/systemd/system`. Forgetting `daemon-reload` so changes are ignored. Confusing enabled (starts at boot) with active (running now).\n\n## Defense / verification\nVerify services with `systemctl status` and `is-enabled`, and review units running as root for unnecessary privileges. Check for unexpected new units as part of a baseline audit.\n\n## Knowledge check\n**Q:** After editing a unit file, what command makes systemd read the change, and what distinguishes enabled from active?\n**A:** `systemctl daemon-reload`; enabled means it starts at boot, active means it is running now."
+  },
+  {
+    "id": "linux-windows-21",
+    "topic": "linux-windows",
+    "number": 21,
+    "title": "systemd Service Hardening Directives",
+    "level": "Advanced",
+    "minutes": 45,
+    "summary": "Apply systemd sandboxing directives to reduce what a compromised service can reach, and verify each restriction.",
+    "objectives": [
+      "Explain key hardening directives",
+      "Add directives to a service unit",
+      "Verify their effect at runtime"
+    ],
+    "takeaways": [
+      "NoNewPrivileges blocks privilege gain via SUID and file capabilities",
+      "ProtectSystem and ProtectHome make paths read-only",
+      "PrivateTmp isolates a service's temporary directory"
+    ],
+    "practice": "In your own VM, harden a test service with NoNewPrivileges, PrivateTmp, and ProtectSystem=strict, then verify the restrictions from inside the service.",
+    "sources": [],
+    "content": "## Core idea\nsystemd can apply sandboxing to a service without changing the application itself. Each directive narrows the service's view of the system: `NoNewPrivileges=yes` prevents gaining privileges through SUID or file capabilities, `PrivateTmp=yes` gives the service an isolated `/tmp`, `ProtectSystem=strict` mounts most of the filesystem read-only, `ProtectHome=yes` hides home directories, and `CapabilityBoundingSet=` limits available kernel capabilities. Other useful controls include `RestrictAddressFamilies=`, `ReadOnlyPaths=`, and `UMask=`. The mental model: systemd wraps a service in a policy envelope, so a flaw in the application is contained by the manager rather than relying solely on the application's own discipline. Directives are cumulative, and a small number of well-chosen ones remove entire classes of post-compromise action.\n\n## Method\n1. Determine what the service legitimately needs to read, write, and connect.\n2. Add directives in a drop-in under `/etc/systemd/system/<unit>.d/`.\n3. Apply `daemon-reload` and restart the service.\n4. Verify behavior with `systemctl show` and by testing from inside the service.\n5. Read the service journal for denials and relax only what is necessary.\n\n## Example (lab only)\n```bash\nsudo mkdir -p /etc/systemd/system/<LAB_SERVICE>.service.d\nsudo tee /etc/systemd/system/<LAB_SERVICE>.service.d/hardening.conf >/dev/null <<'CONF'\n[Service]\nNoNewPrivileges=yes\nPrivateTmp=yes\nProtectSystem=strict\nProtectHome=yes\nCONF\nsudo systemctl daemon-reload\nsudo systemctl restart <LAB_SERVICE>.service\nsystemctl show -p NoNewPrivileges -p PrivateTmp <LAB_SERVICE>.service\n```\n\n| Directive | Effect |\n|-----------|--------|\n| NoNewPrivileges | Blocks SUID/capability escalation |\n| ProtectSystem=strict | Read-only filesystem except API paths |\n| PrivateTmp | Isolated temporary directory |\n\n## Common mistakes\nEnabling `ProtectSystem=strict` without granting write access to a needed data path. Forgetting `daemon-reload`, so new directives never apply. Assuming these controls replace patching — they are defense in depth, not a fix.\n\n## Defense / verification\nVerify effective settings with `systemctl show` and `/proc/<pid>/status`. Use `systemd-analyze security <unit>` to score exposure and track improvements over time.\n\n## Knowledge check\n**Q:** Which single directive prevents a service from gaining privileges via an SUID helper?\n**A:** `NoNewPrivileges=yes`."
+  },
+  {
+    "id": "linux-windows-22",
+    "topic": "linux-windows",
+    "number": 22,
+    "title": "Timers, Cron, and Scheduled Execution",
+    "level": "Intermediate",
+    "minutes": 30,
+    "summary": "Compare cron and systemd timers, learn to audit scheduled jobs, and understand the security implications of scheduled execution.",
+    "objectives": [
+      "List scheduled jobs on a system",
+      "Explain cron versus systemd timers",
+      "Audit schedules for excessive privilege"
+    ],
+    "takeaways": [
+      "Cron uses time-based expressions in crontab files",
+      "systemd timers use monotonic or calendar triggers",
+      "Scheduled jobs often run with elevated privileges"
+    ],
+    "practice": "In your own VM, create a user crontab entry and a systemd user timer, then list both and confirm their schedules.",
+    "sources": [],
+    "content": "## Core idea\nScheduled execution is a common persistence and automation mechanism. Cron evaluates time expressions from per-user crontabs and system-wide files under `/etc/cron.*`, launching commands with the privileges of the owning user. systemd timers offer a more expressive alternative: a `.timer` unit triggers a matching `.service` unit using `OnCalendar`, `OnBootSec`, or monotonic timers, and integrates with journald logging and dependencies. `at` handles one-off jobs. The mental model: a scheduler is a privileged launcher that runs commands on a timer, so the combination of who schedules, what runs, and with what identity determines risk. Auditing schedules means checking every user's crontab, system cron directories, and all timer units.\n\n## Method\n1. Enumerate per-user crontabs and `/etc/crontab` and `/etc/cron.d`.\n2. List systemd timers with `systemctl list-timers --all`.\n3. Check `at` queues with `atq`.\n4. For each job, record the owner, command, working directory, and environment.\n5. Flag jobs running as root from writable scripts or directories.\n\n## Example (lab only)\n```bash\ncrontab -l\nsudo ls -l /etc/cron.d /etc/cron.daily\nsystemctl list-timers --all\natq\n```\n\n| Mechanism | Trigger | Audit command |\n|-----------|---------|---------------|\n| Cron | Time expression | `crontab -l`, `/etc/cron.*` |\n| systemd timer | Calendar / monotonic | `systemctl list-timers` |\n| at | One-off time | `atq` |\n\n## Common mistakes\nIgnoring root's crontab when auditing. Forgetting that scripts invoked by cron inherit a minimal environment. Assuming a timer unit is harmless without inspecting the service it activates.\n\n## Defense / verification\nMaintain an inventory of expected scheduled jobs and alert on changes. Verify that scheduled scripts are root-owned and not writable by unprivileged users, using `find /etc/cron* -perm -0002`.\n\n## Knowledge check\n**Q:** Which command lists all systemd timers including inactive ones?\n**A:** `systemctl list-timers --all`."
+  },
+  {
+    "id": "linux-windows-23",
+    "topic": "linux-windows",
+    "number": 23,
+    "title": "Linux Logging with journald and syslog",
+    "level": "Intermediate",
+    "minutes": 35,
+    "summary": "Understand how Linux logs are collected, structured, and queried so you can reconstruct events reliably.",
+    "objectives": [
+      "Explain journald and syslog roles",
+      "Query journals with filters",
+      "Verify log persistence and integrity"
+    ],
+    "takeaways": [
+      "journald collects structured records with metadata",
+      "syslog daemons route messages to files or forwarders",
+      "Logs need persistence configuration to survive reboot"
+    ],
+    "practice": "In your own VM, generate a test log entry, find it with journalctl filters, then configure persistent journal storage and verify it survives a reboot.",
+    "sources": [],
+    "content": "## Core idea\nModern Linux logging has two layers. The kernel and services emit messages through the journal; systemd-journald captures them with structured metadata such as unit name, PID, UID, and priority. Traditional syslog daemons (rsyslog or syslog-ng) read those messages and write text files under `/var/log` or forward them to a central collector. By default some distributions store journals only in memory under `/run`, so enabling `Storage=persistent` in `journald.conf` is important for investigations. The mental model: journald is the structured ingestion point, syslog is routing and persistence, and `/var/log` files are the human-readable output. Effective querying depends on understanding the metadata fields rather than grepping raw text.\n\n## Method\n1. Confirm whether journal storage is volatile or persistent.\n2. Query by unit, time window, priority, or PID using journalctl.\n3. Use ` -f ` to follow logs live during a test.\n4. Inspect traditional log files for comparison.\n5. Correlate across sources using timestamps and identifiers.\n\n## Example (lab only)\n```bash\njournalctl -u <LAB_SERVICE>.service --since \"1 hour ago\"\njournalctl _PID=<LAB_PID> -o json\nsudo journalctl -f -u <LAB_SERVICE>.service\nls -l /var/log\n```\n\n| Field | Use |\n|-------|-----|\n| `_UNIT` | Filter by service |\n| `_PID` | Filter by process |\n| `_UID` | Filter by user |\n| `PRIORITY` | Filter by severity |\n\n## Common mistakes\nAssuming all distributions persist journals by default. Relying on `grep` alone and losing structured fields. Ignoring clock synchronization, which breaks cross-host correlation.\n\n## Defense / verification\nEnable persistent storage and remote forwarding, restrict log file permissions, and verify timestamps with `timedatectl`. In your lab, confirm a rebooted system still shows earlier entries.\n\n## Knowledge check\n**Q:** What journald setting makes logs survive a reboot, and which journalctl option filters by service unit?\n**A:** `Storage=persistent` in `journald.conf`; `-u <unit>` filters by unit."
+  },
+  {
+    "id": "linux-windows-24",
+    "topic": "linux-windows",
+    "number": 24,
+    "title": "auditd and Linux Audit Rules",
+    "level": "Advanced",
+    "minutes": 45,
+    "summary": "Learn how the kernel audit subsystem records security-relevant events and how to write and query audit rules.",
+    "objectives": [
+      "Explain the audit subsystem architecture",
+      "Write basic audit rules",
+      "Search and report on audit events"
+    ],
+    "takeaways": [
+      "auditd receives kernel audit records via netlink",
+      "Rules select syscalls, files, or users to watch",
+      "ausearch and aureport turn raw records into findings"
+    ],
+    "practice": "In your own VM, add a watch rule on a sensitive file, trigger it, and locate the resulting event with ausearch.",
+    "sources": [],
+    "content": "## Core idea\nThe Linux audit subsystem is a kernel facility that emits records for configured security events, which the auditd daemon collects to disk. Unlike application logs, audit records are generated by the kernel and include fields such as syscall number, PID, UID, audit login UID (auid), and success or failure. Rules loaded with `auditctl` or stored in `/etc/audit/rules.d/` select what to record: syscall rules, filesystem watches, and filters by user or architecture. The mental model: audit is a kernel-level observation layer independent of the program being watched, which makes it valuable for detecting access to sensitive files even if the application logs nothing. `ausearch` queries records by key or time, and `aureport` summarizes them.\n\n## Method\n1. Check that auditd is running and inspect current rules.\n2. Add a watch or syscall rule, assigning a `-k` key for easy lookup.\n3. Trigger the event in your own lab.\n4. Search using the key and examine the record fields.\n5. Generate a summary report to confirm the event was captured.\n\n## Example (lab only)\n```bash\nsudo systemctl status auditd\nsudo auditctl -l\nsudo auditctl -w <LAB_FILE> -p wa -k <LAB_KEY>\ntouch <LAB_FILE>; echo test >> <LAB_FILE>\nsudo ausearch -k <LAB_KEY> | tail -20\n```\n\n| Rule flag | Meaning |\n|-----------|---------|\n| `-w path` | Watch a path |\n| `-p wa` | Watch write and attribute changes |\n| `-k key` | Tag for searching |\n| `-S` | Select a syscall |\n\n## Common mistakes\nForgetting to persist rules in `/etc/audit/rules.d/`, so they vanish on reboot. Creating overly broad syscall rules that flood disk. Ignoring the `auid` field, which tracks the original login user across su/sudo.\n\n## Defense / verification\nVerify rules after reboot and monitor audit disk usage. In your lab, confirm the tagged event appears with `ausearch` and that log rotation is configured.\n\n## Knowledge check\n**Q:** Which audit field preserves the original login user after a sudo escalation?\n**A:** `auid`, the audit login UID."
+  },
+  {
+    "id": "linux-windows-25",
+    "topic": "linux-windows",
+    "number": 25,
+    "title": "SSH Hardening and Key-Based Access",
+    "level": "Intermediate",
+    "minutes": 40,
+    "summary": "Harden SSH by configuring the daemon, managing keys, and verifying that weak authentication paths are removed.",
+    "objectives": [
+      "Identify weak SSH defaults",
+      "Configure key-based authentication",
+      "Verify a hardened sshd_config"
+    ],
+    "takeaways": [
+      "Disable password and root login where keys are established",
+      "Restrict users and forwarding features",
+      "Always validate config syntax before restarting"
+    ],
+    "practice": "In your own VM, generate an SSH keypair, install the public key, disable password authentication, and confirm key-only login works before closing your session.",
+    "sources": [],
+    "content": "## Core idea\nSSH is a common remote administration entry point, so its configuration deserves careful hardening. The daemon reads `/etc/ssh/sshd_config`, where settings control authentication methods, permitted users, protocol features, and cryptographic policy. The strongest practical posture uses public-key authentication, disables direct root login (`PermitRootLogin no`), disables password authentication (`PasswordAuthentication no`) once keys are verified, and restricts access with `AllowUsers` or `AllowGroups`. Features not needed, such as agent forwarding or X11 forwarding, should be disabled. The mental model: every enabled authentication path and forwarding feature is an attack surface, and hardening is the deliberate removal of paths you do not need. A critical operational rule is to validate configuration and keep an existing session open before restarting the daemon.\n\n## Method\n1. Inventory current settings with `sshd -T`.\n2. Generate a strong key pair and install the public key for your lab user.\n3. Verify key-based login works in a separate session.\n4. Edit `sshd_config` to remove unwanted authentication and forwarding paths.\n5. Validate syntax with `sshd -t` and reload, then retest.\n\n## Example (lab only)\n```bash\nssh-keygen -t ed25519 -f <LAB_KEYFILE>\nssh-copy-id -i <LAB_KEYFILE>.pub <LAB_USER>@<LAB_HOST>\nsudo sshd -t\nsudo grep -E 'PermitRootLogin|PasswordAuthentication|AllowUsers' /etc/ssh/sshd_config\nsudo systemctl reload sshd\n```\n\n| Setting | Hardened value |\n|---------|----------------|\n| PermitRootLogin | no |\n| PasswordAuthentication | no |\n| X11Forwarding | no |\n| AllowUsers | explicit list |\n\n## Common mistakes\nDisabling passwords before confirming key login, causing lockout. Restarting sshd without `sshd -t` validation. Leaving old unauthorized keys in `authorized_keys`.\n\n## Defense / verification\nUse `sshd -T` to confirm effective settings and review `authorized_keys` ownership and modes. Monitor authentication logs for brute-force attempts and consider rate limiting.\n\n## Knowledge check\n**Q:** What command validates sshd configuration before a reload, and what does it check?\n**A:** `sshd -t`; it parses the config and checks host keys for syntax and usability errors."
+  },
+  {
+    "id": "linux-windows-26",
+    "topic": "linux-windows",
+    "number": 26,
+    "title": "sudo, sudoers, and Privilege Control",
+    "level": "Intermediate",
+    "minutes": 40,
+    "summary": "Understand how sudo grants controlled elevated execution and how to configure and audit it safely.",
+    "objectives": [
+      "Read sudoers syntax and precedence",
+      "Grant narrow command privileges",
+      "Avoid common escalation pitfalls"
+    ],
+    "takeaways": [
+      "sudoers rules specify who may run which commands as which user",
+      "Wildcards and shell escapes can defeat narrow grants",
+      "sudo logs commands for accountability"
+    ],
+    "practice": "In your own VM, create a sudoers rule allowing a single harmless command, test it, and inspect the resulting sudo log entry.",
+    "sources": [],
+    "content": "## Core idea\nsudo lets an authorized user run a command as another user, typically root, under a policy defined in `/etc/sudoers` and files in `/etc/sudoers.d`. A rule has the form `who host=(as_user) commands`, optionally with tags such as `NOPASSWD`. sudo is a major escalation surface because a poorly scoped rule grants more power than intended: allowing an editor, interpreter, or any command with wildcard arguments often provides a path to a full shell, since many programs can spawn subprocesses. The mental model: sudo is a policy-driven privilege broker, and the true scope of a grant is determined by what the allowed program can do, not by its name. sudo also records commands and maintains a timestamp cache that can be configured.\n\n## Method\n1. Inspect existing rules with `sudo -l -U <user>`.\n2. Identify the exact command and arguments required.\n3. Write a narrow rule in a dedicated file under `/etc/sudoers.d/`.\n4. Validate with `visudo -c` before relying on it.\n5. Test the grant and review the resulting log entry.\n\n## Example (lab only)\n```bash\nsudo visudo -f /etc/sudoers.d/<LAB_RULE>\n# <LAB_USER> ALL=(root) /usr/bin/systemctl status <LAB_SERVICE>\nsudo -l -U <LAB_USER>\nvisudo -c\nsudo journalctl -t sudo | tail -5\n```\n\n| Tag | Effect |\n|-----|--------|\n| NOPASSWD | Skip password prompt |\n| RUNAS | Specify target user |\n| Defaults | Global behavior settings |\n\n## Common mistakes\nGranting `ALL` when one command suffices. Allowing editors or interpreters, which enable shell escape. Using `NOPASSWD` for broad commands without understanding the risk.\n\n## Defense / verification\nKeep rules minimal and explicit, verify syntax with `visudo -c`, and review sudo logs regularly. In your lab, confirm that a disallowed command is actually denied.\n\n## Knowledge check\n**Q:** Why is granting sudo access to a text editor effectively granting a shell?\n**A:** Editors typically allow spawning a shell or executing commands, escaping the intended restriction."
+  },
+  {
+    "id": "linux-windows-27",
+    "topic": "linux-windows",
+    "number": 27,
+    "title": "AppArmor and SELinux Mandatory Access Control",
+    "level": "Advanced",
+    "minutes": 50,
+    "summary": "Compare the two major Linux MAC systems and learn to inspect profiles, labels, and enforcement state.",
+    "objectives": [
+      "Explain DAC versus MAC",
+      "Inspect AppArmor profiles and SELinux contexts",
+      "Switch between enforcing and complain modes"
+    ],
+    "takeaways": [
+      "MAC constrains even root according to policy",
+      "AppArmor uses path-based profiles; SELinux uses labels",
+      "Denials are recorded for diagnosis"
+    ],
+    "practice": "In your own VM, put an AppArmor profile into complain mode for a test binary, trigger an action, and read the resulting denial in the log.",
+    "sources": [],
+    "content": "## Core idea\nDiscretionary access control (DAC) is the familiar owner/group/other model, where the owner can change permissions. Mandatory access control (MAC) adds a system-wide policy that even root cannot override. Two implementations dominate. AppArmor attaches path-based profiles to executables, listing which files and capabilities the program may access. SELinux assigns labels to every subject and object and enforces type enforcement rules between them. Both operate in enforcing or complain/permissive mode, the latter logging would-be denials without blocking them. The mental model: MAC is a second, independent gate after DAC, so an action must satisfy both to succeed. Understanding denials requires reading the audit or journal records that MAC systems emit.\n\n## Method\n1. Determine which MAC system is active on the host.\n2. Check its global enforcement mode.\n3. Inspect the profile or label attached to a process.\n4. Reproduce an action and read the denial record.\n5. Adjust policy in complain/permissive mode first, then enforce.\n\n## Example (lab only)\n```bash\nsudo aa-status\nsudo aa-complain <LAB_PROFILE>\nsudo journalctl -k | grep -i apparmor\ngetenforce\nls -Z <LAB_FILE>\n```\n\n| Aspect | AppArmor | SELinux |\n|--------|----------|---------|\n| Model | Path-based profiles | Label-based types |\n| State tool | `aa-status` | `getenforce` |\n| Log | Kernel/audit | audit (`AVC`) |\n\n## Common mistakes\nAssuming root bypasses MAC — it does not. Switching to enforcing mode before testing in complain mode, causing outages. Ignoring context labels when copying files, which can leave them mislabeled.\n\n## Defense / verification\nKeep MAC in enforcing mode in production and investigate every denial rather than blindly allowing. In your lab, verify enforcement state and confirm expected denials are logged.\n\n## Knowledge check\n**Q:** Can root read a file that MAC policy denies? Why?\n**A:** No. MAC is enforced by the kernel after DAC, so even UID 0 is constrained by the policy."
+  },
+  {
+    "id": "linux-windows-28",
+    "topic": "linux-windows",
+    "number": 28,
+    "title": "seccomp and Namespaces as Isolation Primitives",
+    "level": "Advanced",
+    "minutes": 50,
+    "summary": "Understand the kernel primitives behind sandboxing: seccomp syscall filters and namespaces that partition system views.",
+    "objectives": [
+      "Explain seccomp filter modes",
+      "Name the common namespace types",
+      "Relate primitives to container isolation"
+    ],
+    "takeaways": [
+      "seccomp restricts which syscalls a process may make",
+      "Namespaces isolate views such as PID, mount, and network",
+      "Containers compose these primitives with cgroups"
+    ],
+    "practice": "In your own VM, use unshare to create a PID or mount namespace and confirm the isolated view, then run a program under a simple seccomp filter.",
+    "sources": [],
+    "content": "## Core idea\nModern isolation is built from kernel primitives. Seccomp (secure computing mode) attaches a filter to a process so that specified syscalls are allowed, denied, or cause process termination — a powerful way to shrink the kernel attack surface available to untrusted code. Namespaces partition a system's view: PID namespaces isolate process trees, mount namespaces isolate filesystem mounts, network namespaces isolate interfaces and routes, and user namespaces map UIDs so an unprivileged user can appear as root inside. Control groups (cgroups) complement them by limiting resources. The mental model: a sandbox is not a separate machine but a process whose view of the kernel has been deliberately narrowed using composable primitives. Containers package exactly these mechanisms, which is why understanding them clarifies both their value and their limits.\n\n## Method\n1. Identify which system resources a workload needs.\n2. Choose the namespaces that isolate the views it should not see.\n3. Apply a seccomp allowlist covering only required syscalls.\n4. Add cgroup limits for CPU, memory, and process count.\n5. Verify isolation from inside the sandbox and from outside.\n\n## Example (lab only)\n```bash\nsudo unshare --pid --fork --mount-proc bash\nreadlink /proc/self/ns/pid\ngrep Seccomp /proc/<LAB_PID>/status\n```\n\n| Primitive | Isolates |\n|-----------|----------|\n| PID namespace | Process tree |\n| Mount namespace | Filesystem mounts |\n| Network namespace | Interfaces and routes |\n| seccomp | Allowed syscalls |\n\n## Common mistakes\nTreating a sandbox as a complete security boundary when a kernel flaw can escape it. Forgetting that user-namespace root does not confer host root. Using overly permissive seccomp filters with default allow.\n\n## Defense / verification\nVerify `Seccomp` mode and namespace memberships under `/proc/<pid>/ns`. Keep kernels patched, since sandbox escapes typically exploit kernel vulnerabilities.\n\n## Knowledge check\n**Q:** Which primitive limits the set of syscalls a process can call?\n**A:** seccomp, via an attached filter."
+  },
+  {
+    "id": "linux-windows-29",
+    "topic": "linux-windows",
+    "number": 29,
+    "title": "Windows Identity: SIDs and Accounts",
+    "level": "Beginner",
+    "minutes": 30,
+    "summary": "Learn how Windows represents identity with security identifiers and how local and domain accounts differ.",
+    "objectives": [
+      "Decode a SID and its RID",
+      "Distinguish local and domain accounts",
+      "Find well-known SIDs"
+    ],
+    "takeaways": [
+      "A SID is the stable numeric identity of a principal",
+      "The RID is the trailing component identifying the account",
+      "Names can change; SIDs persist"
+    ],
+    "practice": "On your own Windows VM, list local accounts and their SIDs with PowerShell and identify the Administrator RID.",
+    "sources": [],
+    "content": "## Core idea\nWindows identifies security principals — users, groups, and computers — by Security Identifiers (SIDs), not by names. A SID is a structured string such as `S-1-5-21-...-500`, where the leading components describe the authority and domain, and the trailing relative identifier (RID) identifies the specific account. Well-known RIDs are consistent: 500 is the built-in Administrator and 501 is Guest. Local accounts have SIDs scoped to the machine; domain accounts use the domain SID and are valid across the domain. Renaming an account leaves its SID unchanged, which is why authorization references SIDs rather than names. The mental model: names are display labels, while SIDs are the persistent keys used in every access check and audit record.\n\n## Method\n1. List local users and group memberships.\n2. Resolve a name to its SID and back.\n3. Identify the machine's domain SID portion.\n4. Recognize common well-known SIDs such as Everyone and Authenticated Users.\n5. Note that SID history can carry a migrated account's old SID.\n\n## Example (lab only)\n```powershell\nGet-LocalUser | Select Name,SID,Enabled\n$obj = New-Object System.Security.Principal.NTAccount(\"<LAB_USER>\")\n$obj.Translate([System.Security.Principal.SecurityIdentifier]).Value\nwhoami /user\n```\n\n| Principal | Well-known SID suffix |\n|-----------|-----------------------|\n| Administrator | RID 500 |\n| Guest | RID 501 |\n| Everyone | S-1-1-0 |\n\n## Common mistakes\nAssuming renaming an account removes its privileges — the SID keeps them. Confusing local and domain accounts with the same name. Ignoring disabled accounts that retain valuable SIDs.\n\n## Defense / verification\nAudit local accounts and alert on new RID 500-equivalent accounts or unexpected SID history entries. Verify identities with `whoami /user` when troubleshooting access.\n\n## Knowledge check\n**Q:** What happens to an account's permissions if you rename it?\n**A:** They remain, because permissions are tied to the SID, which does not change on rename."
+  },
+  {
+    "id": "linux-windows-30",
+    "topic": "linux-windows",
+    "number": 30,
+    "title": "Windows Access Tokens and Impersonation",
+    "level": "Intermediate",
+    "minutes": 40,
+    "summary": "Understand access tokens, the difference between primary and impersonation tokens, and how tokens drive access checks.",
+    "objectives": [
+      "Describe token contents",
+      "Distinguish primary and impersonation tokens",
+      "Explain token-based access checks"
+    ],
+    "takeaways": [
+      "A token carries the user SID, group SIDs, privileges, and integrity level",
+      "Each process has a primary token",
+      "Threads can temporarily use an impersonation token"
+    ],
+    "practice": "On your own Windows VM, inspect your process and thread tokens with whoami /groups and PowerShell, noting privileges and integrity level.",
+    "sources": [],
+    "content": "## Core idea\nWhen a user logs on, Windows creates an access token containing the user's SID, the SIDs of their groups, a set of privileges, and an integrity level. Every process has a primary token representing its security context; when the process requests an operation, the security subsystem compares that token against the target's security descriptor. A thread can also carry an impersonation token, allowing a server to temporarily act as a client — a necessary feature for network services and also a significant security boundary. The mental model: a token is a portable bundle of identity and authority that accompanies every request, and controlling which token is in use controls what is allowed. This is why token manipulation is central to Windows privilege escalation concepts.\n\n## Method\n1. Inspect the primary token of a process with `whoami /all`.\n2. List group SIDs, privileges, and their enabled state.\n3. Identify the integrity level in the Mandatory Label entry.\n4. Determine whether a thread is impersonating by comparing thread and process tokens.\n5. Check that privileges are enabled only when required.\n\n## Example (lab only)\n```powershell\nwhoami /user /groups /priv\nGet-Process -Id <LAB_PID> | Select Id,Path\n(Get-Process <LAB_NAME>).StartInfo.Verb\n```\n\n| Token element | Purpose |\n|---------------|---------|\n| User SID | Primary identity |\n| Group SIDs | Collective membership |\n| Privileges | Specific abilities |\n| Integrity level | Mandatory policy tier |\n\n## Common mistakes\nAssuming group membership changes take effect without a new logon — tokens are snapshots. Treating a disabled privilege as usable. Ignoring impersonation when analyzing which identity performed an action.\n\n## Defense / verification\nVerify tokens with `whoami /all` and audit processes running with unintended high-privilege tokens. In your lab, confirm a new logon is required after group changes.\n\n## Knowledge check\n**Q:** Why must a user log off and on again after being added to a group?\n**A:** Because their existing access token is a snapshot taken at logon and does not contain the new group SID."
+  },
+  {
+    "id": "linux-windows-31",
+    "topic": "linux-windows",
+    "number": 31,
+    "title": "UAC and Integrity Levels",
+    "level": "Intermediate",
+    "minutes": 40,
+    "summary": "Learn how User Account Control splits tokens and how mandatory integrity levels constrain what processes may touch.",
+    "objectives": [
+      "Explain UAC's filtered token model",
+      "Interpret integrity levels",
+      "Identify relevant UAC policy settings"
+    ],
+    "takeaways": [
+      "An elevated administrator holds both a standard and a filtered high-privilege token",
+      "Integrity levels range from Low to System",
+      "UAC is a convenience boundary, not a security boundary against the same user"
+    ],
+    "practice": "In your own Windows VM, run whoami /groups as a standard user and as an elevated administrator and compare the Mandatory Label and group entries.",
+    "sources": [],
+    "content": "## Core idea\nUser Account Control (UAC) changes how administrator accounts operate. When an administrator logs on, Windows issues a filtered standard-user token for most processes and keeps a separate, full administrator token that is used only after an explicit consent or credential prompt. This reduces the number of processes running with broad authority. Complementing UAC is Mandatory Integrity Control: every process and securable object carries an integrity level such as Low, Medium, High, or System. A lower-integrity process cannot write to a higher-integrity object regardless of its discretionary ACL. The mental model: UAC decides which token a process gets, and integrity level decides which objects that process may influence. UAC is explicitly designed as a convenience boundary rather than a barrier against the same authenticated user, an important nuance when reasoning about risk.\n\n## Method\n1. Determine whether the current process is elevated.\n2. Inspect the Mandatory Label to read the integrity level.\n3. Compare group SIDs and privileges between standard and elevated tokens.\n4. Review UAC policy values such as `EnableLUA` and consent behavior.\n5. Verify that routine tasks run at medium integrity and elevation is deliberate.\n\n## Example (lab only)\n```powershell\nwhoami /groups | findstr /i \"Mandatory Label\"\nwhoami /priv\nGet-ItemProperty 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System' |\n  Select EnableLUA,ConsentPromptBehaviorAdmin,PromptOnSecureDesktop\n```\n\n| Integrity level | Typical owner |\n|-----------------|---------------|\n| Low | Sandboxed processes |\n| Medium | Standard user apps |\n| High | Elevated administrators |\n| System | Services and system components |\n\n## Common mistakes\nTreating UAC as a hardened security boundary against a determined user of the same account. Assuming an administrator process is always elevated. Ignoring the secure desktop setting, which protects the consent prompt from spoofing.\n\n## Defense / verification\nRun daily work as a standard user and elevate only for specific tasks, using your own VM for experiments. Verify integrity levels with `whoami /groups` and keep `PromptOnSecureDesktop` enabled.\n\n## Knowledge check\n**Q:** Which integrity level do ordinary user applications normally run at?\n**A:** Medium."
+  },
+  {
+    "id": "linux-windows-32",
+    "topic": "linux-windows",
+    "number": 32,
+    "title": "NTFS ACLs, Ownership, and Inheritance",
+    "level": "Intermediate",
+    "minutes": 45,
+    "summary": "Learn how Windows discretionary access control is expressed through security descriptors, DACLs, and ACE inheritance.",
+    "objectives": [
+      "Read a security descriptor and DACL",
+      "Use icacls to view and modify rights",
+      "Explain inheritance and ownership"
+    ],
+    "takeaways": [
+      "A security descriptor holds owner, DACL, and SACL",
+      "DACL entries grant or deny specific access masks to SIDs",
+      "Inheritance propagates ACEs to child objects"
+    ],
+    "practice": "In your own VM, create a folder, grant a user modify rights with icacls, add a file, and inspect how inheritance applies.",
+    "sources": [],
+    "content": "## Core idea\nEvery NTFS object has a security descriptor containing the owner SID, a discretionary access control list (DACL), and a system access control list (SACL) used for auditing. A DACL is an ordered list of access control entries (ACEs), each binding a SID to an access mask such as read, write, or full control, with a allow or deny type. When a process requests access, Windows walks the DACL in order and accumulates granted rights; explicit deny entries take effect when encountered. ACEs can be inheritable, flowing from a parent folder to new files and subfolders, which is how broad folder permissions propagate. The mental model: access is decided by an ordered list attached to the object, with ownership providing a special right to change the DACL. This is the Windows counterpart to Unix mode bits but considerably more expressive.\n\n## Method\n1. View the effective ACL on a file or folder with `icacls` or `Get-Acl`.\n2. Identify explicit versus inherited ACEs.\n3. Determine the owner, who can always modify the DACL.\n4. Make narrow changes with `icacls`, preserving inheritance where appropriate.\n5. Verify the resulting access as the affected user in your lab.\n\n## Example (lab only)\n```powershell\nicacls <LAB_DIR>\nicacls <LAB_DIR> /grant '<LAB_USER>:(OI)(CI)M'\n(Get-Acl <LAB_DIR>).Access | Format-Table IdentityReference,AccessControlType,FileSystemRights,IsInherited\nicacls <LAB_DIR> /inheritance:d\n```\n\n| Marker | Meaning |\n|--------|---------|\n| OI | Object inherit, applies to files |\n| CI | Container inherit, applies to folders |\n| F | Full control |\n| M | Modify |\n\n## Common mistakes\nGranting Full Control where Modify suffices. Breaking inheritance unintentionally and leaving orphaned permissions. Placing deny entries where a broad group membership inadvertently locks out administrators.\n\n## Defense / verification\nReview ACLs on sensitive directories with `icacls` and look for overly broad entries such as Everyone:(F). Verify ownership and inheritance after migrations, and document expected ACLs as a baseline.\n\n## Knowledge check\n**Q:** Which icacls flags make a grant apply to both files and subfolders?\n**A:** `(OI)(CI)` — object inherit and container inherit."
+  },
+  {
+    "id": "linux-windows-33",
+    "topic": "linux-windows",
+    "number": 33,
+    "title": "Windows Registry Structure and Permissions",
+    "level": "Intermediate",
+    "minutes": 35,
+    "summary": "Understand registry hives and keys, and how registry ACLs protect configuration that controls system behavior.",
+    "objectives": [
+      "Describe hive and key organization",
+      "Inspect and modify registry ACLs",
+      "Identify security-sensitive keys"
+    ],
+    "takeaways": [
+      "The registry is a hierarchical configuration database",
+      "Hives such as HKLM and HKCU hold machine and user settings",
+      "Keys have ACLs just like files"
+    ],
+    "practice": "In your own VM, inspect the ACL of a run key, add a harmless test value, and confirm who can modify it.",
+    "sources": [],
+    "content": "## Core idea\nThe Windows registry is a hierarchical database of keys and values that stores operating system and application configuration. It is divided into hives, notably `HKEY_LOCAL_MACHINE` for machine-wide settings and `HKEY_CURRENT_USER` for the interactive user. Each key holds named values with types such as string, DWORD, and binary. Crucially, registry keys are securable objects with security descriptors and ACLs, so permissions are enforced at the key level and inherited by subkeys. Certain keys are security-sensitive because they define what runs at logon or how services behave; controlling write access to them is therefore a hardening priority. The mental model: the registry is a filesystem-like tree of configuration objects, each with its own access control, and changes to it directly shape system behavior.\n\n## Method\n1. Locate the relevant hive and key path.\n2. Inspect existing values and the key's ACL.\n3. Determine which principals can write the key.\n4. Make controlled changes with PowerShell cmdlets.\n5. Verify the change and record the original state for comparison.\n\n## Example (lab only)\n```powershell\nGet-ItemProperty 'HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Run'\n(Get-Acl 'HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run').Access |\n  Select IdentityReference,RegistryRights,AccessControlType\nNew-ItemProperty -Path 'HKCU:\\Software\\<LAB_KEY>' -Name <LAB_NAME> -Value '<LAB_VALUE>'\n```\n\n| Hive | Scope |\n|------|-------|\n| HKLM | Machine-wide |\n| HKCU | Current user |\n| HKU | All loaded user hives |\n\n## Common mistakes\nTreating registry keys as unsecured configuration. Editing HKLM without elevation and wondering why it fails. Forgetting that 32-bit and 64-bit views of the registry can differ.\n\n## Defense / verification\nAudit write permissions on auto-start and service-related keys, restrict them to administrators, and monitor for changes. In your lab, verify that an unprivileged user cannot modify an HKLM key.\n\n## Knowledge check\n**Q:** Are registry keys protected by ACLs, and which hive holds machine-wide settings?\n**A:** Yes, keys have security descriptors with ACLs; HKLM holds machine-wide settings."
+  },
+  {
+    "id": "linux-windows-34",
+    "topic": "linux-windows",
+    "number": 34,
+    "title": "Built-in Windows Groups and Well-known Principals",
+    "level": "Beginner",
+    "minutes": 25,
+    "summary": "Learn the built-in groups and special identities that appear in tokens, ACLs, and audit logs.",
+    "objectives": [
+      "Name key built-in groups",
+      "Explain special identities like Everyone",
+      "Interpret nested group membership"
+    ],
+    "takeaways": [
+      "Built-in groups grant baseline capabilities",
+      "Special identities describe context such as interactive or network logon",
+      "Group nesting affects effective token contents"
+    ],
+    "practice": "On your own Windows VM, enumerate members of the Administrators and Users groups and resolve a well-known SID to its name.",
+    "sources": [],
+    "content": "## Core idea\nWindows ships with built-in groups that provide baseline role definitions. Administrators have full control, Users is the default for new accounts, and specialized groups such as Remote Desktop Users or Event Log Readers grant narrow capabilities. Beyond these are special well-known identities used in ACLs and tokens: Everyone includes all users, Authenticated Users excludes anonymous access, INTERACTIVE describes a locally logged-on session, and NETWORK describes network logon. These contextual identities make policies expressive, such as allowing access only to local users. Group membership can be nested, so the effective group SIDs in a token may exceed the groups explicitly listed on the account. The mental model: authorization is evaluated against the flattened set of SIDs in a token, which the OS derives from direct and nested memberships at logon.\n\n## Method\n1. Enumerate local groups and their members.\n2. Identify special identities present in your token.\n3. Resolve SIDs to names to interpret audit entries.\n4. Note nested groups that expand effective membership.\n5. Check for membership changes that require a new logon.\n\n## Example (lab only)\n```powershell\nGet-LocalGroupMember -Group 'Administrators'\nwhoami /groups\n$sid = New-Object System.Security.Principal.SecurityIdentifier('S-1-1-0')\n$sid.Translate([System.Security.Principal.NTAccount]).Value\n```\n\n| Principal | Meaning |\n|-----------|---------|\n| Everyone | All users |\n| Authenticated Users | Non-anonymous users |\n| INTERACTIVE | Local logon sessions |\n| NETWORK | Network logon sessions |\n\n## Common mistakes\nGranting rights to Everyone when Authenticated Users is sufficient. Overlooking nested groups when assessing who can access a resource. Assuming group changes apply to existing tokens.\n\n## Defense / verification\nKeep the Administrators group small and audit membership regularly. In your lab, verify the effective group list with `whoami /groups` after any change.\n\n## Knowledge check\n**Q:** Which special identity includes anonymous users while Authenticated Users does not?\n**A:** Everyone."
+  },
+  {
+    "id": "linux-windows-35",
+    "topic": "linux-windows",
+    "number": 35,
+    "title": "Windows Services and Service Accounts",
+    "level": "Intermediate",
+    "minutes": 40,
+    "summary": "Learn how services are managed and how the choice of service account determines privilege and blast radius.",
+    "objectives": [
+      "Inspect service configuration and state",
+      "Compare built-in and virtual service accounts",
+      "Apply least privilege to services"
+    ],
+    "takeaways": [
+      "The Service Control Manager starts and tracks services",
+      "Built-in accounts range from LocalService to LocalSystem",
+      "Virtual accounts and managed service accounts reduce credential exposure"
+    ],
+    "practice": "In your own VM, inspect a service's configuration, identify its account and binary path, and verify you can stop and start it safely.",
+    "sources": [],
+    "content": "## Core idea\nWindows services are long-running processes managed by the Service Control Manager (SCM). Each service has a binary path, start type, dependencies, recovery actions, and an account under which it runs. Built-in service accounts form a privilege ladder: LocalService has minimal privileges, NetworkService can authenticate to the network with the machine identity, and LocalSystem is highly privileged and effectively part of the operating system. Virtual accounts and group Managed Service Accounts provide per-service identities with managed passwords, reducing credential exposure. The mental model: a service is a persistent process whose authority is defined by its account, so a compromise inherits whatever that account can do. Least privilege for services is therefore a direct control over blast radius.\n\n## Method\n1. List services and identify those running with high privilege.\n2. Inspect binary path, start type, and dependencies.\n3. Determine whether the account is built-in, virtual, or a named account.\n4. Check recovery actions and whether the service can be stopped by users.\n5. Recommend the least privileged account that still permits function.\n\n## Example (lab only)\n```powershell\nGet-Service | Where-Object Status -eq 'Running'\nsc.exe qc <LAB_SERVICE>\nGet-CimInstance Win32_Service -Filter \"Name='<LAB_SERVICE>'\" |\n  Select Name,StartName,PathName,StartMode\n```\n\n| Account | Relative privilege |\n|---------|--------------------|\n| LocalService | Low |\n| NetworkService | Moderate, machine identity on network |\n| LocalSystem | Very high |\n\n## Common mistakes\nRunning every service as LocalSystem for convenience. Leaving service binaries in writable directories or with unquoted paths containing spaces. Ignoring recovery actions that restart a service repeatedly.\n\n## Defense / verification\nVerify service accounts with `sc.exe qc` and restrict write access to service binaries and their parent folders. In your lab, confirm a service runs under the intended least-privileged account.\n\n## Knowledge check\n**Q:** Which built-in service account is highest privilege, and what is a lower-privilege alternative for local-only work?\n**A:** LocalSystem is highest; LocalService is a lower-privilege option for local-only tasks."
+  },
+  {
+    "id": "linux-windows-36",
+    "topic": "linux-windows",
+    "number": 36,
+    "title": "Scheduled Tasks and Triggers",
+    "level": "Intermediate",
+    "minutes": 30,
+    "summary": "Understand the Windows Task Scheduler, its triggers and principals, and how to audit scheduled automation.",
+    "objectives": [
+      "Describe task components",
+      "List and inspect scheduled tasks",
+      "Identify tasks running with elevated principals"
+    ],
+    "takeaways": [
+      "Tasks combine triggers, actions, conditions, and a security principal",
+      "They can run whether or not a user is logged on",
+      "Elevated tasks are a persistence and privilege surface"
+    ],
+    "practice": "In your own VM, create a scheduled task that writes a timestamp to a file, run it once, and inspect its definition.",
+    "sources": [],
+    "content": "## Core idea\nWindows Task Scheduler runs actions automatically based on triggers such as time, logon, boot, or an event. A task definition contains triggers, actions, conditions, settings, and a principal that determines the security context, including whether it runs with highest privileges and whether a user must be logged on. Tasks can be created by users for benign automation and by administrators for maintenance, which makes them a dual-use mechanism worth auditing. The mental model: a scheduled task is a persistent, policy-defined launcher whose authority comes from its principal, analogous to a systemd timer paired with a service. Inventorying tasks means checking both the Task Scheduler library and the underlying definitions, including hidden tasks.\n\n## Method\n1. Enumerate scheduled tasks and note their state.\n2. Inspect each task's actions, triggers, and principal.\n3. Flag tasks running with highest privileges from writable locations.\n4. Check conditions such as \"run only when user is logged on.\"\n5. Verify whether the task's action file is protected by ACLs.\n\n## Example (lab only)\n```powershell\nGet-ScheduledTask | Select TaskName,State,Author\nGet-ScheduledTaskInfo -TaskName <LAB_TASK>\n(Get-ScheduledTask -TaskName <LAB_TASK>).Actions\nschtasks /Query /TN <LAB_TASK> /XML\n```\n\n| Component | Purpose |\n|-----------|---------|\n| Trigger | When the task runs |\n| Action | What it executes |\n| Principal | Which identity it uses |\n| Conditions | Extra constraints |\n\n## Common mistakes\nIgnoring hidden tasks during an audit. Allowing an elevated task to point at a script in a user-writable folder. Assuming tasks only run while the creator is logged on.\n\n## Defense / verification\nInventory expected tasks and alert on new ones, especially those with highest privileges. Verify action paths are in protected directories and that ACLs prevent unauthorized edits.\n\n## Knowledge check\n**Q:** Which task component determines the security context in which actions run?\n**A:** The principal."
+  },
+  {
+    "id": "linux-windows-37",
+    "topic": "linux-windows",
+    "number": 37,
+    "title": "PowerShell Security and Constrained Language",
+    "level": "Advanced",
+    "minutes": 45,
+    "summary": "Learn PowerShell's security controls: execution policy, language modes, logging, and script block protection.",
+    "objectives": [
+      "Explain execution policy and its limits",
+      "Enable script block and module logging",
+      "Describe ConstrainedLanguage mode"
+    ],
+    "takeaways": [
+      "Execution policy is a safety feature, not a hard security boundary",
+      "ConstrainedLanguage limits access to dangerous APIs",
+      "Script block and module logging provide visibility"
+    ],
+    "practice": "In your own Windows VM, enable script block logging and transcription, run a test script, and locate the logged events.",
+    "sources": [],
+    "content": "## Core idea\nPowerShell is both an administration tool and a powerful scripting engine, so its security controls matter. Execution policy controls whether scripts may run and is intentionally a safety feature rather than a robust barrier, since it can be bypassed with command-line flags. Stronger controls include language modes: ConstrainedLanguage restricts access to arbitrary .NET types and APIs while allowing core cmdlets, significantly limiting what a script can do. Visibility comes from script block logging, module logging, and transcription, which capture the content of executed code to the Event Log. AMSI (Antimalware Scan Interface) lets security products inspect script content before execution. The mental model: execution policy shapes convenience, while language mode, logging, and AMSI shape actual security and detection.\n\n## Method\n1. Check the current execution policy and language mode.\n2. Enable script block logging and module logging via policy or registry.\n3. Configure transcription to capture session output.\n4. Run a harmless test script and locate the generated events.\n5. Consider ConstrainedLanguage or Just Enough Administration for constrained endpoints.\n\n## Example (lab only)\n```powershell\nGet-ExecutionPolicy -List\n$ExecutionContext.SessionState.LanguageMode\nGet-WinEvent -LogName 'Microsoft-Windows-PowerShell/Operational' -MaxEvents 10\n```\n\n| Control | Role |\n|---------|------|\n| Execution policy | Convenience gate on script files |\n| ConstrainedLanguage | Restricts APIs and .NET access |\n| Script block logging | Records executed code |\n| AMSI | Scans script content |\n\n## Common mistakes\nTreating execution policy as a security boundary. Enabling verbose logging without planning storage and privacy controls. Forgetting that PowerShell can be invoked from other hosts and applications.\n\n## Defense / verification\nVerify logging is enabled and events are collected centrally. In your lab, confirm a test script's content appears in the Operational log, and restrict high-privilege PowerShell use.\n\n## Knowledge check\n**Q:** Is execution policy a strong security boundary? What provides stronger constraint?\n**A:** No, it is a safety feature that can be bypassed; ConstrainedLanguage mode and logging provide stronger control and visibility."
+  },
+  {
+    "id": "linux-windows-38",
+    "topic": "linux-windows",
+    "number": 38,
+    "title": "Windows Event Logs and Sysmon",
+    "level": "Advanced",
+    "minutes": 50,
+    "summary": "Use Windows Event Logs and Sysmon to reconstruct activity, with focus on high-value event IDs and field interpretation.",
+    "objectives": [
+      "Navigate Event Log channels",
+      "Recognize key security event IDs",
+      "Explain what Sysmon adds"
+    ],
+    "takeaways": [
+      "Event Logs are structured channels of EVTX records",
+      "Security events cover logon, process creation, and policy changes",
+      "Sysmon adds detailed process, network, and file events"
+    ],
+    "practice": "In your own Windows VM, install Sysmon with a basic config, run a test process, and find its process-create event in the Sysmon log.",
+    "sources": [],
+    "content": "## Core idea\nWindows records activity in structured channels stored as EVTX files. The Security channel includes audit events such as logons (4624), explicit process creation with command line (4688 when enabled), special privilege use (4672), and service installation (7045). The System and Application channels hold service and application events. Windows Event Forwarding can centralize these records. Sysmon, part of Sysinternals, extends visibility with high-fidelity events: process creation with hashes and parent process (Event 1), network connections (Event 3), file creation (Event 11), and DNS queries (Event 22), guided by an XML configuration. The mental model: Event Logs give broad OS-level accounting, while Sysmon gives the detailed telemetry needed to trace execution chains. Correlation depends on timestamps, user SIDs, and process GUIDs.\n\n## Method\n1. Identify which channels and event IDs are relevant to a question.\n2. Query with `Get-WinEvent` using filters by ID or time.\n3. Extract key fields such as user, command line, and parent process.\n4. Compare Security events with Sysmon events for the same action.\n5. Correlate using process IDs and GUIDs across sources.\n\n## Example (lab only)\n```powershell\nGet-WinEvent -FilterHashtable @{LogName='Security'; Id=4624} -MaxEvents 5\nGet-WinEvent -LogName 'Microsoft-Windows-Sysmon/Operational' |\n  Where-Object Id -eq 1 | Select-Object -First 3 TimeCreated,Message\nwevtutil qe Security /c:5 /f:text\n```\n\n| Event ID | Source | Meaning |\n|----------|--------|---------|\n| 4624 | Security | Successful logon |\n| 4688 | Security | Process creation |\n| 1 | Sysmon | Process create with details |\n| 22 | Sysmon | DNS query |\n\n## Common mistakes\nLooking only at the Security channel and missing Sysmon detail. Ignoring time synchronization across hosts. Assuming audit policy is enabled for all interesting events by default.\n\n## Defense / verification\nEnable process creation auditing with command lines and deploy Sysmon with a vetted config. In your lab, verify events are generated and retained, and protect logs from deletion.\n\n## Knowledge check\n**Q:** Which Sysmon event records process creation with full command line and hash?\n**A:** Event ID 1."
+  },
+  {
+    "id": "linux-windows-39",
+    "topic": "linux-windows",
+    "number": 39,
+    "title": "Microsoft Defender and Attack Surface Reduction",
+    "level": "Advanced",
+    "minutes": 45,
+    "summary": "Understand Defender Antivirus protections and configure Attack Surface Reduction rules with verification.",
+    "objectives": [
+      "Explain real-time and cloud protection",
+      "Describe ASR rules and exploit protection",
+      "Verify Defender configuration"
+    ],
+    "takeaways": [
+      "Defender provides real-time, cloud-delivered, and behavioral protection",
+      "ASR rules block specific high-risk behaviors",
+      "Exploit protection applies system-wide mitigations"
+    ],
+    "practice": "In your own Windows VM, review Defender preferences, enable a benign ASR rule in audit mode, and verify its configuration and events.",
+    "sources": [],
+    "content": "## Core idea\nMicrosoft Defender Antivirus provides real-time protection, cloud-delivered intelligence, and behavioral detection. Beyond signature scanning, several features reduce attack surface. Attack Surface Reduction (ASR) rules block specific behaviors commonly used in attacks, such as Office applications spawning child processes or executables running from email attachments. Exploit protection applies system and per-program mitigations including Data Execution Prevention, Address Space Layout Randomization, and Control Flow Guard. Controlled Folder Access restricts writes to protected folders, and Tamper Protection prevents unauthorized changes to security settings. The mental model: endpoint protection is layered — signatures catch known artifacts, ASR blocks known dangerous behaviors, and exploit mitigations make memory corruption harder to weaponize. ASR rules should be deployed in audit mode first to observe impact.\n\n## Method\n1. Review current Defender preferences and protection status.\n2. Identify ASR rules relevant to your environment.\n3. Deploy rules in audit mode and observe events.\n4. Move to block mode for rules with no legitimate impact.\n5. Verify exploit protection and tamper protection settings.\n\n## Example (lab only)\n```powershell\nGet-MpPreference | Select EnableRealtimeProtection,AttackSurfaceReductionRules_Ids\nGet-MpComputerStatus | Select RealTimeProtectionEnabled,AntivirusEnabled\nSet-MpPreference -AttackSurfaceReductionRules_Ids <LAB_RULE_GUID> -AttackSurfaceReductionRules_Actions AuditMode\n```\n\n| Feature | Blocks / applies |\n|---------|------------------|\n| ASR rules | Specific risky behaviors |\n| Exploit protection | DEP, ASLR, CFG |\n| Controlled Folder Access | Unauthorized folder writes |\n| Tamper Protection | Security setting changes |\n\n## Common mistakes\nEnabling ASR rules in block mode without an audit period, breaking line-of-business apps. Assuming real-time protection alone stops credential theft. Ignoring exclusions that weaken coverage.\n\n## Defense / verification\nVerify settings with `Get-MpPreference` and `Get-MpComputerStatus`, and review ASR events before enforcement. In your lab, confirm audit-mode events appear for the tested rule.\n\n## Knowledge check\n**Q:** Why deploy ASR rules in audit mode before block mode?\n**A:** To observe which legitimate applications would be affected and avoid operational disruption."
+  },
+  {
+    "id": "linux-windows-40",
+    "topic": "linux-windows",
+    "number": 40,
+    "title": "Credential Guard, LSASS Protection, and Credential Hardening",
+    "level": "Advanced",
+    "minutes": 45,
+    "summary": "Learn how Windows protects credentials in memory and at rest, and how to verify those protections are active.",
+    "objectives": [
+      "Explain Credential Guard and LSA protection",
+      "Identify credential hardening settings",
+      "Verify protections on a system"
+    ],
+    "takeaways": [
+      "Credential Guard isolates secrets using virtualization-based security",
+      "LSA Protection prevents unsigned code from reading LSASS",
+      "Disabling weak protocols reduces credential exposure"
+    ],
+    "practice": "In your own Windows VM, inspect Credential Guard and LSA protection settings, enable LSA protection in a test, and verify the registry state.",
+    "sources": [],
+    "content": "## Core idea\nWindows stores and uses credentials in the Local Security Authority Subsystem Service (LSASS), making it a high-value target. Defenses operate at several layers. Credential Guard uses virtualization-based security to isolate derived credentials in a protected process, so even privileged code in the normal operating system cannot read them. LSA Protection (`RunAsPPL`) marks LSASS as a protected process, preventing unsigned or unprotected code from opening it with read access. Additional hardening includes disabling the WDigest cleartext credential cache, enabling RestrictedAdmin for remote desktop where appropriate, limiting cached domain logons, and managing local administrator passwords with Windows LAPS. The mental model: reduce both what is stored in memory and who can read it, then verify that each control is actually active rather than merely configured.\n\n## Method\n1. Check whether virtualization-based security and Credential Guard are enabled.\n2. Inspect the `RunAsPPL` setting for LSA protection.\n3. Review WDigest and cached credential policy.\n4. Confirm local administrator password management.\n5. Verify effective state with system information tools and registry queries.\n\n## Example (lab only)\n```powershell\nGet-ItemProperty 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Lsa' | Select RunAsPPL\nGet-ItemProperty 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\SecurityProviders\\WDigest' | Select UseLogonCredential\nmsinfo32\n```\n\n| Control | Protects |\n|---------|----------|\n| Credential Guard | Derived credentials in memory |\n| RunAsPPL | LSASS process memory |\n| LAPS | Local admin passwords |\n| WDigest setting | Cleartext credential caching |\n\n## Common mistakes\nAssuming registry values alone mean a control is active — hardware and boot requirements matter. Enabling Credential Guard without checking virtualization support. Ignoring compatibility impacts on legacy authentication.\n\n## Defense / verification\nVerify with `msinfo32` and registry queries, and confirm reboot requirements are satisfied. In your lab, document which protections are active and investigate any that are not.\n\n## Knowledge check\n**Q:** Which setting marks LSASS as a protected process to block unsigned readers?\n**A:** `RunAsPPL` under the LSA registry key."
+  },
+  {
+    "id": "linux-windows-41",
+    "topic": "linux-windows",
+    "number": 41,
+    "title": "Privilege Boundaries: User, Administrator, Kernel",
+    "level": "Advanced",
+    "minutes": 40,
+    "summary": "Map the distinct privilege layers on both platforms and understand which boundaries are enforced by hardware, the OS, or policy.",
+    "objectives": [
+      "Distinguish user, administrator, and kernel authority",
+      "Explain where each boundary is enforced",
+      "Identify what crosses a boundary"
+    ],
+    "takeaways": [
+      "Hardware rings separate user code from the kernel",
+      "Administrative rights are an OS policy layer above ordinary users",
+      "MAC and integrity controls add further gates"
+    ],
+    "practice": "In your own VM, compare a process's identity and access checks as a standard user, an elevated administrator, and root, recording which operations succeed.",
+    "sources": [],
+    "content": "## Core idea\nSecurity depends on layers of authority. At the base, CPU rings separate untrusted user code from the kernel, enforced by hardware. Above that, the operating system defines an administrative layer: root on Linux, elevated administrators on Windows. Above or alongside these sit policy layers such as SELinux/AppArmor and Windows integrity levels, which constrain even privileged principals. The mental model: crossing a layer requires passing a specific gate, and each gate is enforced by a different mechanism — a syscall instruction for the kernel boundary, sudo or UAC for the administrative boundary, and policy evaluation for MAC. Confusing the layers causes incorrect conclusions, such as believing root equals kernel mode or that UAC protects a user from themselves. In your lab, the goal is to observe these layers directly, never to attack systems you do not own.\n\n## Method\n1. Classify each boundary as hardware, OS policy, or discretionary policy.\n2. Identify the credential or token that represents authority at each layer.\n3. Determine the legitimate gate that crosses the boundary.\n4. Observe what changes after crossing, such as token contents or effective UID.\n5. Confirm which higher layer still constrains the new context.\n\n## Example (lab only)\n```bash\nid\nsudo id\ncat /proc/self/status | grep -E 'Uid|CapEff'\n```\nOn Windows in your own VM: `whoami /groups` before and after an elevated launch.\n\n| Boundary | Enforced by | Gate |\n|----------|-------------|------|\n| User to kernel | CPU hardware | System call |\n| User to admin | OS policy | sudo / UAC |\n| Admin to constrained | MAC / integrity | Policy evaluation |\n\n## Common mistakes\nTreating root or Administrator as equivalent to kernel code. Assuming administrative rights bypass mandatory policy. Ignoring that a service account may be more privileged than an interactive user.\n\n## Defense / verification\nVerify boundaries with identity and policy inspection tools rather than assumptions. In your lab, document each layer's effective state and confirm that higher layers still apply after elevation.\n\n## Knowledge check\n**Q:** Which mechanism enforces the user-to-kernel boundary?\n**A:** CPU hardware privilege rings, crossed only through controlled system calls."
+  },
+  {
+    "id": "linux-windows-42",
+    "topic": "linux-windows",
+    "number": 42,
+    "title": "Sandbox Concepts: Namespaces, cgroups, and Containers",
+    "level": "Advanced",
+    "minutes": 45,
+    "summary": "Understand how sandboxes narrow a program's view and resources, and where their limits lie as security boundaries.",
+    "objectives": [
+      "Compose isolation primitives into a sandbox model",
+      "Explain container isolation limits",
+      "Verify sandbox restrictions in a lab"
+    ],
+    "takeaways": [
+      "Sandboxes narrow views and capabilities without a separate kernel",
+      "Containers combine namespaces, cgroups, and seccomp",
+      "A kernel flaw can escape any user-space sandbox"
+    ],
+    "practice": "In your own isolated VM, run an untrusted test program inside a container with a dropped capability set and confirm it cannot see host processes.",
+    "sources": [],
+    "content": "## Core idea\nA sandbox constrains a program's view of the system and the resources it can consume, without giving it a separate machine. On Linux, this is assembled from namespaces that hide parts of the system, cgroups that limit CPU, memory, and process counts, seccomp filters that restrict syscalls, and capability sets that remove privileged operations. Containers package these mechanisms into a portable unit, while browser and application sandboxes apply similar ideas with lower and integrity levels on Windows. The mental model: isolation is a composed set of narrowed views and limits, all still reliant on a shared kernel. That shared dependency defines the limit: a kernel vulnerability can break out of a sandbox, which is why sandboxing complements rather than replaces patching. All experiments here belong in your own isolated lab.\n\n## Method\n1. Define what the untrusted code legitimately needs.\n2. Select namespaces to hide unnecessary views.\n3. Add cgroup limits for resource exhaustion protection.\n4. Apply a seccomp allowlist and drop unneeded capabilities.\n5. Verify restrictions from inside the sandbox and monitor escapes.\n\n## Example (lab only)\n```bash\ndocker run --rm --cap-drop=ALL --security-opt no-new-privileges <LAB_IMAGE> sh -c 'ps aux; cat /proc/self/status'\ncat /sys/fs/cgroup/memory.max\n```\n\n| Layer | Restricts |\n|-------|-----------|\n| Namespaces | Visible processes, mounts, network |\n| cgroups | Resource consumption |\n| seccomp | Available syscalls |\n| Capabilities | Privileged operations |\n\n## Common mistakes\nRunning containers with `--privileged` or host mounts, collapsing the boundary. Assuming a sandbox protects against a compromised kernel. Giving a sandbox writable access to sensitive host paths.\n\n## Defense / verification\nVerify `no-new-privileges`, dropped capabilities, and read-only filesystems in your lab. Keep the kernel patched and avoid privileged containers in shared environments.\n\n## Knowledge check\n**Q:** Why is a container not equivalent to a virtual machine as a security boundary?\n**A:** Containers share the host kernel, so a kernel flaw can escape; a VM has its own kernel."
+  },
+  {
+    "id": "linux-windows-43",
+    "topic": "linux-windows",
+    "number": 43,
+    "title": "Designing an Isolated Practice Lab",
+    "level": "Intermediate",
+    "minutes": 35,
+    "summary": "Build a safe, disposable environment for all hands-on work with clear boundaries and reliable snapshots.",
+    "objectives": [
+      "Design network isolation for lab VMs",
+      "Use snapshots for repeatability",
+      "Separate lab identity and credentials"
+    ],
+    "takeaways": [
+      "Lab systems must be owned or explicitly in scope",
+      "Isolated networking prevents accidental impact on real networks",
+      "Snapshots enable fast, safe rollback"
+    ],
+    "practice": "In your own VM platform, create a host-only lab network, install two VMs, take a clean snapshot, and verify they cannot reach your production network.",
+    "sources": [],
+    "content": "## Core idea\nEvery practical exercise in this curriculum assumes an environment you own or an engagement with explicit written scope. A well-designed lab makes that boundary concrete. Use a hypervisor such as VirtualBox, VMware, or Hyper-V with a host-only or internal network so lab VMs cannot route to the internet or your real network. Keep separate credentials for lab accounts, never reuse production passwords or keys, and avoid joining lab machines to a real domain. Take a snapshot of each clean installation before experiments and restore it afterward, producing repeatable results. The mental model: the lab is a contained stage where mistakes are cheap and reversible, and隔离 is enforced by network design as much as by policy. Good labs also keep notes, so each experiment can be reproduced and reviewed.\n\n## Method\n1. Define the scope and list the systems you own for practice.\n2. Configure an isolated network mode with no production bridge.\n3. Install VMs and apply a baseline patch level.\n4. Create labeled snapshots at known-good states.\n5. Verify network isolation with a connection test before experimenting.\n\n## Example (lab only)\n```bash\nip addr show\nip route\nping -c 1 <LAB_ISOLATED_PEER>\n```\nOn the host, confirm the adapter is host-only and that no bridge to the production network exists.\n\n| Control | Purpose |\n|---------|---------|\n| Host-only network | Blocks external access |\n| Snapshots | Fast rollback |\n| Separate credentials | Prevents credential reuse |\n| Notes | Reproducibility |\n\n## Common mistakes\nBridging lab VMs onto a real network. Reusing production credentials in the lab. Forgetting to snapshot before a risky change, losing the known-good state.\n\n## Defense / verification\nTest isolation explicitly by attempting to reach an external address from the lab network and confirming failure. Verify snapshots exist and can be restored before any experiment.\n\n## Knowledge check\n**Q:** Which virtual network mode best prevents lab VMs from reaching a production network?\n**A:** Host-only or internal networking without a bridged adapter."
+  },
+  {
+    "id": "linux-windows-44",
+    "topic": "linux-windows",
+    "number": 44,
+    "title": "Cross-OS Security Model Comparison",
+    "level": "Advanced",
+    "minutes": 45,
+    "summary": "Compare Linux and Windows authorization models side by side to build a portable mental model of access control.",
+    "objectives": [
+      "Map equivalent concepts across both systems",
+      "Explain structural differences",
+      "Choose the right inspection tool"
+    ],
+    "takeaways": [
+      "Both systems use identity plus policy to decide access",
+      "Linux centers on UIDs, mode bits, and capabilities; Windows on SIDs, tokens, and ACLs",
+      "MAC and integrity add independent constraints on both"
+    ],
+    "practice": "In your own two-VM lab, grant a user access to a file on each OS and document the equivalent objects and tools used.",
+    "sources": [],
+    "content": "## Core idea\nLinux and Windows express similar ideas with different structures. Linux identifies principals by numeric UID/GID and attaches a compact mode or an ACL to objects; Windows identifies principals by SIDs carried in tokens and attaches richer DACLs to securable objects. Linux elevation commonly uses SUID, capabilities, or sudo; Windows uses elevated tokens, UAC, and privileges. Logging is structured through journald and auditd on Linux, and through Event Logs and Sysmon on Windows. Both platforms add mandatory layers: SELinux or AppArmor on Linux, integrity levels and Credential Guard on Windows. The mental model: the concepts transfer, but the mechanisms and inspection commands do not, so fluency means knowing both the abstraction and its platform-specific expression. A comparison table is the most efficient way to consolidate this.\n\n## Method\n1. Start from the abstract question: who is asking, what do they want, and what policy applies?\n2. Map each side's representation of identity.\n3. Map the object's access control structure.\n4. Identify the elevation mechanism and its gate.\n5. Map where evidence of the decision is recorded.\n\n## Example (lab only)\n```bash\nid; stat <LAB_FILE>; getfacl <LAB_FILE>\n```\nOn your own Windows VM: `whoami /all` and `icacls <LAB_FILE>`.\n\n| Concept | Linux | Windows |\n|---------|-------|---------|\n| Principal | UID / GID | SID in token |\n| Object policy | Mode / ACL / capability | DACL / SACL |\n| Elevation | sudo, SUID, capabilities | UAC, privileges |\n| Audit | auditd, journald | Event Log, Sysmon |\n\n## Common mistakes\nAssuming feature parity — integrity levels and capabilities are not identical. Applying Linux path assumptions to Windows registry objects. Forgetting that both platforms support DAC and MAC layers.\n\n## Defense / verification\nPractice translating an access question into each platform's tools and verify with concrete inspection commands. In your lab, document both sides of each scenario.\n\n## Knowledge check\n**Q:** What is the Linux analogue of a Windows access token's identity component?\n**A:** The process's UID and GID set (and capabilities), analogous to the SIDs in a Windows token."
+  },
+  {
+    "id": "linux-windows-45",
+    "topic": "linux-windows",
+    "number": 45,
+    "title": "Privilege Escalation Paths and Their Mitigations",
+    "level": "Advanced",
+    "minutes": 50,
+    "summary": "Catalog common classes of privilege escalation in authorized lab terms and pair each with a concrete defensive control.",
+    "objectives": [
+      "Categorize escalation paths",
+      "Map each class to a mitigation",
+      "Verify a mitigation in a lab"
+    ],
+    "takeaways": [
+      "Escalation usually exploits overly broad trust, not exotic techniques",
+      "Misconfiguration is a dominant cause",
+      "Each path has a corresponding configuration or design control"
+    ],
+    "practice": "In your own VM, intentionally create a misconfigured writable service binary, observe why it is risky, then correct the ACL and verify the fix.",
+    "sources": [],
+    "content": "## Core idea\nWithin authorized practice, it is useful to study how privilege boundaries fail so they can be defended. Most escalation paths reduce to a small set of causes: excessive privilege grants, writable trusted configuration or code, credential exposure, and unpatched kernel or application flaws. On Linux, this includes world-writable services, unexpected SUID binaries, broad sudo rules, and weak file permissions. On Windows, it includes over-privileged service accounts, writable service or task binaries, exposed credentials in memory or configuration, and excessive token privileges. The mental model: escalation is found at the seam where a trusted mechanism trusts something an attacker can influence. Defenses remove that influence or narrow the trust. All testing must occur in owned VMs or explicitly in-scope engagements; never against third-party systems.\n\n## Method\n1. Inventory trust relationships that cross privilege layers.\n2. For each, ask whether a lower-privileged principal can influence it.\n3. Classify the weakness by cause: grant, writable artifact, credential, or patch level.\n4. Apply the narrowest corrective control.\n5. Verify the correction by repeating the observation in your lab.\n\n## Example (lab only)\n```bash\nfind / -xdev -perm -0002 -type f 2>/dev/null | head\nfind / -xdev -perm -4000 -type f 2>/dev/null | sort\nsudo -l -U <LAB_USER>\n```\nOn Windows in your own VM: `icacls <LAB_SERVICE_BINARY>` and `whoami /priv`.\n\n| Cause | Mitigation |\n|-------|------------|\n| Broad grants | Least privilege rules |\n| Writable trusted files | Restrict ACLs |\n| Credential exposure | Credential Guard, LAPS |\n| Unpatched flaws | Patch management |\n\n## Common mistakes\nFocusing on exotic techniques while ignoring basic misconfiguration. Testing outside owned or in-scope systems. Fixing a symptom without correcting the underlying trust relationship.\n\n## Defense / verification\nBuild a repeatable audit checklist from the categories above and verify each control with commands. In your lab, confirm that a corrected ACL or rule actually blocks the previously observed behavior.\n\n## Knowledge check\n**Q:** What single question best identifies an escalation path?\n**A:** Can a lower-privileged principal influence something a higher-privileged process trusts?"
+  },
+  {
+    "id": "linux-windows-46",
+    "topic": "linux-windows",
+    "number": 46,
+    "title": "Least Privilege and Separation of Duties in Practice",
+    "level": "Advanced",
+    "minutes": 40,
+    "summary": "Turn the principle of least privilege into concrete account, service, and administrative design decisions.",
+    "objectives": [
+      "Apply least privilege to users and services",
+      "Explain separation of duties",
+      "Design just-in-time administration"
+    ],
+    "takeaways": [
+      "Every principal should hold only the rights needed for its function",
+      "Separation of duties prevents one identity from completing a sensitive workflow alone",
+      "Just-in-time elevation limits standing privilege"
+    ],
+    "practice": "In your own VM, create a dedicated low-privilege service account for a test service and verify it can read only what it needs.",
+    "sources": [],
+    "content": "## Core idea\nLeast privilege means each user, service, and process holds only the permissions required for its legitimate function, and only for as long as needed. Separation of duties splits a sensitive workflow so that no single identity can complete it alone, such as requiring one account to prepare a change and another to approve it. Just-in-time administration removes standing administrative rights and grants time-limited elevation when a task is approved. The mental model: privilege is a liability to be minimized in both scope and duration. On Linux this means narrow sudo rules, dedicated service users, systemd sandboxing, and restricted capabilities; on Windows it means standard-user daily accounts, least-privileged service accounts, Windows LAPS, and protected administrative groups. Designing for least privilege reduces the blast radius of any single compromise.\n\n## Method\n1. Inventory principals and the rights each currently holds.\n2. Define the minimum rights each needs for its function.\n3. Remove standing privileges and introduce time-limited elevation.\n4. Split sensitive workflows across distinct identities.\n5. Verify that legitimate tasks still work and that excess rights are gone.\n\n## Example (lab only)\n```bash\nsudo useradd -r -s /usr/sbin/nologin <LAB_SVC>\nsudo setfacl -m u:<LAB_SVC>:r <LAB_DATA>\nsudo -l -U <LAB_SVC>\n```\nOn Windows in your own VM: create a dedicated service account and grant it only the required folder right.\n\n| Practice | Effect |\n|----------|--------|\n| Dedicated service identity | Limits blast radius |\n| Time-limited elevation | Removes standing admin |\n| Split approval | Prevents single-actor abuse |\n| Narrow sudo / ACL rules | Reduces granted scope |\n\n## Common mistakes\nGranting broad rights to avoid troubleshooting effort. Reusing one privileged account across many services. Assuming least privilege is a one-time task rather than continuous maintenance.\n\n## Defense / verification\nReview privileges quarterly and after role changes. In your lab, verify a service succeeds with its reduced rights and that unused permissions are actually denied.\n\n## Knowledge check\n**Q:** What is the difference between least privilege and separation of duties?\n**A:** Least privilege minimizes one identity's rights; separation of duties splits a workflow so no single identity can complete it alone."
+  },
+  {
+    "id": "linux-windows-47",
+    "topic": "linux-windows",
+    "number": 47,
+    "title": "Linux Hardening Baseline with Verification",
+    "level": "Advanced",
+    "minutes": 50,
+    "summary": "Assemble a repeatable Linux hardening baseline and verify every control with concrete inspection commands.",
+    "objectives": [
+      "Define a baseline of Linux security controls",
+      "Apply each with a verification command",
+      "Detect drift from the baseline"
+    ],
+    "takeaways": [
+      "Hardening is a set of verifiable settings, not a checklist to assume",
+      "Key areas are updates, identity, SSH, permissions, logging, and Mandatory Access Control",
+      "Verification commands close the loop"
+    ],
+    "practice": "In your own VM, apply a baseline covering SSH, sudo, umask, mounts, and logging, then run each verification command and record the results.",
+    "sources": [],
+    "content": "## Core idea\nA hardening baseline is a documented, repeatable set of security settings with a verification command for each. For Linux, useful areas include timely patching, a restrictive umask, strong SSH configuration, minimal sudo rules, no unexpected SUID or world-writable files, hardened writable mounts, enabled and persistent logging, and active Mandatory Access Control. The mental model: a control that cannot be verified is only a hope, so every baseline item pairs a setting with an inspection command. Baselines also support drift detection: rerunning the same commands over time reveals unauthorized changes. This synthesis module connects the earlier Linux modules into an operational workflow suitable for your own lab systems, never for unattended changes on systems you do not own.\n\n## Method\n1. Document the intended value for each control.\n2. Apply the setting using configuration management or careful manual edits.\n3. Run the matching verification command and capture output.\n4. Schedule periodic re-verification and compare against the recorded baseline.\n5. Investigate and remediate every deviation before accepting it.\n\n## Example (lab only)\n```bash\nsudo auditctl -l\nfind / -xdev -perm -4000 -type f 2>/dev/null | sort\nsudo sshd -T | grep -E 'permitrootlogin|passwordauthentication'\nfindmnt -o TARGET,OPTIONS | grep -E '/tmp|/home'\nsudo systemctl is-active auditd\n```\n\n| Control | Verification |\n|---------|--------------|\n| SSH hardening | `sshd -T` |\n| SUID audit | `find -perm -4000` |\n| Mount options | `findmnt` |\n| Logging | `systemctl is-active auditd` |\n\n## Common mistakes\nApplying settings without recording expected values. Verifying only once rather than continuously. Assuming a hardening guide fits every workload without testing.\n\n## Defense / verification\nStore baseline output centrally and alert on differences. In your lab, deliberately drift one setting and confirm your verification process detects it.\n\n## Knowledge check\n**Q:** Why must every baseline control have a verification command?\n**A:** Without verification you cannot confirm the setting is active or detect later drift."
+  },
+  {
+    "id": "linux-windows-48",
+    "topic": "linux-windows",
+    "number": 48,
+    "title": "Windows Hardening Baseline with Verification",
+    "level": "Advanced",
+    "minutes": 50,
+    "summary": "Assemble a Windows hardening baseline and verify identity, ACL, logging, and endpoint protections with commands.",
+    "objectives": [
+      "Define a baseline of Windows security controls",
+      "Apply settings with verification",
+      "Detect drift over time"
+    ],
+    "takeaways": [
+      "Baselines cover accounts, privileges, ACLs, logging, and endpoint protection",
+      "Each control needs a verification command",
+      "Local and domain policy must both be considered"
+    ],
+    "practice": "In your own Windows VM, apply a baseline covering local admin membership, LSA protection, audit policy, and Defender, then verify each with a command.",
+    "sources": [],
+    "content": "## Core idea\nA Windows hardening baseline translates earlier modules into a verifiable operational standard. Key areas include a small Administrators group, standard-user daily accounts, LSA protection and Credential Guard where supported, restricted ACLs on service and task binaries, process creation auditing with command lines, Event Log and Sysmon collection, PowerShell logging, and Defender with ASR and exploit protection. The mental model mirrors the Linux case: pair every setting with a command that proves it is active, and keep a recorded output to detect drift. Domain-joined systems require checking effective policy, not just local settings, because Group Policy can override local configuration. This synthesis is intended for systems you own or are explicitly authorized to manage.\n\n## Method\n1. Record the intended value for each control.\n2. Apply settings through the appropriate local or domain policy mechanism.\n3. Verify with the matching PowerShell or command-line query.\n4. Confirm events are generated for audited activities.\n5. Re-verify periodically and investigate deviations.\n\n## Example (lab only)\n```powershell\nGet-LocalGroupMember -Group 'Administrators'\nGet-ItemProperty 'HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Lsa' | Select RunAsPPL\nauditpol /get /category:* | Select-String 'Process Creation'\nGet-MpComputerStatus | Select RealTimeProtectionEnabled,AntivirusEnabled\n```\n\n| Control | Verification |\n|---------|--------------|\n| Admin membership | `Get-LocalGroupMember` |\n| LSA protection | `RunAsPPL` query |\n| Audit policy | `auditpol /get` |\n| Defender | `Get-MpComputerStatus` |\n\n## Common mistakes\nChecking local settings while domain policy overrides them. Enabling audit policy without confirming events are collected. Assuming Defender is active when it was disabled by another product.\n\n## Defense / verification\nStore baseline outputs and compare over time. In your lab, confirm that a tested control produces the expected verification result and that drift is visible.\n\n## Knowledge check\n**Q:** Why is checking effective policy important on a domain-joined Windows host?\n**A:** Because Group Policy can override local settings, so only the effective configuration reflects reality."
+  },
+  {
+    "id": "linux-windows-49",
+    "topic": "linux-windows",
+    "number": 49,
+    "title": "Capstone: Authorized Cross-Platform Assessment",
+    "level": "Advanced",
+    "minutes": 60,
+    "summary": "Integrate the full curriculum by performing a structured security assessment of two owned lab VMs and reporting findings.",
+    "objectives": [
+      "Scope an authorized assessment",
+      "Collect evidence on both platforms",
+      "Produce actionable findings with verification"
+    ],
+    "takeaways": [
+      "Scope and authorization precede all technical work",
+      "Evidence must be reproducible and tied to controls",
+      "Findings pair a risk with a concrete, verifiable fix"
+    ],
+    "practice": "In your own isolated lab, assess one Linux and one Windows VM against their baselines, then write a short report with evidence, risk, and remediation for each finding.",
+    "sources": [],
+    "content": "## Core idea\nThe capstone consolidates the entire path into a realistic workflow performed strictly within an owned, isolated lab or an explicitly in-scope engagement. Begin with a written scope stating which systems are permitted and what activities are allowed. Assess each system against its baseline using the verification commands learned earlier, collecting evidence such as command output, configuration values, and log excerpts. Classify each deviation by cause and risk, then propose the narrowest remediation and a verification step that proves it worked. The mental model: security work is a closed loop of scope, evidence, analysis, remediation, and verification. A good report lets a reader reproduce every finding and confirm every fix, which is why precise commands and outputs matter more than narrative claims.\n\n## Method\n1. Write and confirm the scope and rules of engagement.\n2. Capture each system's baseline state with verification commands.\n3. Compare against expected values and list deviations.\n4. For each deviation, record evidence, impact, and a concrete fix.\n5. Apply fixes in the lab, re-verify, and document the result.\n\n## Example (lab only)\n```bash\nsudo sshd -T | grep -E 'permitrootlogin|passwordauthentication'\nfind / -xdev -perm -4000 -type f 2>/dev/null | sort\n```\nOn Windows in your own VM: `whoami /groups`, `icacls <LAB_PATH>`, and `Get-MpComputerStatus`.\n\n| Report section | Contents |\n|----------------|----------|\n| Scope | Authorized systems and limits |\n| Evidence | Commands and outputs |\n| Finding | Deviation and risk |\n| Remediation | Fix and verification |\n\n## Common mistakes\nBeginning technical work before scope is explicit. Reporting assumptions without reproducible evidence. Proposing remediations that cannot be verified.\n\n## Defense / verification\nEvery finding must include a verification command that can be rerun after remediation. In your lab, confirm all findings close successfully before declaring the assessment complete.\n\n## Knowledge check\n**Q:** What must accompany each finding so remediation can be proven?\n**A:** A reproducible verification command and its expected result after the fix."
+  },
+  {
+    "id": "linux-windows-50",
+    "topic": "linux-windows",
+    "number": 50,
+    "title": "Mastery Checklist and Continued Practice",
+    "level": "Intermediate",
+    "minutes": 30,
+    "summary": "Consolidate the full zero-to-expert path into a self-assessment checklist and a plan for deliberate continued practice.",
+    "objectives": [
+      "Self-assess coverage of all curriculum areas",
+      "Identify weak spots",
+      "Build a sustainable practice routine"
+    ],
+    "takeaways": [
+      "Mastery means explaining mechanisms, not memorizing commands",
+      "Regular verification and labs build durable skill",
+      "Ethical scope is a permanent requirement"
+    ],
+    "practice": "In your own VM, run through the checklist, mark each item you can explain and demonstrate, then schedule a recurring lab to retest the weakest three.",
+    "sources": [],
+    "content": "## Core idea\nMastery is demonstrated by explanation and reproduction, not by recalling command syntax. This final module consolidates the arc: hardware and memory fundamentals; Linux identity, permissions, processes, logging, and MAC; Windows identity, tokens, ACLs, services, logging, and endpoint protection; sandbox concepts and cross-OS comparison; and verifiable hardening baselines. The mental model is a layered one: you should be able to trace any access decision from the hardware boundary up through identity, policy, and audit. Use the checklist to find gaps, then close them with short, focused labs in your own isolated environment. Continued practice should be deliberate: pick a weak area, run a repeatable exercise, verify the result, and record what you learned. Ethical scope — owned systems or explicit written authorization — remains mandatory for every exercise.\n\n## Method\n1. Review each checklist area and rate your confidence honestly.\n2. For anything you cannot explain, revisit the corresponding module.\n3. Demonstrate the skill in a lab rather than relying on memory.\n4. Schedule recurring short labs targeting the weakest areas.\n5. Keep a lab journal of commands, results, and lessons for future review.\n\n## Example (lab only)\n```bash\nid; getfacl <LAB_FILE>; systemctl status <LAB_SERVICE>\njournalctl -u <LAB_SERVICE> --since '10 min ago'\n```\nOn Windows in your own VM: `whoami /all`, `icacls <LAB_PATH>`, `Get-WinEvent`.\n\n| Area | Self-check |\n|------|------------|\n| Fundamentals | Can I explain rings, paging, and tokens? |\n| Linux | Can I verify permissions, sudo, and MAC? |\n| Windows | Can I interpret ACLs, tokens, and events? |\n| Practice | Do I verify every control and respect scope? |\n\n## Common mistakes\nTreating familiarity with commands as understanding. Skipping verification after changes. Practicing outside owned or authorized systems.\n\n## Defense / verification\nUse the checklist as a recurring audit of your own skill and confirm each item with a hands-on demonstration. Revisit this file periodically and re-run labs to maintain fluency.\n\n## Knowledge check\n**Q:** What distinguishes mastery from familiarity in this curriculum?\n**A:** The ability to explain mechanisms and reproduce results with verification, not merely recall commands."
+  }
+]

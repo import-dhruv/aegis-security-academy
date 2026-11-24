@@ -5,7 +5,7 @@ import { useParams } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import { ArrowRight, BookOpen, CheckCircle2, Clock, Compass, FlaskConical, Layers3, Route, ShieldCheck, Wrench } from 'lucide-react';
 import { useData } from '@/lib/data';
-import type { Chapter, School, Tool, Lab } from '@/lib/types';
+import type { Chapter, School, Tool, Lab, Module } from '@/lib/types';
 import { Badge, DifficultyBadge, PageHeader, Panel, SearchInput, ProgressBar } from '@/components/ui';
 import { Icon } from '@/components/icon';
 import { useProgress } from '@/components/providers';
@@ -18,6 +18,7 @@ export default function TopicPage() {
   const { data: schools } = useData<School[]>('schools.json');
   const { data: tools } = useData<Tool[]>('tools.json');
   const { data: labs } = useData<Lab[]>('labs.json');
+  const { data: modules } = useData<Module[]>(`modules/${slug}.json`);
   const { isMastered } = useProgress();
   const [q, setQ] = useState('');
   const config = topicConfig[slug];
@@ -100,6 +101,26 @@ export default function TopicPage() {
           ))}
         </div>
       </Panel>
+
+      {modules && modules.length > 0 && (
+        <Panel className="mb-6 p-6">
+          <div className="mb-2 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2"><Layers3 className="h-4 w-4 text-mint-400" /><div className="label">50-module mastery curriculum</div></div>
+            <span className="text-[11px] text-muted">{modules.length} modules · {modules.reduce((sum, m) => sum + m.minutes, 0)} minutes of focused study</span>
+          </div>
+          <p className="mb-4 max-w-3xl text-[13px] leading-relaxed text-muted">
+            Work through all {modules.length} modules in order. Each one teaches a single capability with a concrete method, a lab exercise, mastery signals and a knowledge check — together they form a complete path from foundations to independent practice.
+          </p>
+          <div className="grid gap-1.5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+            {modules.map((m) => (
+              <Link key={m.id} href={`/modules/${slug}/${m.number}`} className="group flex min-w-0 items-start gap-2 rounded-lg border border-ink-700 bg-ink-900/60 px-2.5 py-2 transition hover:border-mint-500/30 hover:bg-mint-500/[0.04]">
+                <span className="font-mono text-[10px] text-mint-500/70">{String(m.number).padStart(2, '0')}</span>
+                <span className="min-w-0 flex-1 text-[11px] leading-snug text-slate-300 group-hover:text-mint-200">{m.title}</span>
+              </Link>
+            ))}
+          </div>
+        </Panel>
+      )}
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
         <div className="min-w-0">

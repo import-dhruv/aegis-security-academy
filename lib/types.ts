@@ -1,5 +1,21 @@
 export type Section = { id: string; title: string; level: number };
 
+/** A single step in a topic's 50-module mastery curriculum. */
+export type Module = {
+  id: string;
+  topic: string;
+  number: number;
+  title: string;
+  level: string;
+  minutes: number;
+  summary: string;
+  objectives: string[];
+  takeaways: string[];
+  practice: string;
+  sources: { label: string; url: string }[];
+  content: string;
+};
+
 export type Chapter = {
   id: number;
   slug: string;

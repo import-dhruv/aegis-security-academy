@@ -1,0 +1,1102 @@
+[
+  {
+    "id": "web-security-01",
+    "topic": "web-security",
+    "number": 1,
+    "title": "HTML Fundamentals: Tags, Attributes, and Document Structure",
+    "level": "Beginner",
+    "minutes": 30,
+    "summary": "Learn how HTML markup becomes a document tree and why the parser's forgiving rules matter for security.",
+    "objectives": [
+      "Parse an HTML document into elements and attributes",
+      "Distinguish raw text from parsed markup",
+      "Identify dangerous elements and attributes"
+    ],
+    "takeaways": [
+      "HTML is a tolerant parser, not a strict format",
+      "Attributes can carry executable values",
+      "Document structure defines trust boundaries"
+    ],
+    "practice": "On a local lab page at <LAB_HOST>, submit inputs containing markup and entities to observe how the browser parses each one.",
+    "sources": [],
+    "content": "## Core idea\nHTML is not a programming language; it is a set of instructions telling the browser how to build a document. The parser reads bytes, tokenizes them into tags and text, and constructs the Document Object Model (DOM). Security bugs appear when data the application intends as text is interpreted as markup instead.\n\n### Mental model\nImagine the parser as a factory with two conveyor belts: one for structure (tags) and one for content (text). Untrusted data must stay on the content belt. If it crosses to the structure belt, it becomes executable markup. The parser is deliberately forgiving and repairs malformed HTML, so that repair behavior itself can be exploited.\n\n### Method\n1. Fetch a page from <LAB_HOST> and open its source.\n2. List every place user data is reflected into the response.\n3. Classify the parser context: text node, quoted attribute, URL attribute, or raw-text element such as `<script>`.\n4. Test whether `<`, `>`, `\"`, and `'` are encoded for that specific context.\n\n### Concrete example\nA search page at <LAB_HOST> builds `Welcome, <b>alice</b>`. If the name is `alice<img src=x onerror=alert(1)>`, the parser creates a second element. The fix is context-aware encoding: render the value as `alice&lt;img src=x onerror=alert(1)&gt;`.\n\n| Context | Required encoding |\n|---|---|\n| Text node | Encode `<`, `>`, `&` |\n| Quoted attribute | Encode `\"` and `&` |\n| URL attribute | URL-encode, then attribute-encode |\n| `<script>` body | JavaScript-encode; entities do not work |\n\n### Common mistakes\n- Blacklisting \"bad words\" instead of encoding for context.\n- Applying one universal escape function everywhere.\n- Assuming JSON inside a script tag is automatically inert.\n\n### Defense and verification\nUse a vetted template engine with auto-escaping and never build markup through string concatenation. Verify by injecting a harmless `<img src=x onerror=...>` marker into every field and confirming in DevTools that it appears as a text node, not an element.\n\n### Knowledge check\nQ: Why is `<textarea>` a special context? A: It is an RCDATA element where entities are decoded but tags are not parsed, so it needs different escaping rules."
+  },
+  {
+    "id": "web-security-02",
+    "topic": "web-security",
+    "number": 2,
+    "title": "The DOM: Nodes, Trees, and the Browser Object Model",
+    "level": "Beginner",
+    "minutes": 35,
+    "summary": "Understand how the DOM represents a page as a live object tree that JavaScript can read and mutate at runtime.",
+    "objectives": [
+      "Describe the DOM tree and node types",
+      "Use safe DOM APIs to insert content",
+      "Trace how mutations create sinks"
+    ],
+    "takeaways": [
+      "The DOM is a live API, not a static snapshot",
+      "Some properties are dangerous sinks",
+      "Source-to-sink flow drives client-side bugs"
+    ],
+    "practice": "In a lab page at <LAB_HOST>, compare `textContent` and `innerHTML` with a harmless markup payload.",
+    "sources": [],
+    "content": "## Core idea\nThe DOM is a programming interface representing the page as a tree of objects. JavaScript can walk, read, and modify that tree after the HTML is parsed. This mutability is powerful and dangerous: writing untrusted strings into certain DOM properties can create executable markup, and those properties are called sinks.\n\n### Mental model\nTreat the DOM as a mutable data structure shared between the page and every script on it. Data flows from a source (location.hash, a form value, a network response) through code to a sink (a property that interprets its input). A vulnerability exists when untrusted data reaches a dangerous sink without transformation.\n\n### Method\n1. Identify sources on the lab page: `location`, `document.referrer`, form inputs, `postMessage`.\n2. Search scripts for sinks: `innerHTML`, `outerHTML`, `document.write`, `eval`, `insertAdjacentHTML`.\n3. Follow each source forward; note any validation or encoding on the path.\n4. Confirm reachability with a benign marker payload in the owned lab.\n\n### Concrete example\nAt <LAB_HOST>, a profile page runs:\n```js\nconst name = new URLSearchParams(location.search).get('name');\ndocument.getElementById('out').innerHTML = '<b>' + name + '</b>';\n```\nThe query parameter flows into `innerHTML`, a sink that reparses markup. Replacing it with `textContent` (or creating a text node) removes the parsing step entirely.\n\n| API | Interprets markup? | Safe for untrusted data? |\n|---|---|---|\n| `textContent` | No | Yes |\n| `createTextNode` | No | Yes |\n| `innerHTML` | Yes | Only with trusted/sanitized input |\n| `insertAdjacentHTML` | Yes | Only with sanitized input |\n\n### Common mistakes\n- Believing client-side validation protects the server.\n- Sanitizing once and reusing the value in a different context.\n- Forgetting that frameworks still expose raw HTML directives.\n\n### Defense and verification\nPrefer safe DOM APIs by default and keep a small allowlist of sanitizers for rich text. Verify by grepping the lab codebase for dangerous sinks and confirming each has a justified, tested guard.\n\n### Knowledge check\nQ: Why is `textContent` safe against markup injection? A: It creates a text node, so the browser never reparses the value as HTML tags."
+  },
+  {
+    "id": "web-security-03",
+    "topic": "web-security",
+    "number": 3,
+    "title": "JavaScript Essentials: Variables, Functions, and Scope",
+    "level": "Beginner",
+    "minutes": 35,
+    "summary": "Build the JavaScript vocabulary needed to read client-side code and reason about where values can be influenced.",
+    "objectives": [
+      "Explain scope, hoisting, and closures",
+      "Distinguish declarations",
+      "Recognize dynamic typing pitfalls"
+    ],
+    "takeaways": [
+      "Scope determines which code can read or write a value",
+      "Closures capture references, not copies",
+      "Coercion can defeat naive checks"
+    ],
+    "practice": "In a local script at <LAB_HOST>, log values inside and outside a closure to observe captured state.",
+    "sources": [],
+    "content": "## Core idea\nJavaScript is a dynamically typed language with function-level scope and automatic type coercion. To audit client-side code you must be able to answer two questions about any value: where did it come from, and who can change it? Scope rules and coercion determine the answer.\n\n### Mental model\nPicture each function as a room with a one-way mirror: it can see values in outer rooms but outer rooms cannot see inside. A closure is a function that keeps a window into its birth room even after leaving it. Values are references, so two variables can point at the same object.\n\n### Method\n1. Read declarations: `const` and `let` are block-scoped; `var` is function-scoped and hoisted.\n2. Trace function boundaries to see which variables are reachable.\n3. Flag comparisons using `==` and arithmetic on untrusted strings.\n4. Note any use of `eval` or dynamic property access with user-controlled keys.\n\n### Concrete example\nAt <LAB_HOST> a discount check runs:\n```js\nlet qty = new URLSearchParams(location.search).get('qty');\nif (qty == 1) applyDiscount();\n```\nIf `qty` is the string `\"1\"`, loose equality coerces it to a number and passes; `\"1abc\"` behaves differently under arithmetic. Using `===` and explicit `Number.parseInt` with validation removes the ambiguity.\n\n| Feature | Behavior | Security relevance |\n|---|---|---|\n| `var` | Function scope, hoisted | Unexpected reachable values |\n| `let` / `const` | Block scope | Narrower exposure |\n| `==` | Type coercion | Bypassable comparisons |\n| `===` | Strict comparison | Predictable checks |\n\n### Common mistakes\n- Trusting a client-side numeric check as a server-side control.\n- Assuming `const` objects are immutable; bindings are constant, contents are not.\n- Overlooking that `eval` executes in the current scope with full privileges.\n\n### Defense and verification\nKeep validation on the server, use strict equality, and avoid `eval`. Verify by running the lab with non-numeric and coerced parameter values and confirming the server rejects them independently.\n\n### Knowledge check\nQ: Does `const obj = {}` prevent mutation of `obj.x`? A: No. `const` fixes the binding, not the object's contents."
+  },
+  {
+    "id": "web-security-04",
+    "topic": "web-security",
+    "number": 4,
+    "title": "Browser Events and the Event Loop",
+    "level": "Beginner",
+    "minutes": 30,
+    "summary": "Learn how the event loop schedules work and how event handlers become entry points for untrusted input.",
+    "objectives": [
+      "Explain the call stack and task queue",
+      "Trace event handler execution",
+      "Identify asynchronous trust issues"
+    ],
+    "takeaways": [
+      "Callbacks run after the current stack clears",
+      "Event handlers are code entry points",
+      "Timing affects validation and DOM updates"
+    ],
+    "practice": "On a lab page at <LAB_HOST>, attach a click handler that reads a data attribute and log when it fires.",
+    "sources": [],
+    "content": "## Core idea\nBrowsers are single-threaded but asynchronous. The event loop moves completed tasks and microtasks onto the call stack, letting handlers react to clicks, network replies, and timers. For security work, the key insight is that any event handler is an entry point where attacker-influenced data can enter code.\n\n### Mental model\nThink of a restaurant kitchen: the call stack is the single chef, tasks are orders on a rail, and microtasks are rush orders served first. The chef never does two things at once, but the order of operations can surprise you — especially after `await` or `Promise.resolve()`.\n\n### Method\n1. Enumerate event registrations in the lab's scripts: `onclick`, `addEventListener`, inline `on=` attributes.\n2. For each, identify the event object fields used (`target`, `data`, `origin`).\n3. Check whether validation happens before or after an asynchronous gap.\n4. Test message handlers with benign cross-frame data in your owned lab.\n\n### Concrete example\nAt <LAB_HOST> a message handler runs:\n```js\nwindow.addEventListener('message', (e) => {\n  document.getElementById('msg').textContent = e.data.text;\n});\n```\nThis is safe for DOM injection because it uses `textContent`, but it still accepts data from any origin. Checking `e.origin` against an allowlist closes the trust gap.\n\n| Mechanism | Runs when | Microtask? |\n|---|---|---|\n| `setTimeout` callback | Timer expires | No |\n| `Promise.then` / `await` | Promise settles | Yes |\n| DOM event | Event dispatched | No |\n| `queueMicrotask` | Explicitly queued | Yes |\n\n### Common mistakes\n- Assuming validation performed before `await` still holds after it.\n- Reading `event.data` without checking `event.origin`.\n- Using inline `on=` attributes that mix code and data.\n\n### Defense and verification\nValidate origin and schema inside every message handler and re-check state after asynchronous boundaries. Verify by sending a message from an unrelated test frame and confirming it is ignored.\n\n### Knowledge check\nQ: Which runs first: a queued `setTimeout` callback or a resolved promise's `.then`? A: The promise microtask runs before the next task."
+  },
+  {
+    "id": "web-security-05",
+    "topic": "web-security",
+    "number": 5,
+    "title": "Client-Side Storage: Cookies, localStorage, and sessionStorage",
+    "level": "Beginner",
+    "minutes": 30,
+    "summary": "Compare browser storage mechanisms and learn which flags and origins protect sensitive values.",
+    "objectives": [
+      "Distinguish cookie and web-storage semantics",
+      "Configure secure cookie flags",
+      "Assess where secrets should live"
+    ],
+    "takeaways": [
+      "Cookies travel with requests automatically",
+      "Web storage is script-readable and not sent in headers",
+      "Flag configuration is the primary control"
+    ],
+    "practice": "Use DevTools on <LAB_HOST> to inspect cookies and storage after login in your lab account.",
+    "sources": [],
+    "content": "## Core idea\nBrowsers offer several places to keep state. Cookies are attached to HTTP requests automatically and can be hidden from JavaScript. Web storage (`localStorage`, `sessionStorage`) is larger and never sent in headers, but any script on the origin can read it. Choosing the wrong store exposes secrets to cross-site or cross-script attacks.\n\n### Mental model\nThink of cookies as a badge a visitor wears that the server checks at the door; web storage is a notebook in the visitor's pocket that only local scripts can read. The badge can be locked so wearers cannot see it (`HttpOnly`) or forced to travel only over HTTPS (`Secure`).\n\n### Method\n1. Inventory every value stored on <LAB_HOST> and classify its sensitivity.\n2. For cookies, record `HttpOnly`, `Secure`, `SameSite`, `Domain`, and `Path`.\n3. For web storage, check whether any token or personal data is persisted.\n4. Confirm a logout clears all stores, not just the cookie.\n\n### Concrete example\nA session cookie set by <LAB_HOST>:\n```\nSet-Cookie: sid=abc123; HttpOnly; Secure; SameSite=Lax; Path=/\n```\nYet the app also runs `localStorage.setItem('jwt', token)`, defeating `HttpOnly`. Prefer keeping tokens in `HttpOnly` cookies and letting the server issue them.\n\n| Property | Cookie | localStorage |\n|---|---|---|\n| Sent with requests | Yes | No |\n| JavaScript readable | Only without `HttpOnly` | Always |\n| Lifetime | Session or `Max-Age` | Until cleared |\n| Cross-subdomain | Configurable via `Domain` | Per-origin |\n\n### Common mistakes\n- Storing access tokens in `localStorage` and assuming XSS is impossible.\n- Setting `Domain` too broadly, exposing the cookie to sibling subdomains.\n- Forgetting to rotate the session value after login.\n\n### Defense and verification\nUse `HttpOnly; Secure; SameSite=Lax` (or `Strict`) for sessions and reserve web storage for non-sensitive UI state. Verify in DevTools that a script cannot read the session cookie and that logout clears every store.\n\n### Knowledge check\nQ: Which flag stops JavaScript from reading a cookie? A: `HttpOnly`."
+  },
+  {
+    "id": "web-security-06",
+    "topic": "web-security",
+    "number": 6,
+    "title": "Browser Architecture and the Rendering Pipeline",
+    "level": "Beginner",
+    "minutes": 30,
+    "summary": "Follow the path from bytes on the wire to painted pixels and see where security decisions are enforced.",
+    "objectives": [
+      "Describe parsing, style, layout, and paint stages",
+      "Identify the origin as the security boundary",
+      "Explain process isolation"
+    ],
+    "takeaways": [
+      "Browsers parse incrementally while data is still arriving",
+      "Origin, not hostname alone, defines the security boundary",
+      "Renderer processes are sandboxed"
+    ],
+    "practice": "On a lab page at <LAB_HOST>, use the Performance panel to observe parsing and layout timing.",
+    "sources": [],
+    "content": "## Core idea\nA browser is a distributed system disguised as an application. It fetches bytes, parses HTML into a DOM, computes CSS, lays out boxes, paints pixels, and runs scripts — often concurrently. Security controls such as origin checks and sandboxing are woven into these stages, so understanding the pipeline explains why some attacks work.\n\n### Mental model\nPicture a printing press: bytes arrive on a conveyor (network), a typesetter arranges them (parser), a designer applies style (CSSOM), and rollers produce the page (layout and paint). Each station can be interrupted by new input, which is why partially parsed documents can behave oddly.\n\n### Method\n1. Request <LAB_HOST> and open DevTools' Network panel to see response timing.\n2. Switch to Performance and reload to watch parse, style, and layout events.\n3. Note where scripts pause the parser and where defer/async change ordering.\n4. Inspect the security panel for origin and isolation details.\n\n### Concrete example\nA response from <LAB_HOST> containing a large `<script>` before the body blocks parsing. Moving it to `defer` lets the DOM build first, changing when `document.getElementById` finds elements. Attackers exploit parser timing in mutation-based attacks where a script observes intermediate DOM states.\n\n| Stage | Output | Security relevance |\n|---|---|---|\n| Parsing | DOM tree | Markup injection happens here |\n| Style | CSSOM | CSS exfiltration edges |\n| Layout | Box geometry | Clickjacking, UI redressing |\n| Paint | Pixels | Visual spoofing |\n\n### Common mistakes\n- Assuming the browser waits for the full response before acting.\n- Treating `192.0.2.10` and `lab.<LAB_HOST>` as the same origin.\n- Ignoring that CSS can leak state through selectors and timing.\n\n### Defense and verification\nSend complete, well-formed responses; use CSP to limit script sources; and test overlays for clickjacking. Verify by checking that framing is denied via `X-Frame-Options` or CSP `frame-ancestors` on <LAB_HOST>.\n\n### Knowledge check\nQ: What three parts must match for two URLs to share an origin? A: Scheme, host, and port."
+  },
+  {
+    "id": "web-security-07",
+    "topic": "web-security",
+    "number": 7,
+    "title": "HTTP Requests, Responses, and Methods",
+    "level": "Beginner",
+    "minutes": 30,
+    "summary": "Master the structure of HTTP messages and how methods and status codes shape application behavior.",
+    "objectives": [
+      "Read request and response messages",
+      "Distinguish safe from state-changing methods",
+      "Interpret common status codes"
+    ],
+    "takeaways": [
+      "HTTP is a text protocol with a strict blank-line separator",
+      "Method semantics drive server behavior",
+      "Responses are more than status and body"
+    ],
+    "practice": "Using a local proxy on <LAB_HOST>, capture a login request and annotate each line.",
+    "sources": [],
+    "content": "## Core idea\nHTTP is a request/response protocol. A request carries a method, a path, headers, and an optional body; a response carries a status line, headers, and a body. Attacks often depend on bending these structures — adding parameters, changing methods, or smuggling extra requests — so fluency in raw messages is essential.\n\n### Mental model\nThink of an HTTP message as a postcard: the header lines are the addressing information and the body is the letter. A blank line separates them. Proxies read the addressing information, which means ambiguity in headers can make two systems disagree about where one message ends.\n\n### Method\n1. Open the network tool and capture a request to <LAB_HOST>.\n2. Label the request line, each header, the blank line, and the body.\n3. Note which parameters appear in the path versus the body.\n4. Check what the server does when the method is changed on the same endpoint.\n\n### Concrete example\n```\nPOST /login HTTP/1.1\nHost: <LAB_HOST>\nContent-Type: application/x-www-form-urlencoded\nContent-Length: 29\n\nusername=alice&password=secret\n```\nA response might be `HTTP/1.1 302 Found` with `Location: /dashboard`. Treating the 302 body as the final result misses the redirect step.\n\n| Method | Safe? | Idempotent? | Typical use |\n|---|---|---|---|\n| GET | Yes | Yes | Read data |\n| POST | No | No | Create/submit |\n| PUT | No | Yes | Replace resource |\n| DELETE | No | Yes | Remove resource |\n\n### Common mistakes\n- Using GET for state-changing actions, enabling CSRF and cache leakage.\n- Ignoring `Content-Length` versus `Transfer-Encoding` conflicts.\n- Assuming a 200 response means the action succeeded.\n\n### Defense and verification\nUse correct method semantics, require CSRF tokens on state-changing requests, and normalize parsing at the edge. Verify by replaying a captured lab request with an altered method and confirming the server rejects it.\n\n### Knowledge check\nQ: Which line separates headers from the body in a raw HTTP message? A: A single empty line (CRLF CRLF)."
+  },
+  {
+    "id": "web-security-08",
+    "topic": "web-security",
+    "number": 8,
+    "title": "HTTP Headers and Status Codes in Depth",
+    "level": "Beginner",
+    "minutes": 30,
+    "summary": "Explore the headers that control content type, caching, redirects, and security policy in every response.",
+    "objectives": [
+      "Interpret request and response headers",
+      "Recognize security-relevant headers",
+      "Predict browser behavior from headers"
+    ],
+    "takeaways": [
+      "Content-Type determines how the browser parses a body",
+      "Cache and security headers are defense controls",
+      "Redirects can change method and destination"
+    ],
+    "practice": "Inspect response headers from <LAB_HOST> and classify each as informational, caching, or security-related.",
+    "sources": [],
+    "content": "## Core idea\nHeaders are the control plane of HTTP. They tell the browser what kind of content it received, how long it may cache it, which origins may frame it, and which transports are allowed. Misconfigured headers rarely crash an application, but they silently weaken its defenses.\n\n### Mental model\nTreat headers as a policy document attached to every message. The browser enforces that policy on your behalf. If a policy line is missing or wrong, the browser falls back to permissive defaults — the opposite of what a defender wants.\n\n### Method\n1. Capture a response from <LAB_HOST> and list all headers.\n2. Identify `Content-Type`, `Location`, `Cache-Control`, and `Set-Cookie`.\n3. Mark which security headers are present: HSTS, CSP, X-Content-Type-Options.\n4. Test how changing a header in a lab proxy changes behavior.\n\n### Concrete example\nIf <LAB_HOST> returns an uploaded file with `Content-Type: text/html`, the browser executes it as a document. Serving it as `application/octet-stream` with `X-Content-Type-Options: nosniff` prevents inline execution. A 302 with `Location: http://<LAB_HOST>` after an HTTPS request silently downgrades the connection unless HSTS is set.\n\n| Header | Purpose | Weak value |\n|---|---|---|\n| `Content-Type` | Body interpretation | Missing or user-controlled |\n| `Cache-Control` | Caching policy | `public` on private data |\n| `Strict-Transport-Security` | Force HTTPS | Short or absent max-age |\n| `X-Frame-Options` | Framing control | `ALLOWALL` / absent |\n\n### Common mistakes\n- Reflecting user input into a header value without stripping CR/LF.\n- Setting security headers only on the homepage.\n- Using `no-store` inconsistently on authenticated responses.\n\n### Defense and verification\nDefine a baseline header set at the edge and apply it to every response. Verify with an automated header scanner against <LAB_HOST> and confirm each expected header appears on a deep, authenticated page.\n\n### Knowledge check\nQ: What does `nosniff` accomplish? A: It stops the browser from guessing a content type that differs from the declared one."
+  },
+  {
+    "id": "web-security-09",
+    "topic": "web-security",
+    "number": 9,
+    "title": "Cookies: Scope, Attributes, and Security Flags",
+    "level": "Beginner",
+    "minutes": 30,
+    "summary": "Understand cookie scope rules and how attributes decide when a cookie is sent and who can read it.",
+    "objectives": [
+      "Compute cookie scope from Domain and Path",
+      "Apply Secure, HttpOnly, and SameSite",
+      "Prevent session fixation"
+    ],
+    "takeaways": [
+      "Cookies are scoped by domain, path, scheme, and SameSite",
+      "Prefix rules can harden names",
+      "Rotation defeats fixation"
+    ],
+    "practice": "From DevTools on <LAB_HOST>, modify a lab cookie's path and observe which requests include it.",
+    "sources": [],
+    "content": "## Core idea\nA cookie is a small key/value pair the browser stores and replays on matching requests. Its scope is defined by `Domain`, `Path`, and the scheme. Its exposure is defined by `HttpOnly`, `Secure`, and `SameSite`. Session security is largely the practice of configuring these attributes correctly.\n\n### Mental model\nThink of a cookie as a bus pass with printing on it: the pass is valid only on certain routes (domain/path), only on the secure bus line (`Secure`), and the conductor reads it but passengers cannot (`HttpOnly`). `SameSite` decides whether the pass works when boarding from another site.\n\n### Method\n1. Capture `Set-Cookie` headers from <LAB_HOST> during login.\n2. Evaluate each attribute against the guidelines below.\n3. Check whether the value changes after authentication (rotation).\n4. Test whether a cross-site navigation sends the cookie.\n\n### Concrete example\nA hardened cookie from <LAB_HOST>:\n```\nSet-Cookie: __Host-sid=abc123; Path=/; Secure; HttpOnly; SameSite=Lax\n```\nThe `__Host-` prefix requires `Secure`, forbids `Domain`, and fixes `Path=/`, preventing a sibling subdomain from planting an overriding cookie.\n\n| Attribute | Effect | Recommended |\n|---|---|---|\n| `HttpOnly` | Blocks script access | Always for sessions |\n| `Secure` | HTTPS only | Always |\n| `SameSite` | Cross-site send policy | `Lax` or `Strict` |\n| `Domain` | Broadens scope | Omit for host-only |\n\n### Common mistakes\n- Setting `Domain=<LAB_HOST>` with a leading dot, allowing subdomain overwrite.\n- Leaving `SameSite=None` without `Secure`.\n- Reusing the pre-login cookie value after authentication.\n\n### Defense and verification\nIssue a fresh session identifier on privilege change and apply hardened attributes uniformly. Verify by inspecting `document.cookie` (session value must be absent) and watching a cross-site request in the lab proxy.\n\n### Knowledge check\nQ: Why omit `Domain` from a session cookie? A: Host-only cookies are not accepted from subdomains, narrowing the attack surface."
+  },
+  {
+    "id": "web-security-10",
+    "topic": "web-security",
+    "number": 10,
+    "title": "HTTPS, TLS, and Trust",
+    "level": "Beginner",
+    "minutes": 35,
+    "summary": "Learn what TLS guarantees, how certificates establish trust, and why mixed content and downgrade protections matter.",
+    "objectives": [
+      "Explain the TLS handshake at a high level",
+      "Validate certificate trust chains",
+      "Configure HSTS correctly"
+    ],
+    "takeaways": [
+      "TLS provides confidentiality, integrity, and server authentication",
+      "Trust anchors are certificates in the browser store",
+      "HSTS closes the first-request downgrade gap"
+    ],
+    "practice": "Use `openssl s_client` from your lab host to inspect the certificate presented by <LAB_HOST>.",
+    "sources": [],
+    "content": "## Core idea\nTLS sits between HTTP and TCP, encrypting the channel and authenticating the server. A browser accepts a certificate only if it chains to a trusted root, is valid for the hostname, and is within its validity window. Web application security depends on this foundation because cookies, tokens, and credentials travel inside it.\n\n### Mental model\nPicture a notary stamping a sealed envelope. The seal (encryption) hides contents and shows tampering; the notary's license (certificate chain) proves identity. A lock icon means the channel is protected, not that the site is honest — phishing sites can have valid certificates.\n\n### Method\n1. From the lab host, run:\n```bash\nopenssl s_client -connect <LAB_HOST>:443 -servername <LAB_HOST> </dev/null\n```\n2. Read the certificate subject, issuer, and validity dates.\n3. Check the response for HSTS: `Strict-Transport-Security: max-age=31536000; includeSubDomains`.\n4. Look for mixed-content warnings when loading lab pages over HTTP.\n\n### Concrete example\nA response from <LAB_HOST> includes an image loaded via `http://<LAB_HOST>/logo.png`. Even over HTTPS, passive mixed content can be rewritten in transit and may leak cookies if those are not `Secure`. Upgrading every subresource to HTTPS and adding HSTS removes both risks.\n\n| Check | Good result | Risk if wrong |\n|---|---|---|\n| Certificate hostname | Matches `<LAB_HOST>` | Impersonation |\n| Chain | Ends at trusted root | Interception |\n| HSTS max-age | Long (e.g. 31536000) | SSL-strip window |\n| Mixed content | None | Downgrade/leak |\n\n### Common mistakes\n- Treating the padlock as proof of application security.\n- Setting HSTS with `includeSubDomains` before all subdomains support HTTPS.\n- Terminating TLS at a proxy but forgetting to re-encrypt internally.\n\n### Defense and verification\nEnforce HTTPS everywhere, send HSTS with a long max-age, and eliminate mixed content. Verify with an SSL configuration scan of <LAB_HOST> and a browser console check for mixed-content messages.\n\n### Knowledge check\nQ: Does TLS protect against an application-level SQL injection? A: No. It protects the transport; the application still validates input."
+  },
+  {
+    "id": "web-security-11",
+    "topic": "web-security",
+    "number": 11,
+    "title": "Caching: Cache-Control, ETag, and Conditional Requests",
+    "level": "Intermediate",
+    "minutes": 35,
+    "summary": "Learn how shared and private caches store responses and how cache directives prevent sensitive data leakage.",
+    "objectives": [
+      "Distinguish private and shared caches",
+      "Configure Cache-Control directives",
+      "Identify cache poisoning and leakage risks"
+    ],
+    "takeaways": [
+      "Shared caches serve many users, so private responses must be marked",
+      "Validators enable conditional requests",
+      "User-specific URLs are dangerous cache keys"
+    ],
+    "practice": "On <LAB_HOST>, fetch an authenticated page twice through a lab proxy and inspect cache-related headers.",
+    "sources": [],
+    "content": "## Core idea\nCaches improve performance by reusing responses, but a cached copy of a private page can be served to the wrong user. Correct configuration distinguishes responses that are public from those tied to a session, and uses validators so clients can ask whether a stored copy is still fresh.\n\n### Mental model\nThink of a cache as a library with many patrons. A public handbook can be loaned to anyone; a personal diary cannot. Cache-Control labels are the librarian's rules. If a private diary is mislabeled, the librarian eagerly hands it to the next person who asks for the same title.\n\n### Method\n1. Request an authenticated page from <LAB_HOST> through a lab proxy.\n2. Record `Cache-Control`, `ETag`, `Last-Modified`, and any `Vary` header.\n3. Re-request with `If-None-Match` to observe a 304 response.\n4. Check whether the cache key includes user-specific headers such as `Cookie`.\n\n### Concrete example\nA response from <LAB_HOST> contains:\n```\nCache-Control: private, no-store\nETag: \"a1b2c3\"\nVary: Accept-Encoding\n```\n`no-store` forbids saving the body anywhere; `private` allows only the browser's cache, not shared proxies. If an API instead returned `Cache-Control: public, max-age=600` for `/api/me`, an intermediary could replay one user's profile to another.\n\n| Directive | Meaning | Use for |\n|---|---|---|\n| `no-store` | Never save | Auth responses, PII |\n| `private` | Browser only | User-specific pages |\n| `public, max-age` | Shareable, timed | Static assets |\n| `Vary` | Key on listed headers | Content negotiation |\n\n### Common mistakes\n- Caching responses that embed CSRF tokens or account data.\n- Omitting `Vary` when content depends on `Accept-Encoding` or headers.\n- Treating `no-cache` as `no-store`; `no-cache` still stores and revalidates.\n\n### Defense and verification\nDefault authenticated responses to `no-store`, fingerprint static assets for long-lived caching, and include all content-affecting headers in `Vary`. Verify by loading two different lab accounts through the same proxy and confirming neither sees the other's data.\n\n### Knowledge check\nQ: Which directive forbids storing a response at all? A: `no-store` (`no-cache` merely requires revalidation)."
+  },
+  {
+    "id": "web-security-12",
+    "topic": "web-security",
+    "number": 12,
+    "title": "Proxies, Same-Origin Policy, CORS, and CSP",
+    "level": "Intermediate",
+    "minutes": 45,
+    "summary": "Understand the browser's origin boundary, how CORS deliberately relaxes it, and how CSP limits script execution.",
+    "objectives": [
+      "Compute same-origin relationships",
+      "Interpret CORS headers",
+      "Design a restrictive Content Security Policy"
+    ],
+    "takeaways": [
+      "SOP blocks cross-origin reads by default",
+      "CORS is a server-granted exception, not a client control",
+      "CSP is a second line of defense against script injection"
+    ],
+    "practice": "In a lab, serve two origins at <LAB_HOST> on different ports and test a cross-origin fetch with and without CORS headers.",
+    "sources": [],
+    "content": "## Core idea\nThe Same-Origin Policy (SOP) prevents a page from reading responses from another origin. Cross-Origin Resource Sharing (CORS) is a mechanism where the server grants specific exceptions. Content Security Policy (CSP) independently restricts which scripts and resources a page may load, limiting the impact of injection flaws.\n\n### Mental model\nImagine an apartment building where each unit (origin) has its own key. SOP keeps tenants out of each other's units. CORS is a landlord's written permission slip naming exactly which visitor may enter. CSP is an alarm system inside the unit that blocks unknown tools from being used even if a visitor got in.\n\n### Method\n1. From `http://<LAB_HOST>:3000`, fetch `http://<LAB_HOST>:4000/data` and record the failure.\n2. Add `Access-Control-Allow-Origin: http://<LAB_HOST>:3000` to the lab response and retry.\n3. Test a preflight for a PUT request with a custom header.\n4. Apply a nonce-based CSP to the lab page and observe blocked inline scripts.\n\n### Concrete example\nA preflight exchange at <LAB_HOST>:\n```\nOPTIONS /data HTTP/1.1\nOrigin: http://<LAB_HOST>:3000\nAccess-Control-Request-Method: PUT\n\nHTTP/1.1 204 No Content\nAccess-Control-Allow-Origin: http://<LAB_HOST>:3000\nAccess-Control-Allow-Methods: GET, PUT\nAccess-Control-Allow-Credentials: true\n```\nNever combine `Allow-Credentials: true` with a wildcard origin; use an explicit allowlist.\n\n| Policy | Controls | Failure mode |\n|---|---|---|\n| SOP | Cross-origin reads | Blocked by browser |\n| CORS | Server permission for reads | Misconfigured `*` or origin reflection |\n| CSP | Script/resource sources | Missing `script-src` allows inline code |\n\n### Common mistakes\n- Reflecting any `Origin` header back in `Access-Control-Allow-Origin`.\n- Using `unsafe-inline` in `script-src`, negating much of CSP's value.\n- Assuming CORS protects the server from direct non-browser clients.\n\n### Defense and verification\nUse an exact origin allowlist, avoid credentials with wildcards, and deploy a nonce-based CSP without `unsafe-inline`. Verify with browser console errors and a CSP header analyzer on <LAB_HOST>.\n\n### Knowledge check\nQ: Does CORS protect an API from curl? A: No. It only governs browser-enforced cross-origin reads."
+  },
+  {
+    "id": "web-security-13",
+    "topic": "web-security",
+    "number": 13,
+    "title": "Server-Side Fundamentals and the Request Lifecycle",
+    "level": "Beginner",
+    "minutes": 35,
+    "summary": "Trace how a web application turns an HTTP request into data access and a response, and where trust boundaries lie.",
+    "objectives": [
+      "Map the request lifecycle",
+      "Identify trust boundaries",
+      "Locate input validation opportunities"
+    ],
+    "takeaways": [
+      "Every request crosses multiple layers",
+      "Data changes representation at each layer",
+      "Validation must happen at each trust boundary"
+    ],
+    "practice": "On a local lab app at <LAB_HOST>, add logging at the router, controller, and database layers for a single request.",
+    "sources": [],
+    "content": "## Core idea\nA web application is a pipeline: a web server hands a request to a router, a controller parses parameters, business logic operates on models, a database returns rows, and a view or serializer builds the response. Security failures concentrate at the boundaries between these layers, where data is reinterpreted.\n\n### Mental model\nThink of an airport baggage system. A bag (request) passes scanners (parsers), a sorting desk (router), security checks (validation), and a loading dock (database). Each station trusts the previous one, so a missed check at the first scanner propagates all the way to the plane.\n\n### Method\n1. Send a benign test request with an extra parameter to <LAB_HOST>.\n2. Trace which code reads that parameter at each layer.\n3. Record where type conversion, decoding, or escaping happens.\n4. Identify the final sink (SQL query, file path, template, HTTP response).\n\n### Concrete example\nA route on <LAB_HOST> accepts `/user?id=5`. The controller reads `id`, casts it to a string, and interpolates it into SQL. Adding `id=5 OR 1=1` changes the query's structure. Correct handling means parameterized queries regardless of earlier \"numeric\" checks.\n\n| Layer | Typical risk | Control |\n|---|---|---|\n| Parser | Ambiguous content types | Strict content-type checks |\n| Controller | Unvalidated parameters | Schema validation |\n| Model | Query/command injection | Parameterization |\n| View | Output encoding | Context-aware escaping |\n\n### Common mistakes\n- Validating only in the browser and trusting the API.\n- Re-decoding input after validation, reintroducing metacharacters.\n- Letting raw request parameter names drive database column names.\n\n### Defense and verification\nValidate at each boundary with allowlists and use safe APIs for every sink. Verify by sending malformed parameter types to <LAB_HOST> and confirming the app returns controlled errors, not stack traces.\n\n### Knowledge check\nQ: Why is client-side validation insufficient? A: An attacker controls the client and can bypass it entirely, sending requests directly to the server."
+  },
+  {
+    "id": "web-security-14",
+    "topic": "web-security",
+    "number": 14,
+    "title": "SQL Injection: Root Cause and Lab-Safe Exploitation",
+    "level": "Intermediate",
+    "minutes": 45,
+    "summary": "Learn how user input can alter SQL query structure and how to eliminate the flaw with parameterized queries.",
+    "objectives": [
+      "Explain the root cause of SQL injection",
+      "Demonstrate detection in an owned lab",
+      "Apply parameterized queries"
+    ],
+    "takeaways": [
+      "Injection happens when data is concatenated into code",
+      "Errors and boolean behavior are signals",
+      "Parameterization removes the vulnerable interpreter boundary"
+    ],
+    "practice": "Against a deliberately vulnerable app at <LAB_HOST>, use UNION and boolean probes against a test parameter you control.",
+    "sources": [],
+    "content": "## Core idea\nSQL injection occurs when untrusted input is concatenated into a query string, letting the input change the query's grammar. The fix is not clever escaping but separating code from data using prepared statements, so the database treats parameters strictly as values.\n\n### Mental model\nThink of a query as a fill-in-the-blank form. Concatenation handwrites the answer into the sentence, so a value containing punctuation can rewrite the sentence. A prepared statement prints the sentence first and then inserts the answer in a sealed box that cannot change the grammar.\n\n### Method (authorized lab only)\n1. Pick a parameter on <LAB_HOST> you own and append a single quote; observe error or behavior change.\n2. Test boolean conditions (`' AND '1'='1` vs `' AND '1'='2`) and compare responses.\n3. Determine column count with `ORDER BY` probes.\n4. Confirm with a harmless UNION selecting a constant string.\n5. Remediate the lab code with placeholders and retest — probes should become inert literals.\n\n### Concrete example\nVulnerable code at <LAB_HOST>:\n```python\ncur.execute(\"SELECT id, email FROM users WHERE name = '\" + name + \"'\")\n```\nPayload `x' UNION SELECT 1, 'pwned` changes the result set. The fix:\n```python\ncur.execute(\"SELECT id, email FROM users WHERE name = %s\", (name,))\n```\n\n| Detection signal | Meaning |\n|---|---|\n| SQL error text | Query structure likely broken |\n| Different response for `AND 1=1` vs `1=2` | Boolean injection |\n| UNION returns extra column | Query shape controllable |\n\n### Common mistakes\n- Escaping quotes only; numeric contexts need no quotes.\n- Believing stored procedures are automatically safe.\n- Running intrusive payloads outside a lab or authorized scope.\n\n### Defense and verification\nUse parameterized queries everywhere, least-privilege database accounts, and generic error messages. Verify by re-running the exact lab payloads after the fix and confirming they return no rows and no errors.\n\n### Knowledge check\nQ: Why does a prepared statement stop injection? A: The SQL text is parsed before parameters are bound, so parameters cannot become syntax."
+  },
+  {
+    "id": "web-security-15",
+    "topic": "web-security",
+    "number": 15,
+    "title": "NoSQL Injection and ORM Security",
+    "level": "Intermediate",
+    "minutes": 35,
+    "summary": "Understand how document databases and ORMs can still be injected through operators, type juggling, and dynamic queries.",
+    "objectives": [
+      "Recognize operator-based NoSQL injection",
+      "Audit ORM usage for unsafe APIs",
+      "Apply strict input schemas"
+    ],
+    "takeaways": [
+      "NoSQL queries are code too",
+      "Operator objects can alter query semantics",
+      "Safe ORM APIs still require typed input"
+    ],
+    "practice": "In a lab API at <LAB_HOST>, submit a JSON operator object to a test login field and observe the response.",
+    "sources": [],
+    "content": "## Core idea\nNoSQL databases avoid SQL string concatenation, but their query languages are still interpreters. If an application passes raw JSON into a query, an attacker can supply operator objects like `{\"$ne\": null}` or `{\"$gt\": \"\"}` to change matching logic. ORMs reduce risk but offer raw-query escape hatches that reintroduce it.\n\n### Mental model\nPicture a query as a filter specification rather than a sentence. Injection means the attacker edits the filter itself, not just the value being filtered. If the app expects a string but receives an object with operators, the database follows the object's instructions.\n\n### Method\n1. Find a JSON endpoint on <LAB_HOST> that accepts a filter or login field.\n2. Submit the expected string type; note the response.\n3. Submit an operator object in your own lab account context; compare.\n4. Review application code for raw query constructors or `$where`-style features.\n5. Add a schema validator that rejects non-string types and unexpected keys.\n\n### Concrete example\nA lab API at <LAB_HOST> receives:\n```json\n{\"user\": \"alice\", \"pass\": {\"$ne\": null}}\n```\nIf the server forwards this object into a document query, the password check may match any user. The fix is type enforcement:\n```js\nif (typeof body.user !== 'string' || typeof body.pass !== 'string') return 400;\n```\n\n| Vector | SQL analogue | Defense |\n|---|---|---|\n| Operator objects (`$ne`, `$gt`) | `OR 1=1` | Reject non-scalar types |\n| `$where` JS execution | Stacked queries | Disable server-side JS |\n| ORM raw queries | String concatenation | Use builder methods |\n\n### Common mistakes\n- Assuming \"NoSQL\" means \"no injection.\"\n- Using permissive JSON parsers that accept objects where strings are expected.\n- Enabling server-side JavaScript in production databases.\n\n### Defense and verification\nDefine strict schemas, allowlist query operators, and disable dangerous database features. Verify by replaying the operator payload on <LAB_HOST> and confirming a 400 response rather than a successful login.\n\n### Knowledge check\nQ: Why can `{\"$ne\": null}` bypass a password check? A: The database interprets it as \"not equal to null,\" matching most values instead of comparing a literal string."
+  },
+  {
+    "id": "web-security-16",
+    "topic": "web-security",
+    "number": 16,
+    "title": "Session Management: Tokens, Lifecycle, and Fixation",
+    "level": "Intermediate",
+    "minutes": 40,
+    "summary": "Learn how sessions map requests to users and how to create, rotate, and destroy them safely.",
+    "objectives": [
+      "Explain session identifier properties",
+      "Prevent fixation and hijacking",
+      "Design correct expiry and logout"
+    ],
+    "takeaways": [
+      "Session IDs must be unpredictable and rotated at login",
+      "Transport and storage controls matter as much as entropy",
+      "Logout must invalidate state server-side"
+    ],
+    "practice": "In your lab app at <LAB_HOST>, capture a session ID before and after login and verify rotation.",
+    "sources": [],
+    "content": "## Core idea\nHTTP is stateless, so applications use a session identifier to associate requests with a user. If that identifier is predictable, stealable, or fixed by an attacker, identity is compromised. Secure session management covers generation, transport, rotation, idle and absolute timeouts, and invalidation.\n\n### Mental model\nTreat a session ID as a temporary key card. It should be minted randomly, issued at the door (login), changed when privileges change (rotation), expire after inactivity, and be cancelled immediately when the user leaves (logout). A card that never changes allows an attacker who saw it earlier to reuse it.\n\n### Method\n1. Log in to <LAB_HOST> with a lab account through a proxy.\n2. Record the `Set-Cookie` session value before and after authentication.\n3. Check entropy (length and randomness) and cookie attributes.\n4. Trigger logout and replay the old ID to confirm rejection.\n5. Test idle expiry with a test session you control.\n\n### Concrete example\n vulnerable flow: `GET /?sid=abc` accepts a session ID from the URL and promotes it at login — classic fixation. Correct flow:\n```\nPOST /login  ->  Set-Cookie: sid=<new-random>; HttpOnly; Secure; SameSite=Lax\n```\nThe pre-login identifier is discarded and replaced, so an attacker-planted value cannot become an authenticated session.\n\n| Property | Weak | Strong |\n|---|---|---|\n| Generation | Sequential | CSPRNG, 128-bit+ |\n| Rotation | Never | On login/privilege change |\n| Transport | URL parameter | `HttpOnly` cookie over TLS |\n| Expiry | None | Idle + absolute timeouts |\n\n### Common mistakes\n- Accepting session IDs from query strings or referrers.\n- Keeping the session valid on the server after client-side logout.\n- Sharing one session across unrelated subdomains.\n\n### Defense and verification\nRotate on authentication, store hashed session IDs server-side, and invalidate all sessions on password change. Verify by replaying a logged-out lab cookie and confirming it no longer authenticates.\n\n### Knowledge check\nQ: What is session fixation? A: An attacker forces a known session ID on a victim before login; rotation at login defeats it."
+  },
+  {
+    "id": "web-security-17",
+    "topic": "web-security",
+    "number": 17,
+    "title": "Authentication versus Authorization",
+    "level": "Intermediate",
+    "minutes": 35,
+    "summary": "Separate proving identity from granting permissions, and learn where each class of control belongs.",
+    "objectives": [
+      "Define authentication and authorization",
+      "Identify common authn/authz flaws",
+      "Apply least privilege"
+    ],
+    "takeaways": [
+      "Authentication answers who; authorization answers what",
+      "They require independent controls",
+      "Every request needs an authorization decision"
+    ],
+    "practice": "With two lab accounts of different roles on <LAB_HOST>, attempt a privileged action from the lower-privileged account.",
+    "sources": [],
+    "content": "## Core idea\nAuthentication (authn) verifies identity; authorization (authz) decides whether that identity may perform an action. Confusing the two leads to systems that know who a user is but fail to restrict what they can do. Every request must pass both checks, and authz must be enforced on the server.\n\n### Mental model\nThink of a concert venue: authentication is the ticket check at the entrance, authorization is the wristband that grants backstage access. Having a valid ticket does not entitle you to the stage, and staff must check the wristband at every restricted door — not just once at entry.\n\n### Method\n1. Map endpoints on <LAB_HOST> and label each as public, authenticated, or privileged.\n2. For a privileged endpoint, remove credentials entirely and observe the result.\n3. Repeat with a low-privilege lab account.\n4. Test object-level variations by changing an ID in a request you own.\n5. Confirm each failure returns a generic denial without leaking data.\n\n### Concrete example\nAt <LAB_HOST>, `/admin/export` checks only `if (req.session)`. A low-privilege authenticated user passes. Add a role check:\n```js\nif (!req.session || req.session.role !== 'admin') return res.status(403).end();\n```\nBetter still, use a centralized policy layer rather than scattered conditionals.\n\n| Check | Question | Failure name |\n|---|---|---|\n| Authentication | Who are you? | Broken authentication |\n| Authorization | May you do this? | Broken access control |\n| Object-level | Is this record yours? | IDOR / BOLA |\n\n### Common mistakes\n- Relying on hidden UI elements instead of server checks.\n- Checking roles only at login, not per request.\n- Returning detailed errors that reveal whether a record exists.\n\n### Defense and verification\nCentralize authorization, default-deny, and test with multiple lab roles. Verify by scripting a matrix of account/role versus endpoint and confirming every cell returns the expected status.\n\n### Knowledge check\nQ: Can strong authentication compensate for missing authorization? A: No. Knowing the user's identity does not restrict their actions."
+  },
+  {
+    "id": "web-security-18",
+    "topic": "web-security",
+    "number": 18,
+    "title": "Password Storage: Hashing, Salting, and Key Derivation",
+    "level": "Intermediate",
+    "minutes": 40,
+    "summary": "Learn why fast hashes are unsafe for passwords and how to store credentials with modern password KDFs.",
+    "objectives": [
+      "Explain why salted slow hashing is required",
+      "Compare bcrypt, scrypt, and Argon2",
+      "Plan a hash migration"
+    ],
+    "takeaways": [
+      "Passwords must never be stored in plaintext or fast general-purpose hashes",
+      "Salts are unique and non-secret",
+      "Work factors must be tuned and upgraded"
+    ],
+    "practice": "In a local script at <LAB_HOST>, hash the same password twice with different salts and compare outputs.",
+    "sources": [],
+    "content": "## Core idea\nPassword storage aims to make offline cracking expensive even after a database leak. General-purpose hashes like SHA-256 are far too fast: commodity hardware can test billions per second. Password KDFs such as Argon2id, scrypt, and bcrypt are deliberately slow and memory-hard, and each password gets a unique salt.\n\n### Mental model\nThink of a vault door. A fast hash is a flimsy lock that can be tried endlessly; a KDF is a heavy door whose cost can be dialed up. A salt ensures every vault has a different shape, so one precomputed table cannot open them all.\n\n### Method\n1. Inspect the lab app's user table (never a real one) for stored password values.\n2. Identify the algorithm, salt, and work factor.\n3. Benchmark a single verification to choose a work factor near 100-250 ms on your hardware.\n4. Rehash existing records on successful login to migrate old algorithms.\n\n### Concrete example\nVerification with Argon2id in a lab service at <LAB_HOST>:\n```python\nfrom argon2 import PasswordHasher\nph = PasswordHasher(time_cost=3, memory_cost=65536, parallelism=2)\nstored = ph.hash(password)      # includes algorithm params + salt\nph.verify(stored, supplied)     # raises on mismatch\n```\n\n| Algorithm | Strength property | Note |\n|---|---|---|\n| SHA-256 | Fast, unsalted unsafe | Never use alone |\n| bcrypt | CPU-hard, mature | 72-byte input limit |\n| scrypt | Memory-hard | Tune memory cost |\n| Argon2id | Memory + CPU hard | Preferred modern choice |\n\n### Common mistakes\n- Using a single global salt or a salt derived from the username.\n- Truncating passwords or limiting length unnecessarily.\n- Logging plaintext credentials during \"temporary\" debugging.\n\n### Defense and verification\nStore `algorithm+salt+hash` together, enforce long passphrases, and support transparent rehashing. Verify by checking that two lab users with the same password have different stored hashes and that verification stays under your latency budget.\n\n### Knowledge check\nQ: Why must salts be unique per user? A: Unique salts prevent precomputed rainbow tables and force attackers to crack each password separately."
+  },
+  {
+    "id": "web-security-19",
+    "topic": "web-security",
+    "number": 19,
+    "title": "JSON Web Tokens (JWT): Structure, Signing, and Verification",
+    "level": "Intermediate",
+    "minutes": 45,
+    "summary": "Decode JWTs, understand signing and verification, and avoid the classic algorithm and claims pitfalls.",
+    "objectives": [
+      "Describe the three JWT parts",
+      "Verify signatures and claims correctly",
+      "Recognize common JWT attacks"
+    ],
+    "takeaways": [
+      "A JWT is signed, not encrypted",
+      "Verification must check algorithm, signature, and claims",
+      "Client-side presence is not proof of validity"
+    ],
+    "practice": "On <LAB_HOST>, decode a lab-issued JWT and tamper with its payload in a controlled test.",
+    "sources": [],
+    "content": "## Core idea\nA JWT is a compact, URL-safe token made of three base64url segments: header, payload, and signature. The signature lets a server detect tampering. Crucially, JWT contents are readable by anyone holding the token, so secrets must never be placed in the payload.\n\n### Mental model\nThink of a signed concert ticket. The printed sections (header and payload) are visible to everyone; the signature is a stamp the venue verifies. Changing the seat number invalidates the stamp. A torn or unfamiliar stamp should be rejected outright.\n\n### Method\n1. Capture a JWT from <LAB_HOST> and decode the first two segments locally.\n2. Read `alg`, `iss`, `aud`, `sub`, `exp`, and `nbf`.\n3. Verify the signature with the expected algorithm and key.\n4. Validate claims: expiry, issuer, audience, and any nonce.\n5. Test that modifying a payload byte causes rejection in the lab.\n\n### Concrete example\n```\neyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwicm9sZSI6InVzZXIifQ.SIGNATURE\n```\nIf a server accepts `alg: none` or trusts `alg` from the token header, an attacker can forge arbitrary payloads. Pin the expected algorithm in verification code:\n```js\njwt.verify(token, publicKey, { algorithms: ['RS256'], audience: 'lab', issuer: '<LAB_HOST>' });\n```\n\n| Pitfall | Risk | Fix |\n|---|---|---|\n| `alg: none` | Signature bypass | Pin algorithms |\n| HS/RS confusion | Wrong key type | Explicit key per algorithm |\n| Missing `exp` check | Eternal tokens | Validate time claims |\n| Sensitive payload data | Information disclosure | Put only identifiers |\n\n### Common mistakes\n- Decoding a JWT and treating the payload as trusted.\n- Ignoring `exp`, `aud`, or `iss` validation.\n- Storing long-lived tokens in web storage without rotation.\n\n### Defense and verification\nUse a vetted library with strict options, short expiry, and token rotation/revocation. Verify by forging a lab token with `alg: none` and confirming <LAB_HOST> rejects it.\n\n### Knowledge check\nQ: Is a JWT encrypted? A: No. It is only encoded and signed; anyone with the token can read its payload."
+  },
+  {
+    "id": "web-security-20",
+    "topic": "web-security",
+    "number": 20,
+    "title": "OAuth 2.0 and OpenID Connect",
+    "level": "Advanced",
+    "minutes": 50,
+    "summary": "Learn the authorization code flow, the roles involved, and the checks that prevent token theft and cross-origin confusion.",
+    "objectives": [
+      "Distinguish OAuth from OIDC",
+      "Walk through the authorization code + PKCE flow",
+      "Validate state, nonce, and redirect URIs"
+    ],
+    "takeaways": [
+      "OAuth handles authorization; OIDC adds identity",
+      "PKCE and state protect the code flow",
+      "Redirect URI allowlists are critical"
+    ],
+    "practice": "In a lab IdP at <LAB_HOST>, complete an authorization code flow with PKCE and inspect each redirect.",
+    "sources": [],
+    "content": "## Core idea\nOAuth 2.0 lets an application obtain limited access to a resource without handling a user's password. OpenID Connect adds an identity layer with an ID token. Both rely on redirects, which makes redirect URI validation and CSRF defenses (`state`, PKCE, `nonce`) central to their security.\n\n### Mental model\nImagine a valet key: the resource owner authorizes a limited key rather than handing over the master key. Authorization codes are like claim tickets exchanged for the valet key at a service desk. If an attacker steals the claim ticket or tricks the desk, they get the key.\n\n### Method (lab only)\n1. Register a lab client at <LAB_HOST> with an exact redirect URI.\n2. Start the flow; record `state`, `code_challenge`, and the authorization response.\n3. Exchange the code at the token endpoint with the `code_verifier`.\n4. Modify `state` in a second lab run and confirm rejection.\n5. Attempt a redirect URI outside the allowlist and confirm failure.\n\n### Concrete example\nA token request at <LAB_HOST>:\n```\nPOST /oauth/token\ngrant_type=authorization_code&code=ABC&redirect_uri=https://app.<LAB_HOST>/cb\n&code_verifier=dBjft...&client_id=lab-client\n```\nThe code must be single-use, bound to the verifier and redirect URI. Public clients must use PKCE; confidential clients must authenticate at the token endpoint.\n\n| Component | Purpose | Attack if missing |\n|---|---|---|\n| `state` | CSRF protection on redirect | Code injection |\n| PKCE verifier | Binds code to client | Code interception |\n| `nonce` | Binds ID token to session | Replay |\n| Exact redirect URI | Prevents redirect abuse | Token leakage |\n\n### Common mistakes\n- Using the implicit flow instead of code + PKCE.\n- Matching redirect URIs by prefix or wildcard.\n- Accepting tokens without checking `iss`, `aud`, and signature.\n\n### Defense and verification\nUse code + PKCE, exact redirect matching, short-lived codes, and full token validation. Verify by replaying a used lab code and confirming the token endpoint rejects it.\n\n### Knowledge check\nQ: What does PKCE prevent? A: Interception of an authorization code by a malicious app on the same device."
+  },
+  {
+    "id": "web-security-21",
+    "topic": "web-security",
+    "number": 21,
+    "title": "CSRF: Mechanism and Defenses",
+    "level": "Intermediate",
+    "minutes": 35,
+    "summary": "Learn how cross-site requests abuse ambient credentials and how tokens, SameSite, and origin checks stop them.",
+    "objectives": [
+      "Explain the CSRF precondition set",
+      "Implement synchronizer tokens",
+      "Verify SameSite and origin defenses"
+    ],
+    "takeaways": [
+      "CSRF rides on credentials the browser attaches automatically",
+      "State-changing GETs are especially exposed",
+      "Layered defenses are more robust than one control"
+    ],
+    "practice": "In a lab app at <LAB_HOST>, build a harmless cross-site form that posts to a test endpoint with and without a CSRF token.",
+    "sources": [],
+    "content": "## Core idea\nCross-Site Request Forgery occurs when a malicious page causes a victim's browser to send a state-changing request to a site where the victim is authenticated. The browser automatically attaches cookies, so the server sees a legitimate session. The attack requires a state-changing action, cookie-based auth, and no unpredictable per-request value.\n\n### Mental model\nPicture a checkbook left on a desk. A visitor (malicious page) cannot read it, but can hand the bank a withdrawal slip while you are present; the bank recognizes your handwriting (the cookie) and cashes it. A CSRF token is a secret code you write on each slip that the visitor cannot see.\n\n### Method (lab only)\n1. Log in to <LAB_HOST> with a lab account.\n2. Identify a state-changing POST endpoint and capture a valid request.\n3. Host a test form on another lab origin that submits the same fields.\n4. Observe that it succeeds without a token, then add a synchronizer token and repeat.\n5. Set `SameSite=Strict` on the lab cookie and retry the cross-site form.\n\n### Concrete example\nA forged form at <LAB_HOST>:\n```html\n<form action=\"https://<LAB_HOST>/account/email\" method=\"POST\">\n  <input type=\"hidden\" name=\"email\" value=\"attacker@lab.test\">\n</form>\n<script>document.forms[0].submit()</script>\n```\nDefense: embed a per-session random token in the form and require it on the server:\n```js\nif (!req.body.csrf || req.body.csrf !== req.session.csrf) return res.status(403).end();\n```\n\n| Defense | Strength | Caveat |\n|---|---|---|\n| CSRF tokens | Strong | Must cover every state-changing route |\n| `SameSite=Lax/Strict` | Strong browser default | Legacy clients vary |\n| Origin/Referer checks | Useful layer | Can be stripped by proxies |\n| Custom headers + CORS | Effective for XHR/Fetch | Not for plain forms |\n\n### Common mistakes\n- Using GET for actions that change state.\n- Making tokens readable cross-origin via CORS misconfiguration.\n- Treating a CAPTCHA on login as CSRF protection elsewhere.\n\n### Defense and verification\nCombine tokens with `SameSite` cookies and origin checks. Verify by replaying the lab form without its token and confirming a 403, and with an invalid token likewise.\n\n### Knowledge check\nQ: Why does a CSRF token work? A: It is unpredictable and tied to the session, and the cross-site attacker cannot read it due to SOP."
+  },
+  {
+    "id": "web-security-22",
+    "topic": "web-security",
+    "number": 22,
+    "title": "Authorization Models: RBAC, ABAC, and Least Privilege",
+    "level": "Intermediate",
+    "minutes": 35,
+    "summary": "Compare permission models and learn to express authorization as centralized, testable policy rather than scattered checks.",
+    "objectives": [
+      "Contrast RBAC and ABAC",
+      "Apply least privilege",
+      "Design a policy decision point"
+    ],
+    "takeaways": [
+      "RBAC maps roles to permissions; ABAC evaluates attributes",
+      "Centralized policy beats scattered conditionals",
+      "Default-deny prevents omissions"
+    ],
+    "practice": "On <LAB_HOST>, expand an existing role check into a small policy function and test three lab roles.",
+    "sources": [],
+    "content": "## Core idea\nAuthorization models formalize who may do what. Role-Based Access Control assigns permissions to roles and users to roles. Attribute-Based Access Control evaluates attributes of the subject, object, and environment. Both should be implemented through a centralized decision point that defaults to deny.\n\n### Mental model\nThink of a building's access system. RBAC is a set of key rings: \"staff\" opens the office, \"admin\" opens the server room. ABAC is a smart badge that also checks time of day and department. A central guard (policy engine) decides at each door instead of every employee improvising.\n\n### Method\n1. Inventory protected actions on <LAB_HOST> and the attributes involved.\n2. Choose the simplest model that expresses the rules.\n3. Implement a single `can(user, action, resource)` function.\n4. Call it at every entry point, including background jobs and APIs.\n5. Write a role/action matrix test that must all pass.\n\n### Concrete example\nA centralized check at <LAB_HOST>:\n```js\nfunction can(user, action, doc) {\n  if (!user) return false;\n  if (action === 'read' && doc.owner === user.id) return true;\n  if (user.roles.includes('admin')) return true;\n  return false; // default deny\n}\n```\nScattered `if (user.role === 'admin')` checks drift over time; a single function is auditable and testable.\n\n| Model | Granularity | Best for |\n|---|---|---|\n| RBAC | Coarse, role-based | Clear organizational roles |\n| ABAC | Fine, attribute-based | Complex, contextual rules |\n| ReBAC | Relationship-based | Shared documents, teams |\n| DAC/MAC | Owner or mandatory labels | Specialized systems |\n\n### Common mistakes\n- Granting admin by convention without an explicit permission record.\n- Forgetting non-HTTP paths such as scheduled tasks or message consumers.\n- Allowing by default and adding denials afterwards.\n\n### Defense and verification\nAdopt default-deny, centralize decisions, and log denials for monitoring. Verify by running the role/action matrix on <LAB_HOST> and confirming no lower-privilege role reaches admin actions.\n\n### Knowledge check\nQ: Why is default-deny safer than default-allow? A: New or forgotten endpoints are protected automatically instead of accidentally exposed."
+  },
+  {
+    "id": "web-security-23",
+    "topic": "web-security",
+    "number": 23,
+    "title": "Multi-Factor Authentication and Account Security",
+    "level": "Intermediate",
+    "minutes": 35,
+    "summary": "Understand MFA factors, enrollment and recovery flows, and the attacks that target them.",
+    "objectives": [
+      "Classify authentication factors",
+      "Harden enrollment and recovery",
+      "Recognize MFA fatigue and bypass"
+    ],
+    "takeaways": [
+      "Factors must be independent",
+      "Recovery is often the weakest link",
+      "Phishing-resistant factors resist real-time relay"
+    ],
+    "practice": "In a lab IdP at <LAB_HOST>, enable TOTP for a test account and attempt a replay of a used code.",
+    "sources": [],
+    "content": "## Core idea\nMulti-factor authentication requires evidence from more than one category: something you know (password), have (TOTP, hardware key), or are (biometric). Its value depends on factor independence and on the security of enrollment, recovery, and session issuance — flows attackers frequently target instead of the factors themselves.\n\n### Mental model\nThink of a safe with two locks requiring different keys. If both keys hang on the same hook, a single theft opens the safe. Likewise, a password reset sent to the same email that hosts your authenticator seeds collapses MFA back to one factor.\n\n### Method\n1. Map the lab account lifecycle on <LAB_HOST>: register, enroll, login, recover, disable.\n2. Identify which factor each step requires and where a session is created.\n3. Test replay of a used TOTP code within the same 30-second window.\n4. Attempt an unverified recovery request in the lab and confirm it is blocked.\n5. Check that step-up authentication gates sensitive changes.\n\n### Concrete example\nA login flow at <LAB_HOST> that sets `loggedIn=true` immediately after password submission, before the second factor, is bypassable by skipping the OTP step. The session must only be promoted after successful verification of both factors, and the pre-MFA state must be bound to a short-lived, signed challenge.\n\n| Factor | Phishing resistance | Notes |\n|---|---|---|\n| SMS/email OTP | Low | SIM swap, mailbox takeover |\n| TOTP app | Medium | Real-time relay possible |\n| Push approval | Medium | MFA fatigue attacks |\n| WebAuthn / FIDO2 | High | Origin-bound, phishing-resistant |\n\n### Common mistakes\n- Allowing weak \"security questions\" as the only recovery path.\n- Treating OTP codes as reusable within their window.\n- Leaving old MFA sessions valid after factor changes.\n\n### Defense and verification\nPrefer WebAuthn, allow TOTP with replay prevention, require verified recovery, and bind sessions to the authentication level. Verify by replaying a used lab OTP and confirming rejection, and by attempting a reset without identity proof.\n\n### Knowledge check\nQ: Why are SMS codes weaker than WebAuthn? A: They are not bound to the site's origin and can be intercepted or relayed."
+  },
+  {
+    "id": "web-security-24",
+    "topic": "web-security",
+    "number": 24,
+    "title": "Token Storage and Client-Side Session Handling",
+    "level": "Intermediate",
+    "minutes": 35,
+    "summary": "Choose where to keep access and refresh tokens in a browser app, balancing XSS exposure against CSRF risk.",
+    "objectives": [
+      "Compare cookie and in-memory token storage",
+      "Configure rotation and refresh",
+      "Mitigate XSS-driven token theft"
+    ],
+    "takeaways": [
+      "`HttpOnly` cookies hide tokens from scripts but reintroduce CSRF concerns",
+      "In-memory tokens limit persistent theft but require refresh handling",
+      "Neither replaces XSS prevention"
+    ],
+    "practice": "In a lab SPA at <LAB_HOST>, store a token in memory and observe behavior across a page reload.",
+    "sources": [],
+    "content": "## Core idea\nAfter authentication, a client must hold some credential for subsequent requests. Storing tokens in `localStorage` makes them easy for JavaScript to read — including injected malicious JavaScript. `HttpOnly` cookies shield them from scripts but are attached automatically, requiring CSRF defenses. In-memory storage reduces the window of theft at the cost of losing tokens on reload.\n\n### Mental model\nImagine carrying a badge. A pocket badge (localStorage) is easy for anyone in the room to grab. A locked jacket badge (HttpOnly cookie) is harder to steal but the building opens doors automatically when you walk by. A badge you hold only during a meeting (memory) vanishes when you leave.\n\n### Method\n1. Inspect how <LAB_HOST>'s lab SPA stores its access token.\n2. Reload the page and note whether the session survives and why.\n3. Check whether refresh tokens are long-lived and rotatable.\n4. Run a benign DOM-injection test to see whether the token is reachable via script.\n5. Apply the chosen pattern and re-run the test.\n\n### Concrete example\nA refresh rotation design at <LAB_HOST>:\n```\nPOST /oauth/token { grant_type: refresh_token, token: R1 }\n-> { access_token: A2, refresh_token: R2 }   // R1 invalidated\n```\nIf R1 is replayed later, the server detects reuse and revokes the token family, limiting theft.\n\n| Store | XSS theft | CSRF risk | Persistence |\n|---|---|---|---|\n| localStorage | High | Low | Until cleared |\n| HttpOnly cookie | Low | Needs tokens | Configurable |\n| In memory | Low during rest | N/A | Lost on reload |\n| Service worker | Moderate | N/A | Persistent |\n\n### Common mistakes\n- Keeping refresh tokens in JavaScript-readable storage indefinitely.\n- Ignoring token reuse detection during rotation.\n- Assuming CSP makes token theft impossible.\n\n### Defense and verification\nUse `HttpOnly; Secure; SameSite` cookies with CSRF tokens, or short-lived in-memory access tokens with rotating refresh tokens. Verify by injecting a harmless script in the lab and confirming no credential is exfiltratable.\n\n### Knowledge check\nQ: Which storage prevents JavaScript from reading a token? A: An `HttpOnly` cookie (or keeping it only in a non-exposed closure is not a security boundary, so prefer the cookie)."
+  },
+  {
+    "id": "web-security-25",
+    "topic": "web-security",
+    "number": 25,
+    "title": "OWASP A01 — Broken Access Control",
+    "level": "Intermediate",
+    "minutes": 40,
+    "summary": "Study the top OWASP category: failing to enforce who may access objects and functions, and how to test it safely.",
+    "objectives": [
+      "Identify horizontal and vertical escalation",
+      "Test object-level access in a lab",
+      "Implement centralized enforcement"
+    ],
+    "takeaways": [
+      "Deny by default and verify every object reference",
+      "UI hiding is not authorization",
+      "Log and alert on denial patterns"
+    ],
+    "practice": "With two owned lab accounts on <LAB_HOST>, swap object IDs in requests and confirm cross-account denial.",
+    "sources": [],
+    "content": "## Core idea\nBroken access control covers failures that let users act outside their permissions: viewing another user's records, changing roles, accessing admin functions, or bypassing checks by forcing browsing to a previously authorized URL. It is consistently the most common serious web flaw because authorization is frequently duplicated and inconsistently applied.\n\n### Mental model\nThink of a hotel where room keys open only your room. Broken access control is a lock that opens any door if you know the number, or a staff-only door that is guarded only on the first floor. The key (identity) is valid; the door simply forgot to check it.\n\n### Method (lab only)\n1. Enumerate every endpoint on <LAB_HOST>, including hidden or undocumented ones.\n2. For each object ID, request a record belonging to your second lab account.\n3. Test vertical actions by calling admin routes with a normal account.\n4. Change request methods (GET→POST) and parameter names to find alternate paths.\n5. Record exact status codes and bodies for each attempt.\n\n### Concrete example\nAt <LAB_HOST>, `GET /api/invoices/1842` returns another tenant's invoice because the query filters only by ID. The fix adds ownership to the query:\n```sql\nSELECT * FROM invoices WHERE id = ? AND tenant_id = ?;\n```\nThe tenant ID comes from the authenticated session, never from the request.\n\n| Escalation | Meaning | Example |\n|---|---|---|\n| Horizontal | Same role, other user's data | Swap invoice ID |\n| Vertical | Higher privilege function | Normal user calls admin route |\n| Context/flow | Skip or repeat steps | Force-browse final step |\n\n### Common mistakes\n- Relying on unguessable IDs as the only control.\n- Checking access in the client before calling the API.\n- Leaving debug or legacy endpoints unguarded.\n\n### Defense and verification\nCentralize policy, deny by default, scope every query to the authenticated principal, and log denials. Verify by running the object-ID swap matrix on <LAB_HOST> and confirming every unauthorized request returns 403 or 404.\n\n### Knowledge check\nQ: Why return 404 rather than 403 for someone else's object? A: It avoids confirming that the object exists while still denying access."
+  },
+  {
+    "id": "web-security-26",
+    "topic": "web-security",
+    "number": 26,
+    "title": "OWASP A02 — Cryptographic Failures",
+    "level": "Intermediate",
+    "minutes": 40,
+    "summary": "Learn how weak or misapplied cryptography exposes sensitive data in transit and at rest.",
+    "objectives": [
+      "Identify sensitive data flows",
+      "Detect weak ciphers and key handling",
+      "Apply transport and storage protections"
+    ],
+    "takeaways": [
+      "Use modern vetted algorithms with correct modes",
+      "Key management is as important as the cipher",
+      "Sensitive data should not be stored unnecessarily"
+    ],
+    "practice": "Audit a lab app at <LAB_HOST> for plaintext secrets in logs, URLs, and storage; then remediate one finding.",
+    "sources": [],
+    "content": "## Core idea\nCryptographic failures include transmitting data in cleartext, using obsolete algorithms or modes, reusing IVs, poor key management, and storing secrets where they do not need to be stored. The impact is exposure of passwords, tokens, and personal data — often after a seemingly minor compromise.\n\n### Mental model\nThink of transporting valuables. A strong armored truck (TLS 1.3) is useless if you leave the back door open (mixed content), hand the keys to a stranger (hardcoded secret), or write the combination on the manifest (token in a URL). Protection must cover the whole journey.\n\n### Method\n1. Map sensitive data on <LAB_HOST>: credentials, tokens, PII, payment fields.\n2. Check that every flow uses TLS with valid certificates and HSTS.\n3. Scan code and configs for hardcoded keys, ECB mode, MD5/SHA-1, and weak randomness.\n4. Inspect logs and browser history for secrets in URLs or query strings.\n5. Replace one weak primitive with an approved alternative and retest.\n\n### Concrete example\nA lab service at <LAB_HOST> encrypts tokens with AES-ECB, causing identical plaintexts to produce identical ciphertexts and leaking structure. Migrate to authenticated encryption:\n```python\nfrom cryptography.hazmat.primitives.ciphers.aead import AESGCM\nnonce = os.urandom(12)\nct = AESGCM(key).encrypt(nonce, plaintext, None)  # integrity + confidentiality\n```\n\n| Failure | Risk | Fix |\n|---|---|---|\n| Cleartext HTTP | Interception | TLS + HSTS |\n| ECB / reused IV | Pattern leakage | AEAD with random nonce |\n| Hardcoded key | Source leak = total compromise | Secret manager |\n| Secrets in URLs | Logs/history leakage | Use POST body or headers |\n\n### Common mistakes\n- Rolling custom encryption instead of using a library.\n- Using random numbers from a non-cryptographic PRNG for tokens.\n- Logging full authorization headers during debugging.\n\n### Defense and verification\nMinimize stored sensitive data, use AEAD and modern KDFs, rotate keys, and scrub logs. Verify with a TLS scan and a secret-scanning grep over <LAB_HOST>'s lab repo.\n\n### Knowledge check\nQ: Why is ECB mode unsafe? A: Identical plaintext blocks produce identical ciphertext blocks, revealing patterns."
+  },
+  {
+    "id": "web-security-27",
+    "topic": "web-security",
+    "number": 27,
+    "title": "OWASP A03 — Injection Beyond SQL",
+    "level": "Intermediate",
+    "minutes": 40,
+    "summary": "Explore command, LDAP, XPath, and header injection and the general rule of never letting data become code.",
+    "objectives": [
+      "Recognize interpreter boundaries beyond SQL",
+      "Demonstrate lab-safe command injection",
+      "Apply safe APIs and encoding"
+    ],
+    "takeaways": [
+      "Any interpreter is a potential injection sink",
+      "Avoid shells and dynamic expressions",
+      "Context-appropriate encoding is the recurring fix"
+    ],
+    "practice": "On a lab diagnostic endpoint at <LAB_HOST>, test a benign command separator payload and then replace the shell call with a direct API.",
+    "sources": [],
+    "content": "## Core idea\nInjection is a family of flaws where untrusted data is interpreted as part of a command or query. Beyond SQL, common variants include OS command injection, LDAP injection, XPath injection, and CRLF/header injection. The root cause is always the same: data and code share a channel.\n\n### Mental model\nImagine giving a verbal instruction to an assistant over the phone. If you let the caller append words to your sentence, they can change \"list the folder\" into \"list the folder; delete it.\" Safe APIs are like handing the assistant a structured form instead of an open-ended sentence.\n\n### Method (lab only)\n1. Find a lab feature on <LAB_HOST> that invokes an external tool or builds a query.\n2. Submit a benign marker such as `; echo LAB` or a wildcard in the test field.\n3. Compare output with a plain input to confirm interpretation.\n4. Replace the shell invocation with a library call that accepts an argument array.\n5. Re-run the marker; it should appear as a literal filename or be rejected.\n\n### Concrete example\nVulnerable Node code at <LAB_HOST>:\n```js\nexec('ping -c 1 ' + req.query.host);   // shell interprets ';'\n```\nFixed by avoiding the shell entirely:\n```js\nspawn('ping', ['-c', '1', host]);      // arguments passed literally\n```\n\n| Injection | Sink | Safe alternative |\n|---|---|---|\n| OS command | `system`, `exec` | Argument-array APIs |\n| LDAP | Filter string | Escaped filter builders |\n| XPath | Query string | Parameterized XPath |\n| Header/CRLF | Header concatenation | Validate and strip CR/LF |\n\n### Common mistakes\n- Escaping only spaces or quotes instead of removing shell metacharacters.\n- Using denylists that miss alternate separators and encodings.\n- Running testing payloads against systems outside your lab/authorization.\n\n### Defense and verification\nPrefer safe APIs, allowlist inputs, and run services with minimal OS privileges. Verify by replaying the exact lab markers after remediation and confirming literal treatment and no side effects.\n\n### Knowledge check\nQ: Why does `spawn` with an argument array help? A: It passes arguments directly to the process without a shell parsing metacharacters."
+  },
+  {
+    "id": "web-security-28",
+    "topic": "web-security",
+    "number": 28,
+    "title": "OWASP A04 — Insecure Design",
+    "level": "Intermediate",
+    "minutes": 35,
+    "summary": "Understand flaws that arise from missing or weak design controls, and how threat modeling prevents them.",
+    "objectives": [
+      "Distinguish design flaws from implementation bugs",
+      "Perform lightweight threat modeling",
+      "Build abuse cases"
+    ],
+    "takeaways": [
+      "Secure coding cannot fix an insecure design",
+      "Threat modeling finds missing controls early",
+      "Business logic needs explicit abuse cases"
+    ],
+    "practice": "For a lab feature at <LAB_HOST>, write three abuse cases and propose a design control for each.",
+    "sources": [],
+    "content": "## Core idea\nInsecure design refers to weaknesses where no effective control was conceived: missing rate limits, lack of ownership models, workflows that can be skipped, or business rules that trust clients. Unlike implementation bugs, these require a design change. Threat modeling and abuse cases are the primary defenses.\n\n### Mental model\nThink of building a bank. A bug is a faulty lock; an insecure design is a bank with no vault in the plan. You cannot patch your way out — you must redraw the blueprint and ask, \"How would someone abuse this room?\"\n\n### Method\n1. Pick a lab feature on <LAB_HOST>, such as password reset or checkout.\n2. List the assets it protects and the trust boundaries it crosses.\n3. Ask what an attacker could do at each step using STRIDE (Spoofing, Tampering, Repudiation, Information disclosure, Denial of service, Elevation).\n4. Record misuse cases such as replay, reordering, and skipping steps.\n5. Define a control for each and add it to the design before coding.\n\n### Concrete example\nA lab checkout at <LAB_HOST> trusts a client-supplied `price` field. No amount of input validation makes that design safe. Redesign so price is derived server-side from a product ID and the cart's state, with a signed order token tying the two together.\n\n| Design flaw | Abuse case | Control |\n|---|---|---|\n| Client-supplied price | Write `price=0.01` | Server-side pricing |\n| Stateless step sequence | Skip payment step | Signed workflow state |\n| Unlimited attempts | Brute-force OTP | Rate limits + lockout |\n\n### Common mistakes\n- Treating threat modeling as a one-time paperwork exercise.\n- Assuming honest users and omitting abuse paths.\n- Adding rate limits only at the UI layer.\n\n### Defense and verification\nAdopt reusable secure design patterns, maintain abuse-case libraries, and review designs before implementation. Verify by walking each abuse case against <LAB_HOST> and confirming a control blocks it.\n\n### Knowledge check\nQ: Why can't input validation fix a client-supplied price? A: The client can send any value; the design must not trust client pricing at all."
+  },
+  {
+    "id": "web-security-29",
+    "topic": "web-security",
+    "number": 29,
+    "title": "OWASP A05 — Security Misconfiguration",
+    "level": "Intermediate",
+    "minutes": 35,
+    "summary": "Learn how default settings, verbose errors, and exposed services create easy entry points.",
+    "objectives": [
+      "Harden framework and server defaults",
+      "Remove debug surfaces",
+      "Build repeatable configuration baselines"
+    ],
+    "takeaways": [
+      "Defaults are rarely secure",
+      "Verbose errors and directory listings leak reconnaissance data",
+      "Configuration must be automated and verified"
+    ],
+    "practice": "Scan a lab server at <LAB_HOST> for exposed debug endpoints and default banners, then harden one finding.",
+    "sources": [],
+    "content": "## Core idea\nSecurity misconfiguration covers insecure defaults, incomplete configurations, exposed administrative interfaces, verbose error messages, and unnecessary services or features. It is widespread because modern stacks have many knobs, and because configuration drift accumulates across deployments.\n\n### Mental model\nPicture a new house where the builder leaves the factory default lock codes, leaves a side door unlocked, and puts a spare key under the mat labeled \"spare key.\" Nothing was hacked in a sophisticated way — the settings were simply never changed.\n\n### Method\n1. Enumerate services and paths exposed by <LAB_HOST> using only your authorized lab scope.\n2. Check for default credentials, debug consoles, and directory listings.\n3. Trigger errors and inspect whether stack traces or versions leak.\n4. Review headers, CORS, and cloud storage permissions.\n5. Apply a hardening baseline and re-run the same checks.\n\n### Concrete example\nA lab framework at <LAB_HOST> runs with `DEBUG=true`, returning full stack traces and an interactive console on errors. An attacker learns library versions and may execute code. Disable debug in production and return generic errors:\n```\nHTTP/1.1 500 Internal Server Error\nContent-Type: application/json\n\n{\"error\":\"An internal error occurred\"}\n```\n\n| Finding | Risk | Fix |\n|---|---|---|\n| Default admin password | Immediate takeover | Rotate on first boot |\n| Stack traces | Version reconnaissance | Generic errors + logs |\n| Open S3 bucket | Data exposure | Block public access |\n| Extra services | Larger attack surface | Remove or firewall |\n\n### Common mistakes\n- Hardening one environment but not staging or backups.\n- Leaving cloud storage and CI artifacts public.\n- Assuming a framework's default config is production-ready.\n\n### Defense and verification\nUse immutable, version-controlled configuration and automated hardening checks. Verify with a configuration scanner against <LAB_HOST> and confirm no debug path or banner remains.\n\n### Knowledge check\nQ: Why disable verbose errors in production? A: They leak implementation details that speed up attacker reconnaissance."
+  },
+  {
+    "id": "web-security-30",
+    "topic": "web-security",
+    "number": 30,
+    "title": "OWASP A06 — Vulnerable and Outdated Components",
+    "level": "Intermediate",
+    "minutes": 35,
+    "summary": "Learn to inventory dependencies, track advisories, and manage patching without breaking applications.",
+    "objectives": [
+      "Build a software bill of materials",
+      "Interpret CVEs and severity scores",
+      "Establish a patch workflow"
+    ],
+    "takeaways": [
+      "You cannot patch what you have not inventoried",
+      "Exploitability depends on reachability, not just CVSS",
+      "Automated scanning belongs in CI"
+    ],
+    "practice": "Generate an SBOM for the lab project at <LAB_HOST> and identify one outdated dependency with a known advisory.",
+    "sources": [],
+    "content": "## Core idea\nApplications are assembled from frameworks, libraries, and transitive dependencies. When a component has a known vulnerability, every application using it inherits the risk. Managing this requires an accurate inventory, continuous advisory monitoring, and a tested upgrade process.\n\n### Mental model\nThink of a car assembled from parts from many suppliers. A recall on one brake model affects every car using it. You need a parts list (SBOM) to know which cars are affected and a service process to replace the part safely.\n\n### Method\n1. Generate an SBOM from the lab project at <LAB_HOST> using its package manager.\n2. Feed it into a vulnerability scanner and list findings with versions.\n3. For each, check whether the vulnerable code path is actually reachable.\n4. Upgrade the dependency in a branch and run the full test suite.\n5. Add the scanner to CI with a policy that fails on critical findings.\n\n### Concrete example\nA project at <LAB_HOST> pins `example-lib@1.2.3`, which has a published RCE advisory fixed in 1.4.0. The remediation is a verified upgrade:\n```bash\nnpm install example-lib@1.4.0\nnpm audit --omit=dev\n```\nIf an upgrade is impossible, apply a compensating control such as removing the affected route or adding a WAF rule.\n\n| Concept | Meaning |\n|---|---|\n| SBOM | Inventory of components and versions |\n| CVE | Identified vulnerability record |\n| CVSS | Severity score; not a Business risk score |\n| Reachability | Whether the vulnerable code is callable |\n\n### Common mistakes\n- Scanning only direct dependencies and ignoring transitive ones.\n- Ignoring \"medium\" findings that are trivially reachable.\n- Never scheduling time for routine upgrades.\n\n### Defense and verification\nAutomate scanning, prioritize by reachability and exposure, and maintain a fast patch pipeline. Verify by re-running the SBOM scan on <LAB_HOST> and confirming no critical finding remains open.\n\n### Knowledge check\nQ: Why is a high CVSS score not the whole story? A: It does not account for whether the vulnerable feature is used or reachable in your app."
+  },
+  {
+    "id": "web-security-31",
+    "topic": "web-security",
+    "number": 31,
+    "title": "OWASP A07 — Identification and Authentication Failures",
+    "level": "Intermediate",
+    "minutes": 40,
+    "summary": "Study credential attacks, session weaknesses, and the controls that keep authentication reliable.",
+    "objectives": [
+      "Detect credential stuffing and brute force",
+      "Harden session and recovery flows",
+      "Implement rate limiting and monitoring"
+    ],
+    "takeaways": [
+      "Authentication failures include weak passwords, predictable sessions, and missing rate limits",
+      "Recovery flows are prime targets",
+      "Defense requires both prevention and detection"
+    ],
+    "practice": "In your lab app at <LAB_HOST>, add per-account rate limiting to login and verify lockout with a test account.",
+    "sources": [],
+    "content": "## Core idea\nThis category covers flaws that let attackers compromise identities: permissive password rules, credential stuffing, missing rate limits, weak session IDs, and insecure password recovery. Because credentials are reused across sites, a breach elsewhere can cascade into your application unless controls and monitoring are in place.\n\n### Mental model\nThink of a front door with a doorbell. Without a limit on how many keys can be tried, an attacker with a huge keyring eventually finds a match. Rate limiting is a lockout mechanism; monitoring is a camera that alerts when someone tries hundreds of keys.\n\n### Method (lab only)\n1. Map login, registration, and recovery endpoints on <LAB_HOST>.\n2. Test password policy requirements against a list of common weak passwords.\n3. Submit repeated failed logins for a test account and observe whether throttling occurs.\n4. Check whether session IDs change after login and password reset.\n5. Verify that all authentication failures are logged with source metadata.\n\n### Concrete example\nA lab login at <LAB_HOST> accepts unlimited attempts. Add progressive delay and counter:\n```js\nconst key = `login:${ip}:${username}`;\nif (await rl.consume(key, { limit: 5, window: 300 })) return res.status(429).end();\n```\nPair this with breached-password screening and MFA so that a correct guess alone is insufficient.\n\n| Control | Prevents | Detection signal |\n|---|---|---|\n| Rate limiting | Brute force/stuffing | Spike in 429s per IP |\n| Strong password policy | Weak credentials | Password reuse hits |\n| MFA | Stolen passwords | Failed second factors |\n| Session rotation | Fixation/hijacking | Reuse of old IDs |\n\n### Common mistakes\n- Rate-limiting only by IP, missing distributed attacks.\n- Allowing unlimited password-reset attempts.\n- Logging passwords or full tokens during failed logins.\n\n### Defense and verification\nLayer rate limits, MFA, password screening, and alerting. Verify by running a controlled burst of failed logins against your lab account and confirming throttling plus an alert entry.\n\n### Knowledge check\nQ: Why is per-account plus per-IP limiting stronger than either alone? A: It covers both distributed attacks against one account and single-source attacks across many accounts."
+  },
+  {
+    "id": "web-security-32",
+    "topic": "web-security",
+    "number": 32,
+    "title": "OWASP A08 — Software and Data Integrity Failures",
+    "level": "Intermediate",
+    "minutes": 35,
+    "summary": "Learn how trusting unsigned updates, serialized data, and CI/CD artifacts can compromise an application.",
+    "objectives": [
+      "Verify digital signatures and integrity checks",
+      "Harden CI/CD pipelines",
+      "Detect tampered artifacts"
+    ],
+    "takeaways": [
+      "Code and data must be verified before execution",
+      "Build pipelines are high-value targets",
+      "Integrity failures often lead to supply-chain compromise"
+    ],
+    "practice": "In a lab pipeline at <LAB_HOST>, add a checksum verification step to a deployment artifact and test a tampered file.",
+    "sources": [],
+    "content": "## Core idea\nIntegrity failures occur when software or data is trusted without verification. Examples include unsigned auto-updates, deserialization of untrusted objects, insecure CI/CD pipelines, and plugins loaded from untrusted repositories. If an attacker can modify an artifact, every downstream system inherits the compromise.\n\n### Mental model\nPicture receiving a sealed package. A signature or checksum is the tamper-evident seal: it proves the contents match what the sender produced. Trusting an unsealed package because it arrived from a familiar courier is how supply-chain attacks succeed.\n\n### Method\n1. Identify all artifacts consumed by <LAB_HOST>: packages, configs, webhooks, serialized sessions.\n2. Check whether each is verified by signature or cryptographic hash before use.\n3. Review CI/CD permissions, secrets, and third-party actions for excessive trust.\n4. Add verification for one artifact and test a deliberately corrupted copy in the lab.\n5. Confirm the pipeline rejects the tampered artifact and alerts.\n\n### Concrete example\nA lab deploy script at <LAB_HOST> downloads an update and runs it without checking. Add verification:\n```bash\ncurl -sS https://<LAB_HOST>/updates/app.bin -o app.bin\necho \"EXPECTED_SHA256  app.bin\" | sha256sum -c - || exit 1\n```\nBetter still, verify a cryptographic signature against a pinned public key.\n\n| Trust point | Risk | Verification |\n|---|---|---|\n| Auto-update | Malicious binary | Signature + pinned key |\n| CI artifact | Build tampering | Provenance attestation |\n| Webhook | Forged events | HMAC secret |\n| Serialized object | Object injection | Avoid or sign |\n\n### Common mistakes\n- Trusting HTTPS alone as证明 of artifact integrity.\n- Storing signing keys in the same repository they sign.\n- Allowing pull-request workflows to access production secrets.\n\n### Defense and verification\nSign and verify artifacts, restrict pipeline permissions, and pin dependencies by hash. Verify by introducing a tampered lab artifact and confirming deployment is blocked and logged.\n\n### Knowledge check\nQ: Why does HTTPS not replace a signature? A: HTTPS protects transport, but a compromised source or mirror can still serve malicious content; a signature proves authorship."
+  },
+  {
+    "id": "web-security-33",
+    "topic": "web-security",
+    "number": 33,
+    "title": "OWASP A09 — Security Logging and Monitoring Failures",
+    "level": "Intermediate",
+    "minutes": 35,
+    "summary": "Learn what to log, how to protect logs, and how to turn events into detection and response.",
+    "objectives": [
+      "Define useful security events",
+      "Protect log integrity and privacy",
+      "Build simple detection rules"
+    ],
+    "takeaways": [
+      "Logs without context or alerting do not provide detection",
+      "Never log secrets",
+      "Correlation across services reveals slow attacks"
+    ],
+    "practice": "On <LAB_HOST>, generate failed-login and access-denied events and write a rule that alerts on a burst.",
+    "sources": [],
+    "content": "## Core idea\nWithout logging and monitoring, breaches can persist undetected. This category covers missing security-relevant events, logs that omit context, logs stored only locally, and no alerting or incident response. The goal is to make attacker behavior visible and actionable.\n\n### Mental model\nThink of a ship's bridge. Cameras and radar are useless if nobody watches them or if the footage is erased nightly. Logging records the events; monitoring interprets them; response is the crew's action. All three are required.\n\n### Method\n1. List security events on <LAB_HOST>: logins, failures, denials, privilege changes, password resets.\n2. Confirm each log line has who, what, when, where, and outcome.\n3. Check that logs exclude credentials and tokens, and are shipped off-host.\n4. Create a detection rule, for example more than 10 denials per account in 5 minutes.\n5. Trigger the pattern in the lab and confirm an alert fires.\n\n### Concrete example\nA useful denial log from <LAB_HOST>:\n```json\n{\"ts\":\"2026-01-01T12:00:00Z\",\"actor\":\"u-42\",\"action\":\"read_invoice\",\n \"object\":\"inv-1842\",\"result\":\"denied\",\"ip\":\"203.0.113.10\",\"ua\":\"lab-client\"}\n```\nUnlike a bare `403`, this record supports correlation and investigation.\n\n| Event | Why log it | Alert idea |\n|---|---|---|\n| Auth failure | Credential attacks | Burst per account/IP |\n| Access denied | Enumeration attempts | Many objects probed |\n| Role change | Privilege escalation | Any unexpected change |\n| Config change | Tampering | Out-of-hours edits |\n\n### Common mistakes\n- Logging passwords, tokens, or full request bodies containing PII.\n- Keeping logs only on the compromised host.\n- Alerting on so much noise that real signals are ignored.\n\n### Defense and verification\nCentralize tamper-evident logs, define a small set of high-value alerts, and rehearse response. Verify by replaying a lab attack pattern and confirming the alert includes enough detail to investigate.\n\n### Knowledge check\nQ: What five questions should a security log answer? A: Who acted, what they did, when, where, and what the outcome was."
+  },
+  {
+    "id": "web-security-34",
+    "topic": "web-security",
+    "number": 34,
+    "title": "OWASP A10 — Server-Side Request Forgery (SSRF)",
+    "level": "Advanced",
+    "minutes": 45,
+    "summary": "Learn how attacker-controlled URLs make a server issue unintended requests and how to constrain egress.",
+    "objectives": [
+      "Identify URL-fetching features",
+      "Demonstrate lab-only SSRF probes",
+      "Apply allowlists and network controls"
+    ],
+    "takeaways": [
+      "SSRF turns the server into a confused proxy",
+      "Cloud metadata endpoints are high-value targets",
+      "Allowlists beat denylists"
+    ],
+    "practice": "In a lab app at <LAB_HOST>, submit a URL pointing to a controlled lab listener and observe the server-side fetch.",
+    "sources": [],
+    "content": "## Core idea\nSSRF happens when a server fetches a URL supplied by a user without adequate restrictions. The attacker cannot reach an internal service directly, but the server can. By pointing the server at internal addresses or cloud metadata, the attacker reads data or triggers actions from a trusted position.\n\n### Mental model\nThink of a receptionist authorized to fetch packages from any address you write down. If you write \"the secure storeroom,\" the receptionist fetches it because the request comes from them. The fix is a strict list of acceptable destinations and no trust in user-supplied addresses.\n\n### Method (lab only)\n1. Find features on <LAB_HOST> that accept URLs: imports, webhooks, image fetchers, PDF generators.\n2. Point one at a listener you control in the lab and confirm a callback.\n3. Test whether private ranges, alternate IP formats, and redirects are blocked.\n4. Try a harmless metadata-style path on a lab mock, never a real cloud endpoint.\n5. Implement an allowlist of hostnames and resolve/validate the IP before connecting.\n\n### Concrete example\nA lab endpoint at <LAB_HOST> fetches `url` and returns content. Vulnerable code forwards the value directly. Mitigation:\n```python\nhost = urlparse(url).hostname\nif host not in ALLOWED_HOSTS:            # exact allowlist\n    return error()\nip = resolve(host)\nif is_private(ip): return error()        # block private/link-local\n# re-resolve at connect time and disable redirects to prevent bypass\n```\n\n| Bypass | Technique | Defense |\n|---|---|---|\n| Decimal/octal IP | `2130706433` | Resolve then check IP |\n| Redirect chain | Public URL → internal | Disable or revalidate redirects |\n| DNS rebinding | Host changes after check | Pin validated IP at connect |\n| Metadata service | `169.254.169.254` | Block link-local, IMDSv2 |\n\n### Common mistakes\n- Denylisting only `127.0.0.1` and `localhost`.\n- Validating once but following redirects without rechecking.\n- Allowing arbitrary schemes such as `file://` or `gopher://`.\n\n### Defense and verification\nUse exact hostname allowlists, validated resolution, restricted egress firewall rules, and no raw URL fetching when a fixed API exists. Verify by replaying the lab callback and private-range attempts and confirming all are blocked.\n\n### Knowledge check\nQ: Why must redirects be disabled or revalidated? A: A public URL can redirect to an internal address after the initial check."
+  },
+  {
+    "id": "web-security-35",
+    "topic": "web-security",
+    "number": 35,
+    "title": "Cross-Site Scripting: Reflected, Stored, and DOM",
+    "level": "Intermediate",
+    "minutes": 45,
+    "summary": "Master the three XSS families, their contexts, and the encoding and policy controls that stop them.",
+    "objectives": [
+      "Distinguish reflected, stored, and DOM XSS",
+      "Choose context-correct encoding",
+      "Deploy CSP as defense in depth"
+    ],
+    "takeaways": [
+      "XSS is output-context injection, not input pollution",
+      "Encoding must match the sink context",
+      "CSP reduces impact but is not a substitute for fixing sinks"
+    ],
+    "practice": "In a lab app at <LAB_HOST>, demonstrate all three XSS types with harmless `alert(document.domain)` markers.",
+    "sources": [],
+    "content": "## Core idea\nXSS occurs when untrusted data is executed as script in a victim's browser. Reflected XSS arrives in the request and is echoed in the response; stored XSS is persisted and served to others; DOM XSS arises entirely in client-side code when a source flows into a sink. The fix is context-aware output handling at the point of rendering.\n\n### Mental model\nThink of a theater script. Reflected XSS is a guest whispering a line the actor repeats immediately; stored XSS is a note left in the script for future performances; DOM XSS is the actor rewriting their own lines mid-scene. Each requires controlling what the audience sees and hears.\n\n### Method (lab only)\n1. On <LAB_HOST>, find inputs reflected into responses and test a harmless marker.\n2. Persist a marker in a profile field and view it as another lab user to confirm stored XSS.\n3. Search client scripts for sources feeding `innerHTML`, `eval`, or `location`.\n4. Classify each context (text, attribute, URL, script) and apply the matching encoder.\n5. Add a nonce-based CSP and confirm injected inline scripts are blocked.\n\n### Concrete example\nAt <LAB_HOST>, a comment containing `<img src=x onerror=alert(1)>` is stored and executed when viewed. Server-side fix in a text context:\n```js\nfunction esc(s){ return s.replace(/[&<>\"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',\"'\":'&#39;'}[c])); }\n```\nFor rich text, use a vetted sanitizer allowlisting safe tags and attributes.\n\n| Type | Delivery | Persistence |\n|---|---|---|\n| Reflected | Crafted link | None |\n| Stored | Saved content | Server-side |\n| DOM | Client script flow | Page lifetime |\n\n### Common mistakes\n- HTML-encoding data placed inside a `<script>` block.\n- Sanitizing on input but rendering in multiple contexts.\n- Believing CSP alone makes XSS harmless.\n\n### Defense and verification\nEncode on output per context, sanitize rich HTML, use safe DOM APIs, and add CSP with `script-src` nonces. Verify by replaying all three lab markers and confirming they render as inert text.\n\n### Knowledge check\nQ: Why doesn't HTML entity encoding work inside a `<script>` tag? A: Script contents are raw text; entities are not decoded there, so JavaScript-encoding is required."
+  },
+  {
+    "id": "web-security-36",
+    "topic": "web-security",
+    "number": 36,
+    "title": "File Upload and Path Traversal Vulnerabilities",
+    "level": "Intermediate",
+    "minutes": 40,
+    "summary": "Learn how unsafe file handling enables code execution, overwrites, and arbitrary file reads.",
+    "objectives": [
+      "Validate uploads safely",
+      "Prevent traversal and overwrite",
+      "Configure storage outside the web root"
+    ],
+    "takeaways": [
+      "Never trust filenames or Content-Type from the client",
+      "Store uploads with generated names outside the document root",
+      "Validate canonical paths"
+    ],
+    "practice": "On a lab upload endpoint at <LAB_HOST>, attempt a `../` filename and an HTML file, then apply defenses and retest.",
+    "sources": [],
+    "content": "## Core idea\nFile uploads and file-path parameters are dangerous because they cross from web input into the filesystem. Without strict validation, an attacker can write a script into a served directory, traverse to sensitive files, or overwrite existing ones. The core rule is to treat all client-supplied path data as hostile.\n\n### Mental model\nImagine a mailroom that accepts packages labeled with any destination written by the sender. A malicious label saying \"../../vault\" would redirect the package. Safe handling ignores the sender's label entirely and assigns its own sealed, numbered box in a locked room.\n\n### Method (lab only)\n1. Locate an upload form and a file-read parameter on <LAB_HOST>.\n2. Submit a filename containing `../` segments and a harmless marker file.\n3. Upload a small HTML file with an inert marker and see whether it is served as executable content.\n4. Inspect how the app derives the storage path and content type.\n5. Apply generated names, strict extension allowlists, and canonical path checks; retest.\n\n### Concrete example\nA lab handler at <LAB_HOST> uses `path.join(uploadDir, req.file.name)`, allowing traversal. Safer approach:\n```js\nconst ext = path.extname(req.file.originalname).toLowerCase();\nif (!['.png','.jpg','.pdf'].includes(ext)) return res.status(400).end();\nconst name = crypto.randomUUID() + ext;              // generated name\nawait fs.writeFile(path.join(uploadDir, name), data); // fixed directory\n```\n\n| Risk | Cause | Control |\n|---|---|---|\n| Traversal | User path segments | Canonicalize and confine |\n| Webshell | Executable upload | Allowlist type, store outside root |\n| Overwrite | Original filename used | Generated names |\n| Content sniffing | Client Content-Type | Server-side detection |\n\n### Common mistakes\n- Trusting the `filename` header or extension alone.\n- Serving uploads from a directory where scripts can execute.\n- Checking extension but not actual file content.\n\n### Defense and verification\nStore uploads outside the web root with generated names, validate content, and serve them via a controlled handler with `Content-Disposition: attachment`. Verify by replaying both lab payloads and confirming neither writes outside the target directory nor executes.\n\n### Knowledge check\nQ: Why generate a new filename instead of using the client's? A: It removes traversal sequences and prevents overwriting existing files."
+  },
+  {
+    "id": "web-security-37",
+    "topic": "web-security",
+    "number": 37,
+    "title": "HTTP Request Smuggling",
+    "level": "Advanced",
+    "minutes": 50,
+    "summary": "Learn how disagreement between front-end and back-end about request boundaries enables request smuggling.",
+    "objectives": [
+      "Explain CL.TE and TE.CL desync",
+      "Identify risky proxy configurations",
+      "Apply normalization and reject ambiguous messages"
+    ],
+    "takeaways": [
+      "Smuggling exploits parser disagreement, not application logic",
+      "`Content-Length` and `Transfer-Encoding` conflicts are the classic cause",
+      "Fix at the infrastructure layer"
+    ],
+    "practice": "Against a lab proxy chain at <LAB_HOST>, send a harmless ambiguous request and observe how each tier frames it.",
+    "sources": [],
+    "content": "## Core idea\nHTTP request smuggling, or desync, occurs when a front-end proxy and a back-end server interpret request boundaries differently. An attacker crafts a message whose end is ambiguous, leaving extra bytes that the back end treats as the start of another request. This can bypass access controls, poison caches, or hijack another user's request.\n\n### Mental model\nThink of two postal workers reading the same letter. One stops at the word count on the envelope (`Content-Length`); the other stops at the \"end\" marker (`Transfer-Encoding`). If they disagree about where the letter ends, the remainder becomes a new letter — one the attacker wrote.\n\n### Method (lab only)\n1. Map the request chain at <LAB_HOST>: which proxy, which server, which protocol versions.\n2. Send a benign request with both `Content-Length` and `Transfer-Encoding` and compare behaviors.\n3. Identify the desync class: CL.TE (front uses length, back uses chunked) or TE.CL (reverse).\n4. Use timing-based probes with a harmless body to confirm, keeping all tests inside your lab.\n5. Remediate and re-run probes; ambiguous messages should be rejected with 400.\n\n### Concrete example\nA crafted lab request might contain:\n```\nPOST / HTTP/1.1\nHost: <LAB_HOST>\nContent-Length: 6\nTransfer-Encoding: chunked\n\n0\n\nG\n```\nIf tiers disagree, `G` is prepended to the next request. The mitigation is to reject any message carrying both framing headers, normalize at one layer, and use HTTP/2 end-to-end where possible.\n\n| Variant | Front end | Back end | Symptom |\n|---|---|---|---|\n| CL.TE | Content-Length | Chunked | Back end sees leftover bytes |\n| TE.CL | Chunked | Content-Length | Back end waits/queues |\n| TE.TE | Both, different parsing | Depends | header obfuscation |\n\n### Common mistakes\n- Testing against systems outside authorized scope.\n- Assuming HTTP/2 at the edge removes all parsing differences.\n- Ignoring timeout anomalies in favor of only content-based checks.\n\n### Defense and verification\nStrip conflicting headers, reject ambiguous framing, align server configurations, and keep connections from mixing users. Verify by replaying the lab probes and confirming uniform 400 responses and no leftover-byte effects.\n\n### Knowledge check\nQ: What header conflict classically enables smuggling? A: Both `Content-Length` and `Transfer-Encoding` present in one request."
+  },
+  {
+    "id": "web-security-38",
+    "topic": "web-security",
+    "number": 38,
+    "title": "Web Cache Poisoning",
+    "level": "Advanced",
+    "minutes": 45,
+    "summary": "Learn how unkeyed inputs get stored in a cache and served to other users, and how to make caching keys safe.",
+    "objectives": [
+      "Identify cache keys and unkeyed inputs",
+      "Construct a lab-only poisoning test",
+      "Harden cache configuration"
+    ],
+    "takeaways": [
+      "Only keyed inputs should influence cached content",
+      "Dangerous headers like `X-Forwarded-Host` must not affect responses",
+      "Verification requires an unkeyed probe and a victim-style request"
+    ],
+    "practice": "On a lab cache at <LAB_HOST>, add a harmless header that is reflected but not keyed and observe whether it is cached.",
+    "sources": [],
+    "content": "## Core idea\nCache poisoning happens when an attacker causes a cache to store a harmful response under a key that legitimate users will later hit. The flaw is a mismatch between the cache key (what distinguishes stored responses) and inputs that actually change the response, such as headers or unkeyed parameters.\n\n### Mental model\nThink of a coat check that labels every coat \"red\" regardless of its actual color. If you hand over a red coat containing a surprise, the next person asking for a red coat receives yours. The label (cache key) failed to capture what mattered.\n\n### Method (lab only)\n1. Identify the cache key at <LAB_HOST> — often path and query, sometimes selected headers.\n2. Find inputs that change the response but are not part of the key: custom headers, cookies, or unusual parameters.\n3. Send a request with a harmless reflected value plus a cache-busting key.\n4. Request the same key without the value and see whether the poisoned response is served.\n5. Disable the dangerous reflection and verify the cache no longer stores it.\n\n### Concrete example\nAt <LAB_HOST>, a response reflects `X-Forwarded-Host` into a script URL but the cache keys only on path. A poisoned response can serve an attacker-controlled URL to all visitors of that path. Defenses include normalizing headers at the edge and adding them to the cache key or removing the reflection entirely.\n\n| Input | Usually keyed? | Risk |\n|---|---|---|\n| Path | Yes | Baseline key |\n| Query string | Often | Partial keys common |\n| `Host` / `X-Forwarded-Host` | Rarely | High |\n| `Cookie` | Sometimes | Session mixup |\n\n### Common mistakes\n- Assuming a CDN's default key includes all headers.\n- Testing with a cache-buster that prevents observing reuse.\n- Forgetting that internal caches (not just CDNs) can be poisoned.\n\n### Defense and verification\nMake cache keys explicit and complete, strip or normalize unkeyed headers, and avoid reflecting raw header values. Verify by replaying the lab probe and confirming the reflected value never appears for a fresh key.\n\n### Knowledge check\nQ: Why is an unkeyed header dangerous? A: Its value can change the cached response without changing the cache key, so the poisoned response is served to others."
+  },
+  {
+    "id": "web-security-39",
+    "topic": "web-security",
+    "number": 39,
+    "title": "Host Header Attacks",
+    "level": "Advanced",
+    "minutes": 40,
+    "summary": "Learn how trusting the Host header enables password-reset poisoning, cache issues, and routing bypasses.",
+    "objectives": [
+      "Explain Host header roles",
+      "Demonstrate lab-only poisoning",
+      "Apply canonical host allowlists"
+    ],
+    "takeaways": [
+      "The Host header is attacker-controlled",
+      "Absolute URLs built from it can redirect tokens",
+      "Validation must be exact and consistent across tiers"
+    ],
+    "practice": "In a lab app at <LAB_HOST>, send a password-reset request with a modified Host header and inspect the generated link.",
+    "sources": [],
+    "content": "## Core idea\nThe `Host` header tells a web server which virtual host to serve, but applications sometimes reuse its value to build absolute URLs, reset links, or redirect targets. Because the header is fully client-controlled, an attacker can substitute another domain and cause sensitive URLs to point at them.\n\n### Mental model\nThink of a form letter that fills in the return address from whatever envelope it arrives in. If an attacker supplies their own return address, replies containing secrets go to them. The application should use its own configured domain, not the caller's.\n\n### Method (lab only)\n1. Find features on <LAB_HOST> that build absolute links: password reset, email verification, redirects.\n2. Send a request with a benign alternate host you control in the lab and inspect the generated URL.\n3. Test duplicate `Host` headers and `X-Forwarded-Host` overrides.\n4. Check whether the front end and back end agree on the canonical host.\n5. Replace dynamic host usage with a fixed configured value; retest the lab request.\n\n### Concrete example\nA reset at <LAB_HOST> builds `https://${req.headers.host}/reset?token=...`. If the attacker sets `Host: evil.<LAB_HOST>`, the emailed token points to their server. Use a configured canonical origin:\n```js\nconst base = process.env.CANONICAL_ORIGIN; // https://app.<LAB_HOST>\nconst link = `${base}/reset?token=${token}`;\n```\n\n| Attack | Goal | Defense |\n|---|---|---|\n| Reset poisoning | Steal token | Fixed canonical origin |\n| Cache key abuse | Serve attacker host | Normalize at edge |\n| Virtual host bypass | Reach internal route | Exact Host allowlist |\n\n### Common mistakes\n- Validating Host with a weak regex or suffix match.\n- Trusting `X-Forwarded-Host` from external clients.\n- Using the Host value in security decisions without normalization.\n\n### Defense and verification\nConfigure a single canonical origin, reject unknown Host values, and strip untrusted forwarding headers at the edge. Verify by replaying the lab header variants and confirming all links use the configured domain.\n\n### Knowledge check\nQ: Why is the Host header untrusted? A: It is supplied by the client and can be set to any value independent of DNS."
+  },
+  {
+    "id": "web-security-40",
+    "topic": "web-security",
+    "number": 40,
+    "title": "Prototype Pollution",
+    "level": "Advanced",
+    "minutes": 45,
+    "summary": "Understand how JavaScript prototype manipulation changes object behavior and leads to authorization or XSS bugs.",
+    "objectives": [
+      "Explain JavaScript prototypes and pollution",
+      "Trace untrusted keys into object merges",
+      "Apply defenses and safe merge patterns"
+    ],
+    "takeaways": [
+      "Objects inherit properties from prototypes",
+      "Writing `__proto__` or `constructor.prototype` can alter all objects",
+      "Freezing prototypes and using null-prototype objects help"
+    ],
+    "practice": "In a lab Node app at <LAB_HOST>, merge a benign payload containing `__proto__` and observe the effect on a fresh object.",
+    "sources": [],
+    "content": "## Core idea\nPrototype pollution is a JavaScript-specific flaw where an attacker sets properties on `Object.prototype` through unsafe object merging or path assignment. Because most objects inherit from that prototype, the injected property appears on objects throughout the application — potentially flipping permission flags or enabling XSS in template libraries.\n\n### Mental model\nThink of a recipe book shared by every chef. If someone scribbles a new instruction on the master template page, every chef following the book suddenly behaves differently, without any of their own recipes being edited. That master page is the prototype.\n\n### Method (lab only)\n1. Find code at <LAB_HOST> that merges objects using user-controlled keys, e.g. recursive `merge(a, b)`.\n2. Send a benign payload containing `__proto__` with a harmless marker property.\n3. Check whether a freshly created object inherits the marker.\n4. Identify downstream sinks: permission checks, template rendering, configuration lookup.\n5. Fix by rejecting dangerous keys and using safe merge libraries; retest.\n\n### Concrete example\nVulnerable merge at <LAB_HOST>:\n```js\nfor (const k in src) obj[k] = src[k];   // '__proto__' edits the prototype\n```\nSafe approach:\n```js\nif (k === '__proto__' || k === 'constructor' || k === 'prototype') continue;\n```\nor use `Object.create(null)` for dictionaries and maintained deep-merge utilities that block pollution keys.\n\n| Defense | Effect |\n|---|---|\n| Reject `__proto__`/`constructor`/`prototype` keys | Blocks common entry |\n| `Object.freeze(Object.prototype)` | Prevents changes globally |\n| Null-prototype dictionaries | Removes inheritance |\n| Schema validation | Rejects unexpected keys |\n\n### Common mistakes\n- Blocking only `__proto__` but missing `constructor.prototype` paths.\n- Using `JSON.parse` results directly in deep merges without checks.\n- Assuming the impact stops at the merge function.\n\n### Defense and verification\nCombine key rejection, frozen prototypes, and schema validation. Verify by replaying the lab payload and confirming fresh objects lack the marker and no permission flag changes.\n\n### Knowledge check\nQ: Why does polluting `Object.prototype` affect many objects? A: Because ordinary objects inherit properties from it through the prototype chain."
+  },
+  {
+    "id": "web-security-41",
+    "topic": "web-security",
+    "number": 41,
+    "title": "Server-Side Template Injection (SSTI)",
+    "level": "Advanced",
+    "minutes": 45,
+    "summary": "Learn how user input embedded in server-side templates can execute code, and how to separate templates from data.",
+    "objectives": [
+      "Recognize template sinks and engine syntax",
+      "Demonstrate lab-only detection",
+      "Render templates with static strings and data contexts"
+    ],
+    "takeaways": [
+      "Templates are code, not data",
+      "Detection starts with arithmetic-style probes",
+      "Fix by never concatenating user input into template sources"
+    ],
+    "practice": "In a lab app at <LAB_HOST>, submit a harmless `7*7` probe to a template-rendering field and observe the output.",
+    "sources": [],
+    "content": "## Core idea\nServer-side template injection occurs when attacker input is concatenated into a template string that the server compiles and renders. Unlike XSS, execution happens on the server, often enabling file access or remote code execution. The defect is treating template source as a data field.\n\n### Mental model\nThink of a form letter with placeholders. If you let the recipient write the letter itself, they can include instructions the typing service obeys. Safe use keeps the letter fixed and slips values only into marked blank spaces with no instruction power.\n\n### Method (lab only)\n1. Find a lab feature at <LAB_HOST> that renders user text through a template engine (emails, reports, greetings).\n2. Submit a benign expression such as `7*7` or `${7*7}` and compare output with literal text.\n3. Identify the engine by which syntax variations evaluate.\n4. Confirm with a harmless marker (e.g. printing a version constant) inside your lab.\n5. Refactor so the template string is fixed and input is passed as a data variable; retest.\n\n### Concrete example\nVulnerable code at <LAB_HOST>:\n```js\nres.send(engine.render('Hello ' + req.query.name));\n```\nInput `{{7*7}}` may render as `Hello 49`. Fixed version:\n```js\nres.send(engine.render('Hello {{name}}', { name: req.query.name }));\n```\nNow the expression characters are data and are escaped by the engine.\n\n| Engine | Typical syntax | Detection probe |\n|---|---|---|\n| Jinja/Twig | `{{ }}` | `{{7*7}}` |\n| EJS/Handlebars | `<%= %>` / `{{ }}` | `<%= 7*7 %>` |\n| Freemarker/Velocity | `${}` / `#{}` | `${7*7}` |\n\n### Common mistakes\n- Confusing SSTI with plain XSS; check where evaluation happens.\n- Using a single generic probe and missing engine-specific syntax.\n- Sanitizing HTML characters, which does not neutralize template syntax.\n\n### Defense and verification\nKeep template sources static, pass untrusted data as context variables, and sandbox or avoid dynamic template compilation. Verify by replaying the lab probes and confirming they render literally with no evaluation.\n\n### Knowledge check\nQ: Why does HTML escaping fail to stop SSTI? A: Template syntax is not HTML; characters like `{` and `}` remain meaningful to the engine."
+  },
+  {
+    "id": "web-security-42",
+    "topic": "web-security",
+    "number": 42,
+    "title": "Insecure Deserialization",
+    "level": "Advanced",
+    "minutes": 50,
+    "summary": "Understand how deserializing untrusted objects can trigger gadget chains and how to avoid object deserialization entirely.",
+    "objectives": [
+      "Explain serialization and gadget chains",
+      "Identify risky formats and sinks",
+      "Replace object deserialization with data-only formats"
+    ],
+    "takeaways": [
+      "Deserialization reconstructs objects and can invoke code",
+      "Type whitelists are fragile",
+      "Prefer JSON with schema validation"
+    ],
+    "practice": "In a lab service at <LAB_HOST>, replace a serialized session cookie with JSON and confirm signature validation still works.",
+    "sources": [],
+    "content": "## Core idea\nInsecure deserialization occurs when an application reconstructs objects from untrusted data. Many languages support \"magic\" methods invoked during reconstruction; attackers chain existing classes (gadgets) to execute actions. Even without code execution, tampered objects can corrupt authorization state or cause denial of service.\n\n### Mental model\nThink of a machine that rebuilds a device from a parts diagram supplied by a stranger. If the diagram includes a note saying \"start the motor,\" the machine complies. Safe systems accept only a plain parts list, not instructions or exotic part types.\n\n### Method (lab only)\n1. Identify formats at <LAB_HOST> that carry objects: Java serialized blobs, PHP sessions, Python pickle, .NET ViewState.\n2. Check whether values are signed or encrypted and whether the signature is verified before parsing.\n3. In the lab, use a harmless tool to inspect a serialized token's structure — do not run exploit chains outside the lab.\n4. Replace the format with JSON plus a strict schema and an HMAC.\n5. Replay the original blob and confirm rejection.\n\n### Concrete example\nA lab service reads a signed pickle. Safer design:\n```python\npayload = {\"uid\": 42, \"roles\": [\"user\"]}\ntoken = base64(payload) + \".\" + hmac_sha256(secret, base64(payload))\n# on receipt: verify HMAC first, then json.loads, then schema check\n```\n\n| Format | Risk | Safer choice |\n|---|---|---|\n| Java serialization | Gadget chains | JSON / protobuf |\n| Python pickle | Arbitrary calls on load | JSON |\n| PHP serialize | Object injection | JSON + signature |\n| XML with external entities | XXE | Disable DTDs |\n\n### Common mistakes\n- Verifying a signature after deserializing instead of before.\n- Relying on a class blocklist that misses available gadgets.\n- Confusing encoding with security; base64 is not protection.\n\n### Defense and verification\nAvoid native object deserialization of untrusted data, verify HMACs before parsing, enforce schemas, and run services with least privilege. Verify by replaying the lab blob and confirming a clean rejection with no side effects.\n\n### Knowledge check\nQ: Why must the HMAC be checked before parsing? A: Parsing itself can trigger dangerous behavior, so unauthenticated data must never reach the deserializer."
+  },
+  {
+    "id": "web-security-43",
+    "topic": "web-security",
+    "number": 43,
+    "title": "Race Conditions",
+    "level": "Advanced",
+    "minutes": 45,
+    "summary": "Learn how concurrent requests exploit time-of-check/time-of-use gaps and how to make critical sections atomic.",
+    "objectives": [
+      "Explain TOCTOU and check/use gaps",
+      "Design a lab-only concurrency test",
+      "Apply atomic operations and idempotency"
+    ],
+    "takeaways": [
+      "Separate check and update steps create exploitable windows",
+      "Concurrency bugs are timing-sensitive",
+      "Database constraints are the strongest fix"
+    ],
+    "practice": "On a lab endpoint at <LAB_HOST>, send parallel requests to withdraw from a test balance and observe overspending before and after locking.",
+    "sources": [],
+    "content": "## Core idea\nA race condition occurs when two or more requests interleave around a shared resource, and the application's intended sequence is not guaranteed. Common examples include double-spending, bypassing one-time-use limits, and reusing invitation tokens. The classic pattern is time-of-check/time-of-use: validate a condition, then act on it later.\n\n### Mental model\nImagine two people checking an empty parking space at the same moment and both driving into it. Each check was correct when made, but the update was not coordinated. A lock or a single atomic reservation makes only one driver succeed.\n\n### Method (lab only)\n1. Find a lab endpoint at <LAB_HOST> with a check-then-update pattern: balance, coupon, one-time token.\n2. Send two requests in parallel with synchronized timing and a harmless marker.\n3. Measure the final state versus the expected state.\n4. Implement atomicity — a conditional UPDATE, transaction, or distributed lock.\n5. Re-run the parallel test and confirm only one request succeeds.\n\n### Concrete example\nVulnerable logic at <LAB_HOST>:\n```\nbal = SELECT balance FROM accounts WHERE id=1;\nif bal >= 100: UPDATE accounts SET balance = bal - 100 ...\n```\nFix with a single conditional statement:\n```sql\nUPDATE accounts SET balance = balance - 100\nWHERE id = 1 AND balance >= 100;\n```\nThen verify the affected row count is 1; otherwise reject.\n\n| Technique | Use | Caution |\n|---|---|---|\n| Conditional UPDATE | Numeric limits | Simple, atomic |\n| Unique constraint | One-time codes | Enforces at DB level |\n| Optimistic locking | Version column | Retry on conflict |\n| Distributed lock | Cross-service critical section | Must handle expiry |\n\n### Common mistakes\n- Testing only sequentially, so the bug never appears.\n- Locking in one process while another scales horizontally.\n- Adding sleeps to \"fix\" timing instead of making operations atomic.\n\n### Defense and verification\nMake state changes atomic with database constraints and transactions, and use idempotency keys for retries. Verify by running the parallel lab test repeatedly and confirming the invariant always holds.\n\n### Knowledge check\nQ: Why does a conditional UPDATE fix double-spending? A: The check and the change happen atomically in one statement, so only one request can meet the condition."
+  },
+  {
+    "id": "web-security-44",
+    "topic": "web-security",
+    "number": 44,
+    "title": "Mass Assignment and Auto-Binding",
+    "level": "Advanced",
+    "minutes": 40,
+    "summary": "Learn how binding request fields directly to objects lets attackers set properties they should never control.",
+    "objectives": [
+      "Explain auto-binding behavior",
+      "Identify hidden sensitive fields",
+      "Implement explicit allowlists and DTOs"
+    ],
+    "takeaways": [
+      "Frameworks map request parameters into model fields automatically",
+      "Hidden fields are still attacker-controlled",
+      "Allowlists, not blocklists, define bindable properties"
+    ],
+    "practice": "On a lab registration endpoint at <LAB_HOST>, add a harmless `role` field to a signup request and observe whether it is accepted.",
+    "sources": [],
+    "content": "## Core idea\nMass assignment occurs when a framework binds all incoming parameters to an object's properties. If the object contains fields such as `role`, `isAdmin`, or `balance`, an attacker can set them simply by adding parameters — even if those fields never appear in the UI. The fix is to bind only explicitly allowed fields.\n\n### Mental model\nThink of a form that automatically fills every blank in a database record from a submission. A customer writes \"isAdmin: yes\" in the margin, and the clerk copies it in. Safe forms have a printed list of fields the clerk is permitted to fill, ignoring everything else.\n\n### Method (lab only)\n1. Inspect a lab model at <LAB_HOST> for fields not present in the corresponding form: roles, flags, ownership IDs.\n2. Send a registration or update request with an extra harmless field set to a marker value.\n3. Check whether the stored object reflects the injected value.\n4. Replace direct binding with a DTO or explicit field allowlist.\n5. Replay the request and confirm the extra field is ignored or rejected.\n\n### Concrete example\nVulnerable code at <LAB_HOST>:\n```js\nUser.create(req.body);   // req.body may include {role:'admin'}\n```\nFixed with an allowlist:\n```js\nconst { email, password } = req.body;\nUser.create({ email, password, role: 'user' });\n```\n\n| Defense | Strength | Note |\n|---|---|---|\n| DTO / allowlist | Strong | Define writable fields explicitly |\n| Framework `fillable` | Good | Must be maintained |\n| Blocklist of sensitive fields | Weak | Easy to miss new fields |\n| Schema validation | Strong | Rejects unknown keys |\n\n### Common mistakes\n- Listing forbidden fields instead of permitted ones.\n- Forgetting nested objects and array syntax in binding.\n- Allowing `ownerId` to be set from the request rather than the session.\n\n### Defense and verification\nUse DTOs with strict schemas, derive ownership and roles server-side, and reject unknown keys. Verify by re-sending the lab marker field and confirming it has no effect on the stored record.\n\n### Knowledge check\nQ: Why is an allowlist safer than a blocklist for binding? A: New sensitive fields are excluded by default instead of being accidentally writable."
+  },
+  {
+    "id": "web-security-45",
+    "topic": "web-security",
+    "number": 45,
+    "title": "API Recon and Endpoint Discovery",
+    "level": "Advanced",
+    "minutes": 40,
+    "summary": "Learn systematic, authorized discovery of API surfaces, documentation, and parameter behavior.",
+    "objectives": [
+      "Map an API's hosts and routes",
+      "Discover documentation and schemas",
+      "Fuzz parameters safely in scope"
+    ],
+    "takeaways": [
+      "Recon defines the testable attack surface",
+      "Documentation and client code leak routes",
+      "Every test must stay inside explicit authorization"
+    ],
+    "practice": "Enumerate routes and parameters of a lab API at <LAB_HOST> using passive sources and controlled fuzzing.",
+    "sources": [],
+    "content": "## Core idea\nAPI security testing begins with knowing what exists. Recon combines passive observation — traffic from the lab client, documentation, JavaScript bundles, error messages — with active, in-scope discovery of hosts, paths, methods, and parameters. The output is a map that drives later tests.\n\n### Mental model\nThink of surveying a building before a permitted inspection. You read the floor plan (docs), watch where people enter (client traffic), and check which doors exist (routes). You do not kick in doors that are not part of the authorized survey.\n\n### Method (authorized scope only)\n1. Record all hosts and base paths used by the lab client at <LAB_HOST>.\n2. Collect documentation endpoints such as `/openapi.json`, `/swagger`, `/graphql`.\n3. Inspect client bundles and source maps for route strings and parameter names.\n4. Use a wordlist against discovered base paths with modest concurrency.\n5. Log method, status, content type, and authentication requirement for each finding.\n\n### Concrete example\nA discovered spec at <LAB_HOST> might include:\n```\npaths:\n  /v1/users/{id}: { get: ..., delete: ... }\n  /v1/admin/export: { post: ... }\n```\nThis reveals object IDs, methods, and an admin route to prioritize in later access-control tests.\n\n| Source | What it reveals | Caveat |\n|---|---|---|\n| Client traffic | Real used endpoints | May miss legacy routes |\n| OpenAPI/Swagger | Full schema | Sometimes stale or hidden |\n| JS bundles | Hidden routes/params | Minification complicates |\n| Error responses | Stack traces, framework | Do not rely on leakage |\n\n### Common mistakes\n- Treating a 404 as definitive proof a route is absent.\n- Fuzzing hosts or paths outside written authorization.\n- Ignoring non-production environments discovered in scope.\n\n### Defense and verification\nFrom the defender side, remove exposed docs in production, prune unused routes, and monitor for scanning patterns. Verify your lab map is complete by cross-checking documentation against observed client traffic.\n\n### Knowledge check\nQ: Why start with passive recon before active fuzzing? A: It focuses testing on real, in-scope surfaces and avoids noisy or out-of-scope requests."
+  },
+  {
+    "id": "web-security-46",
+    "topic": "web-security",
+    "number": 46,
+    "title": "BOLA and BFLA: API Access Control",
+    "level": "Advanced",
+    "minutes": 45,
+    "summary": "Learn the API-specific access-control failures — object-level and function-level — and how to test and fix them.",
+    "objectives": [
+      "Distinguish BOLA from BFLA",
+      "Test object and function authorization with multiple lab accounts",
+      "Enforce server-side, per-object checks"
+    ],
+    "takeaways": [
+      "BOLA is accessing another user's object; BFLA is calling a function above your role",
+      "IDs must be authorized, not just parsed",
+      "Centralized policies prevent drift"
+    ],
+    "practice": "Using two lab accounts on <LAB_HOST>, swap object IDs and call an admin API function to confirm both are denied.",
+    "sources": [],
+    "content": "## Core idea\nBroken Object Level Authorization (BOLA) lets a user access or modify another user's resource by changing an identifier. Broken Function Level Authorization (BFLA) lets a user invoke an endpoint reserved for higher privileges. Both are API-top risks because APIs expose object references and functions directly.\n\n### Mental model\nImagine a self-service storage facility. BOLA is locker 42 opening with any key that looks like a locker key; BFLA is the manager's office door that opens for any badge. Valid identity is not enough — each door needs its own check.\n\n### Method (lab only)\n1. Log in as two lab users with different roles on <LAB_HOST>.\n2. Capture a request containing an object ID and replace it with the other account's ID.\n3. Repeat for create, update, and delete methods.\n4. Call an admin-only endpoint with a normal user's token and record the response.\n5. Fix by scoping queries to the authenticated principal and checking role per function; retest.\n\n### Concrete example\nA lab API at <LAB_HOST> runs:\n```\nGET /v1/orders/9142   Authorization: Bearer <user-A-token>\n```\nReturning user B's order means the query filtered only by ID. Correct:\n```sql\nSELECT * FROM orders WHERE id = ? AND owner_id = ?;\n```\nThe owner ID is taken from the verified token, never from the request.\n\n| Failure | Test | Expected after fix |\n|---|---|---|\n| BOLA on GET | Swap object ID | 404 |\n| BOLA on PUT/DELETE | Modify other's object | 403/404 |\n| BFLA | Normal user calls admin route | 403 |\n\n### Common mistakes\n- Using opaque IDs as the only security control.\n- Checking roles only in the API gateway, not in the service.\n- Allowing bulk endpoints to bypass per-object checks.\n\n### Defense and verification\nAuthorize every object and function on the server, default-deny, and test with role/object matrices in CI. Verify by replaying all lab cases and confirming consistent denials plus denial logs.\n\n### Knowledge check\nQ: Why doesn't a random UUID prevent BOLA? A: It only hides the identifier; if it leaks, there is no authorization check to stop access."
+  },
+  {
+    "id": "web-security-47",
+    "topic": "web-security",
+    "number": 47,
+    "title": "GraphQL Security",
+    "level": "Advanced",
+    "minutes": 45,
+    "summary": "Learn GraphQL-specific risks: introspection exposure, deeply nested queries, and authorization at the resolver level.",
+    "objectives": [
+      "Understand GraphQL execution and introspection",
+      "Test query depth and batching in a lab",
+      "Secure resolvers and limit complexity"
+    ],
+    "takeaways": [
+      "GraphQL is an API surface with its own attack patterns",
+      "Authorization belongs in resolvers, not just at the gateway",
+      "Query complexity must be bounded"
+    ],
+    "practice": "Against a lab GraphQL endpoint at <LAB_HOST>, run a harmless introspection query and a deeply nested query to observe costs.",
+    "sources": [],
+    "content": "## Core idea\nGraphQL exposes a single endpoint where clients define the shape of the response. That flexibility creates unique risks: introspection can reveal the entire schema, deeply nested or aliased queries can exhaust resources, and authorization must be applied per field or resolver rather than per URL.\n\n### Mental model\nThink of a restaurant with a menu that lets guests invent dishes. That is powerful, but a guest can order the same expensive ingredient thousands of times in one request. The kitchen needs recipe limits and checks at each station, not just at the door.\n\n### Method (lab only)\n1. Query the lab endpoint at <LAB_HOST> with a standard introspection request and record exposed types and fields.\n2. Build a modestly nested query and measure response time and payload size.\n3. Test aliases and batching that repeat a field many times.\n4. Attempt access to an object belonging to your second lab account through a resolver.\n5. Apply depth limits, complexity scoring, disabled production introspection, and resolver-level auth; retest.\n\n### Concrete example\nA lab introspection query at <LAB_HOST>:\n```graphql\n{ __schema { types { name fields { name } } } }\n```\nIf this succeeds in production, it hands attackers a map. Also consider a query with deeply nested `friends { friends { ... } }` that multiplies database calls exponentially.\n\n| Risk | Mechanism | Control |\n|---|---|---|\n| Schema disclosure | Introspection | Disable in production |\n| DoS | Deep/aliased queries | Depth + complexity limits |\n| BOLA via resolver | Object args | Authorize in each resolver |\n| Batching abuse | Array of queries | Limit batch size |\n\n### Common mistakes\n- Authorizing only the top-level field and trusting nested fields.\n- Assuming a single endpoint means a smaller attack surface.\n- Returning raw validation errors with internal details.\n\n### Defense and verification\nDisable introspection outside development, enforce query cost limits, and centralize resolver authorization. Verify by replaying the lab queries and confirming introspection is blocked and expensive queries are rejected.\n\n### Knowledge check\nQ: Why is per-resolver authorization necessary? A: Different fields and nested objects can expose different data, so a single endpoint-level check is insufficient."
+  },
+  {
+    "id": "web-security-48",
+    "topic": "web-security",
+    "number": 48,
+    "title": "Rate Limiting, Throttling, and Resource Exhaustion",
+    "level": "Advanced",
+    "minutes": 40,
+    "summary": "Learn how to protect APIs from brute force, scraping, and denial of service with layered rate controls.",
+    "objectives": [
+      "Design rate-limit keys and windows",
+      "Distinguish throttling from quota enforcement",
+      "Test limits in a lab without disrupting others"
+    ],
+    "takeaways": [
+      "Choose keys that reflect the threat: IP, account, token, or endpoint",
+      "Return clear 429 responses with Retry-After",
+      "Distributed limiters require shared state"
+    ],
+    "practice": "In a lab API at <LAB_HOST>, send a controlled burst of requests to a test endpoint and verify the configured limit and headers.",
+    "sources": [],
+    "content": "## Core idea\nRate limiting restricts how many requests a client may make in a window. It slows credential attacks, scraping, and abuse of expensive endpoints. Good design picks keys that match the threat model, applies limits consistently across instances, and returns predictable responses.\n\n### Mental model\nThink of a highway with metered on-ramps. The meter can limit each car (IP), each fleet (account), or only the express lane (expensive endpoint). If every on-ramp has its own meter with no shared count, a driver can bypass limits by switching ramps.\n\n### Method (lab only)\n1. Identify sensitive endpoints on <LAB_HOST>: login, OTP, search, export, GraphQL.\n2. Choose a key per endpoint — for login, combine account and IP.\n3. Set windows and burst limits appropriate to legitimate use.\n4. Send a controlled burst from your lab client and record status codes and headers.\n5. Confirm the 429 response includes `Retry-After` and that limits are shared across app instances.\n\n### Concrete example\nA lab gateway rule at <LAB_HOST>:\n```\nlimit: 5 requests / 300s\nkey: ip + route\nresponse: 429 Too Many Requests, Retry-After: 120\n```\nFor login, add an account-based counter so distributed attacks against one account are also stopped.\n\n| Strategy | Key | Best for |\n|---|---|---|\n| Fixed window | IP + route | Simple throttling |\n| Sliding window | IP + route | Smoother bursts |\n| Token bucket | Account/token | Burst tolerance |\n| Cost-based | Query complexity | GraphQL/expensive ops |\n\n### Common mistakes\n- Limiting only by IP, so distributed attacks evade limits.\n- Forgetting long-running or streaming endpoints.\n- Returning 200 with an error body instead of a proper 429.\n\n### Defense and verification\nLayer edge and application limits, use shared state, and monitor limit hits as attack signals. Verify by replaying the lab burst and confirming consistent enforcement across two app instances.\n\n### Knowledge check\nQ: Why include the account in a login rate-limit key? A: To stop distributed attacks that target one account from many IPs."
+  },
+  {
+    "id": "web-security-49",
+    "topic": "web-security",
+    "number": 49,
+    "title": "API Authentication and Key Management",
+    "level": "Advanced",
+    "minutes": 40,
+    "summary": "Learn how API keys, tokens, and service credentials should be issued, stored, rotated, and revoked.",
+    "objectives": [
+      "Compare API key and bearer token models",
+      "Implement secure key storage and rotation",
+      "Prevent key leakage in clients"
+    ],
+    "takeaways": [
+      "API keys identify callers but are weak proof of identity alone",
+      "Never ship long-lived secrets in client code",
+      "Rotation and revocation are mandatory controls"
+    ],
+    "practice": "In a lab service at <LAB_HOST>, issue a scoped key, use it once, then rotate and confirm the old key is revoked.",
+    "sources": [],
+    "content": "## Core idea\nAPI authentication answers who is calling. Common mechanisms include API keys, OAuth bearer tokens, and mutual TLS. Keys are simple but are bearer secrets: anyone holding one can act as the owner. Security depends on scopes, secure storage, short lifetimes where possible, and a reliable rotation and revocation path.\n\n### Mental model\nThink of a building access card. A card with no photo (plain API key) grants access to whoever holds it. Limiting which floors it opens (scopes), setting an expiry, and deactivating lost cards (revocation) reduce the damage.\n\n### Method\n1. Inventory credential types accepted by <LAB_HOST> and where each is stored.\n2. Check that keys are high-entropy and never derived from usernames or emails.\n3. Confirm keys are scoped to the minimum required permissions and environments.\n4. Test rotation: issue a new key, verify it works, and confirm the old one is rejected.\n5. Scan client-side code and repositories for embedded secrets; move any to a secret manager.\n\n### Concrete example\nA lab request at <LAB_HOST>:\n```\nGET /v1/orders HTTP/1.1\nAuthorization: Bearer ak_lab_9f3a...\nX-Request-Id: 7c1e...\n```\nThe server should hash stored keys (like passwords), check scopes, and log only a key fingerprint — never the full secret.\n\n| Control | Purpose |\n|---|---|\n| Scopes | Limit blast radius |\n| Hashing at rest | Limit database-leak impact |\n| Rotation | Limits lifetime of stolen keys |\n| Environment separation | Prevent prod keys in dev |\n\n### Common mistakes\n- Embedding keys in mobile or browser clients and calling them secret.\n- Logging full keys or returning them in API responses after creation.\n- Letting rotated keys remain valid \"for compatibility.\"\n\n### Defense and verification\nUse scoped, short-lived tokens where possible, hash keys at rest, and automate rotation with immediate revocation. Verify by replaying a rotated lab key and confirming rejection, plus a repository secret scan.\n\n### Knowledge check\nQ: Why hash API keys at rest? A: A database leak then yields unusable values instead of directly usable credentials."
+  },
+  {
+    "id": "web-security-50",
+    "topic": "web-security",
+    "number": 50,
+    "title": "Capstone: Full-Scope Authorized Web Assessment",
+    "level": "Advanced",
+    "minutes": 60,
+    "summary": "Integrate the entire curriculum into a disciplined, documented, and safe end-to-end assessment workflow.",
+    "objectives": [
+      "Plan scope and rules of engagement",
+      "Execute a systematic test lifecycle",
+      "Report findings with verification and remediation"
+    ],
+    "takeaways": [
+      "Process and evidence separate professional testing from random probing",
+      "Prioritize by real impact and exploitability",
+      "Every offensive action is authorized and lab-bounded"
+    ],
+    "practice": "Perform a complete assessment of the lab application at <LAB_HOST> and produce a structured report with reproduced findings.",
+    "sources": [],
+    "content": "## Core idea\nA professional web assessment is a structured process: define scope, map the application, identify vulnerabilities, validate them safely, prioritize by risk, and report with clear remediation and verification. Mastery means applying the right technique from the previous 49 modules at the right time — and never straying beyond authorization.\n\n### Mental model\nThink of a medical diagnosis. You take a history (recon), run targeted tests (exploration), confirm with lab results (safe validation), and prescribe treatment (remediation), then follow up (retest). Random tests without a hypothesis waste effort and can harm the patient.\n\n### Method\n1. **Scope and rules**: written authorization for <LAB_HOST>, allowed techniques, test windows, and stop conditions.\n2. **Map**: hosts, routes, parameters, roles, and data flows from recon and documentation.\n3. **Analyze**: apply checklists per layer — client, transport, auth, access control, APIs, config.\n4. **Validate**: reproduce each candidate with the least intrusive proof inside the lab; record evidence.\n5. **Prioritize**: rate by impact and exploitability, not just tool severity.\n6. **Report and retest**: give exact steps, affected URLs with <LAB_HOST> placeholders, remediation, and verification after fixes.\n\n### Concrete example\nA finding entry at <LAB_HOST>:\n```\nTitle: BOLA on GET /v1/orders/{id}\nSeverity: High  (cross-tenant data disclosure)\nEvidence: user A token retrieved user B's order 9142\nRoot cause: query filtered by id only\nFix: add AND owner_id = ? from verified token\nVerification: reissue request -> 404\n```\n\n| Phase | Output | Gate |\n|---|---|---|\n| Scope | Written authorization | No work without it |\n| Recon | Asset/route map | Coverage check |\n| Testing | Candidate findings | Safe reproduction |\n| Reporting | Prioritized report | Actionable fixes |\n| Retest | Closure evidence | Finding resolved |\n\n### Common mistakes\n- Escoping into systems or third parties not explicitly authorized.\n- Reporting tool output without confirming real impact.\n- Omitting verification steps, leaving fixes unconfirmed.\n\n### Defense and verification\nTreat the lab as a system you own, keep an activity log, and constrain all payloads to harmless markers. Verify closure by re-running each lab reproduction after remediation and capturing a clean result.\n\n### Knowledge check\nQ: What single document must exist before any offensive testing begins? A: Written authorization defining scope, rules of engagement, and stop conditions."
+  }
+]
