@@ -32,6 +32,7 @@ export const navGroups: { title: string; items: NavItem[] }[] = [
       { href: '/ctf', label: 'CTF Challenges', icon: 'Trophy' },
       { href: '/vulnerabilities', label: 'Vulnerability Database', icon: 'ShieldAlert' },
       { href: '/case-studies', label: 'Bug Bounty Case Studies', icon: 'FileSearch' },
+      { href: '/real-cases', label: '500 Real Disclosed Cases', icon: 'BookOpenCheck' },
       { href: '/research', label: 'Research Papers', icon: 'BookOpenText' },
       { href: '/projects', label: 'Projects', icon: 'FolderGit2' },
     ],
