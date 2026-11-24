@@ -25,6 +25,9 @@ TOPICS = {
     "reverse-engineering": "Reverse Engineering",
     "ai-security": "AI Security",
     "field-guide": "Practical Bug Bounty Field Guide",
+    "web-security-advanced": "Web Security — Advanced Volume II",
+    "applied-ai-security": "Applied AI Security",
+    "ai-bug-bounty": "AI-Powered Bug Bounty",
 }
 
 

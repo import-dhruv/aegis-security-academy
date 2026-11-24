@@ -22,6 +22,8 @@ export const navGroups: { title: string; items: NavItem[] }[] = [
       { href: '/topics/mobile-security', label: 'Mobile Security', icon: 'Smartphone' },
       { href: '/topics/reverse-engineering', label: 'Reverse Engineering', icon: 'Binary' },
       { href: '/topics/ai-security', label: 'AI Security', icon: 'BrainCircuit' },
+      { href: '/topics/applied-ai-security', label: 'Applied AI Security', icon: 'Bot' },
+      { href: '/topics/ai-bug-bounty', label: 'AI-Powered Bug Bounty', icon: 'WandSparkles' },
     ],
   },
   {
@@ -45,6 +47,7 @@ export const navGroups: { title: string; items: NavItem[] }[] = [
       { href: '/assessments', label: 'Assessments', icon: 'ClipboardCheck' },
       { href: '/tutor', label: 'AI Tutor', icon: 'Sparkles' },
       { href: '/simulator', label: 'BB Workflow Simulator', icon: 'Workflow' },
+      { href: '/practice-sessions', label: 'Guided Practice Sessions', icon: 'Dumbbell' },
     ],
   },
   {
@@ -78,6 +81,8 @@ export type TopicConfig = {
   coreSkills: string[];
   /** Ordered route through the mapped chapters. */
   path: TopicStage[];
+  /** Optional additional module volumes rendered on this topic hub. */
+  moduleSlugs?: string[];
 };
 
 export const topicConfig: Record<string, TopicConfig> = {
@@ -144,6 +149,7 @@ export const topicConfig: Record<string, TopicConfig> = {
       { title: 'Go advanced', detail: 'Smuggling, cache attacks, pollution, SSTI, deserialization and races.', chapterIds: [10] },
       { title: 'Cover APIs', detail: 'Authorization, schema abuse and the OWASP API Security Top 10.', chapterIds: [17] },
     ],
+    moduleSlugs: ['web-security', 'web-security-advanced'],
   },
   networking: {
     title: 'Networking & Internet Architecture',
@@ -319,5 +325,65 @@ export const topicConfig: Record<string, TopicConfig> = {
       { title: 'Model-level threats', detail: 'Extraction, inference, poisoning and the OWASP/MITRE frameworks.', chapterIds: [24] },
       { title: 'Evaluation and defense', detail: 'Threat modeling, evals, guardrails, red teaming and incident response.', chapterIds: [24, 20] },
     ],
+  },
+  'applied-ai-security': {
+    title: 'Applied AI Security',
+    subtitle: 'Hands-on security for real AI systems: prompt-injection evals, RAG and agent labs, guardrails, AI incident response and secure design.',
+    schoolIds: ['ai-future-of-cybersecurity', 'secure-coding-application-defense'],
+    chapterIds: [24, 20],
+    accent: 'cyan',
+    overview: 'This track turns AI security concepts into repeatable lab work. You will threat-model an LLM application, build an evaluation harness for prompt injection, poison your own RAG index to prove isolation failures, sandbox an agent with dangerous tool permissions, measure whether guardrails actually hold, and run an AI incident-response tabletop with rollback and disclosure artefacts. The emphasis is on evidence: every claim is backed by a reproducible evaluation, and every fix is verified by re-running the same test.',
+    objectives: [
+      'Threat-model an LLM application by mapping data flows, trust boundaries and abuse cases.',
+      'Build an evaluation harness that measures prompt-injection success rather than relying on anecdotes.',
+      'Demonstrate RAG poisoning and tenant-isolation failures in a lab, then verify the fixes.',
+      'Design tool-permission matrices and sandboxes for agents and MCP servers.',
+      'Implement layered guardrails and regression tests that survive adversarial input.',
+      'Run an AI incident response: detect, contain, roll back, disclose and document.',
+    ],
+    masterySignals: [
+      'You can reproduce an indirect prompt injection against your own lab app and make it fail after a fix.',
+      'You publish an eval result with a defined success metric and a controlled baseline.',
+      'You can explain why output filtering alone cannot secure an agent with powerful tools.',
+      'You have a tested rollback plan for a compromised prompt, model or retrieval index.',
+    ],
+    coreSkills: ['threat modeling', 'prompt injection', 'eval harness', 'attack success rate', 'RAG poisoning', 'tenant isolation', 'agent sandbox', 'MCP', 'tool permissions', 'guardrails', 'regression tests', 'AI incident response', 'rollback', 'OWASP LLM Top 10', 'MITRE ATLAS'],
+    path: [
+      { title: 'Map the system', detail: 'Inventory, data flows, trust boundaries and abuse cases for an LLM app.', chapterIds: [24] },
+      { title: 'Attack the layers', detail: 'Prompt injection, RAG poisoning, agents, MCP and model-level tests.', chapterIds: [24] },
+      { title: 'Measure and defend', detail: 'Evals, guardrails, regression suites and verified fixes.', chapterIds: [24, 20] },
+      { title: 'Respond and design', detail: 'AI incident response, rollback, disclosure and secure architecture.', chapterIds: [20] },
+    ],
+    moduleSlugs: ['applied-ai-security'],
+  },
+  'ai-bug-bounty': {
+    title: 'AI-Powered Bug Bounty',
+    subtitle: 'How to use AI to become a dramatically better bug bounty researcher — with verification gates, honest limits, and an augmented hunter operating model.',
+    schoolIds: ['advanced-bug-bounty-hunting', 'ai-future-of-cybersecurity'],
+    chapterIds: [11, 14, 15, 25, 24],
+    accent: 'mint',
+    overview: 'AI amplifies skill; it does not replace fundamentals. This track teaches a professional, honest workflow for using models across the entire bug bounty lifecycle: interpreting reconnaissance data, reading unfamiliar code and protocols, generating and checking payload hypotheses only in labs, structuring triage-ready reports, and running agentic pipelines under human review. You will also learn where AI fails — hallucinated impact, duplicate-prone suggestions, privacy leaks from pasted scope, and platform rules on low-quality automated reports — and how to measure whether AI actually made you faster and more accurate.',
+    objectives: [
+      'Set up an AI workspace with clear boundaries around data, privacy and program rules.',
+      'Use models to accelerate reconnaissance analysis while verifying every factual claim.',
+      'Apply AI to code and protocol comprehension, with an evidence log of what was checked.',
+      'Generate and test exploitation hypotheses safely in owned labs, avoiding false positives.',
+      'Use AI to draft and edit reports without inventing impact or losing your own reasoning.',
+      'Build agentic workflows with human verification gates and measure real productivity.',
+    ],
+    masterySignals: [
+      'You can show, for any AI-assisted finding, which claims you independently verified.',
+      'Your reports remain triage-ready and free of hallucinated or exaggerated impact.',
+      'You never paste confidential scope or real user data into a model you do not control.',
+      'You can explain exactly where AI helped and where it misled you in a measured workflow review.',
+    ],
+    coreSkills: ['AI-assisted recon', 'prompt patterns', 'code comprehension', 'hypothesis generation', 'lab verification', 'false-positive control', 'report editing', 'CVSS reasoning', 'agentic workflow', 'human-in-the-loop', 'RAG over notes', 'evals', 'productivity measurement', 'platform policy'],
+    path: [
+      { title: 'Set the boundary', detail: 'Mindset, platform rules, privacy, and choosing the right model for each task.', chapterIds: [11, 13] },
+      { title: 'Accelerate analysis', detail: 'Recon interpretation, code/protocol comprehension and hypothesis generation.', chapterIds: [14, 15] },
+      { title: 'Verify in labs', detail: 'Safe payload reasoning, PoC design and false-positive control.', chapterIds: [15] },
+      { title: 'Report and review', detail: 'AI-assisted reporting, agentic workflows and measured productivity.', chapterIds: [25, 24] },
+    ],
+    moduleSlugs: ['ai-bug-bounty'],
   },
 };

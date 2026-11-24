@@ -61,5 +61,26 @@
     "count": 50,
     "words": 13913,
     "citedModules": 50
+  },
+  {
+    "slug": "web-security-advanced",
+    "title": "Web Security — Advanced Volume II",
+    "count": 50,
+    "words": 22052,
+    "citedModules": 0
+  },
+  {
+    "slug": "applied-ai-security",
+    "title": "Applied AI Security",
+    "count": 50,
+    "words": 21123,
+    "citedModules": 0
+  },
+  {
+    "slug": "ai-bug-bounty",
+    "title": "AI-Powered Bug Bounty",
+    "count": 50,
+    "words": 25881,
+    "citedModules": 0
   }
 ]

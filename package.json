@@ -11,7 +11,8 @@
     "content:build": "python3 scripts/build_content.py",
     "content:modules": "python3 scripts/build_modules.py",
     "content:real-cases": "python3 scripts/build_real_cases.py",
-    "content:ctf": "python3 scripts/build_ctf_challenges.py"
+    "content:ctf": "python3 scripts/build_ctf_challenges.py",
+    "content:practice": "python3 scripts/build_practice_sessions.py"
   },
   "dependencies": {
     "clsx": "^2.1.1",

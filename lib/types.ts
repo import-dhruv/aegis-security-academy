@@ -1,5 +1,20 @@
 export type Section = { id: string; title: string; level: number };
 
+/** A guided, multi-hour hands-on practice session. */
+export type PracticeSession = {
+  id: string;
+  number: number;
+  title: string;
+  track: string;
+  level: string;
+  hours: number;
+  goal: string;
+  objectives: string[];
+  environment: string[];
+  deliverables: string[];
+  content: string;
+};
+
 /** An original Aegis Academy CTF training challenge. */
 export type CTFChallenge = {
   id: string;
