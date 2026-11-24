@@ -163,7 +163,10 @@ function CaseStudiesContent() {
             <strong className="text-amber-200">Synthetic training scenarios — these are authored examples for learning report structure, not real disclosures. For real research read the Research Papers section and the original sources there.</strong>
           </p>
         </div>
-        <Link href="/research" className="link ml-7 mt-2 inline-flex items-center gap-1 text-xs">Browse the research library <ArrowRight className="h-3 w-3" /></Link>
+        <div className="ml-7 mt-2 flex flex-wrap gap-4">
+          <Link href="/real-cases" className="link inline-flex items-center gap-1 text-xs">Explore 500 real disclosed cases <ArrowRight className="h-3 w-3" /></Link>
+          <Link href="/research" className="link inline-flex items-center gap-1 text-xs">Browse the research library <ArrowRight className="h-3 w-3" /></Link>
+        </div>
       </div>
 
       <PageHeader

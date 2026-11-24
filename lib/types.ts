@@ -1,5 +1,42 @@
 export type Section = { id: string; title: string; level: number };
 
+/** An original Aegis Academy CTF training challenge. */
+export type CTFChallenge = {
+  id: string;
+  number: number;
+  title: string;
+  category: string;
+  difficulty: string;
+  points: number;
+  minutes: number;
+  prompt: string;
+  hints: string[];
+  flag: string;
+  solution: string;
+  lesson: string;
+  tags: string[];
+  labOnly: boolean;
+  source: string;
+};
+
+/** A real, publicly disclosed bug bounty report from the HackerOne disclosure dataset. */
+export type RealCase = {
+  id: string;
+  reportId: number;
+  title: string;
+  program: string;
+  programHandle: string;
+  weakness: string;
+  reporter: string;
+  votes: number;
+  disclosedAt: string;
+  createdAt: string;
+  sourceUrl: string;
+  source: string;
+  words: number;
+  detail: string;
+};
+
 /** A single step in a topic's 50-module mastery curriculum. */
 export type Module = {
   id: string;
